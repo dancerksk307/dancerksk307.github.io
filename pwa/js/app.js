@@ -1,8 +1,14 @@
 //service worker 登録
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./js/service_worker.js').then(function() {
-    console.log('Service Worker Registered');
-  });
+    navigator.serviceWorker.register('./js/service_worker.js', {
+        // scope: '/'
+    }).then(function(e) {
+        // success
+      console.log('[Success] Service Worker Registered');
+    }).catch(function(err) {
+        // failed
+      console.log('[Error]',err);
+    });
 }
 
 

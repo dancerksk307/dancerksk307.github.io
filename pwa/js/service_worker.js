@@ -1,6 +1,6 @@
 // configuration
 const
-  version = '1.0.0',
+  version = '1.0.1',
   CACHE = version + '::PWAsite',
   // offlineURL = '/offline/',
   // installFilesEssential = [
@@ -18,6 +18,7 @@ const
     // '/images/hero/power-lo.jpg',
     // '/images/hero/power-hi.jpg'
   ];
+console.log("Ver:",version);
 
 self.addEventListener('install', function(e) {
   console.log('[ServiceWorker] Install');
@@ -31,5 +32,5 @@ self.addEventListener('activate', function(e) {
 
 // 現状、この処理を書かないとService Workerが有効と判定されない
 self.addEventListener('fetch', function(event) {
-  console.log(event);
+  // console.log(event);
 });
