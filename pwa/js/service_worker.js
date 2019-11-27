@@ -19,9 +19,6 @@ const
     // '/images/hero/power-hi.jpg'
   ];
 
-
-
-
 self.addEventListener('install', function(e) {
   console.log('[ServiceWorker] Install');
   console.log(e);
@@ -32,7 +29,7 @@ self.addEventListener('activate', function(e) {
   console.log(e);
 });
 
-// 現状では、この処理を書かないとService Workerが有効と判定されないようです
+// 現状、この処理を書かないとService Workerが有効と判定されない
 self.addEventListener('fetch', function(event) {
   console.log(event);
 });

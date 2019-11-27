@@ -13,24 +13,51 @@
   <title>PWA TEST</title>
 
   <!-- manifest.json -->
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="manifest.json">
 
-  <link rel="stylesheet" type="text/css" href="./app.css">
+  <!-- Vue & Ajax-->
+  <script src="./js/vue.min.js"></script>
+  <script src="./js/axios.min.js"></script>
+
 </head>
 <body>
 
-test
+
+  <div id="app">
+
+    タスク：<input v-model="addName"><button @click="addItem(0)">前に追加</button><button @click="addItem(1)">後ろに追加</button>
+
+    <h1 class="top">リマインダー</h1>
+
+    <ul v-for="(item,index,newList) in todoList" class="todo">
+      <li>
+        <div @click="upList(index)" class="up">▲</div>
+      </li>
+      <li>
+        <div @click="downList(index)" class="down">▼</div>
+      </li>
+      <li>
+        <span
+          @click="changeStatus(index)"
+          class="status"
+          :class="item.complete ? 'finished' : 'working' "
+        >{{ item.complete ? "完了" : "作業中" }}</span>
+      </li>
+      <li>[{{ item.index }}] {{ item.title }}</li>
+      <li @click="deleteItem(index)" class="delete">×</li>
+    </ul>
+
+    <button @click="deleteCompItem()">完了を削除</button>
+    <button @click="saveData()">データ保存</button>
+
+    <div class="data_view">
+      {{todoList}}
+    </div>
+
+  </div><!-- /#app -->
 
 
-<!-- <section class="container">
-  <h1 class="title">10秒で何回タップできるか</h1>
-  <button id="js-tapBtn" class="btn-tap" disabled>
-    <span id="js-count"></span><br>タップ!!
-  </button>
-  <div class="time">残り時間 <span id="js-time"></span> 秒</div>
-  <button id="js-startBtn" class="btn">START</button>
-</section> -->
-
-<script src="app.js"></script>
+  <script src="./js/app.js"></script>
+  <link rel="stylesheet" type="text/css" href="./css/app.css">
 </body>
 </html>
