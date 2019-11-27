@@ -12,3 +12,19 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    ver:"1.0.0",
+    // newTask:"new task",
+    // newLimit:"2019/11/27",
+  },
+
+  methods: {
+  },
+  mounted : function(){
+    // console.log('mounted')
+  }
+});
