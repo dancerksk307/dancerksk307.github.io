@@ -1,6 +1,6 @@
 // configuration
 const
-  version = '1.0.2',
+  version = '1.0.1',
   CACHE = version + '::PWAsite',
   // offlineURL = '/offline/',
   // installFilesEssential = [
@@ -22,16 +22,16 @@ const
 console.log("Ver:",version);
 
 self.addEventListener('install', function(e) {
-  console.log('[ServiceWorker] Install');
-  console.log(e);
+  // console.log('[ServiceWorker] Install');
+  console.log(e.type);
 });
 
 self.addEventListener('activate', function(e) {
-  console.log('[ServiceWorker] Activate');
-  console.log(e);
+  // console.log('[ServiceWorker] Activate');
+  console.log(e.type);
 });
 
 // 現状、この処理を書かないとService Workerが有効と判定されない
 self.addEventListener('fetch', function(event) {
-  console.log(event);
+  console.log("[ Fetch ]\n",event.request.url);
 });
