@@ -17,7 +17,7 @@ if ('serviceWorker' in navigator) {
 var app = new Vue({
   el: '#app',
   data: {
-    ver:"1.0.0",
+    ver:"1.0.1",
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },

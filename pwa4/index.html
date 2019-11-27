@@ -1,9 +1,11 @@
 <html>
 <head>
-  <!-- manifest.jsonを呼び出しています -->
-  <link rel="manifest" href="./manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Hello PWA.</title>
+
+  <!-- manifest.jsonを呼び出しています -->
+  <link rel="manifest" href="./manifest.json">
 
   <!-- Vue & Axios -->
   <script src="./vue.min.js"></script>
@@ -16,7 +18,7 @@
 
     <h1>Hello PWA.</h1>
     <img src="./images/icons/icon-256.png" alt="PWA logo" class="image" />
-    <div>{{ver}}</div>
+    <h1>ver : {{ver}}</h1>
 
   </div><!-- /#app -->
 
