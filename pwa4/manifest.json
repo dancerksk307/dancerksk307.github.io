@@ -1,11 +1,11 @@
 {
-  "name": "bmb_PWA",
-  "short_name": "b_PWA",
-  "theme_color": "#f1c817",
-  "background_color": "#a2bcd0",
-  "display": "standalone",
-  "Scope": "/pwa4/",
-  "start_url": "./?src=pwa",
+  "name"             : "bmb_PWA",
+  "short_name"       : "b_PWA",
+  "theme_color"      : "#f1c817",
+  "background_color" : "#a2bcd0",
+  "display"          : "standalone",
+  "Scope"            : "/pwa4/",
+  "start_url"        : "./?src=pwa",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",
