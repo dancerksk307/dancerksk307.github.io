@@ -3,7 +3,7 @@
   "short_name": "PWA4",
   "background_color": "#fc980c",
   "start_url": "./?utm_source=homescreen",
-  "orientation"      : "any", //優先する表示方向
+  // "orientation"      : "any", //優先する表示方向
   "theme_color"      : "#fc980c",
   "display": "standalone",
   "icons": [{
