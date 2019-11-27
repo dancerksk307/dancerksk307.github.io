@@ -2,12 +2,7 @@
 <head>
   <!-- manifest.jsonを呼び出しています -->
   <link rel="manifest" href="./manifest.json">
-  <script>
-    // service workerが有効なら、service-worker.js を登録します
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service_worker.js').then(function() { console.log('Service Worker Registered'); });
-   }
-  </script>
+
   <title>Hello PWA.</title>
   <style>
     body {
@@ -25,6 +20,7 @@
 <body>
   <h1>Hello PWA.</h1>
   <img src="./images/icons/icon-256.png" alt="PWA logo" class="image" />
-  <a href="p.html">p.html</a>
+  <div>1.0</div>
+  <script src="./app.js"></script>
 </body>
 </html>
