@@ -1,12 +1,9 @@
 {
-  "name"             : "PWA! Test",
-  "short_name"       : "PWA!",
-  "description"      : "PWA! Test",
-  "start_url"        : "./?utm_source=homescreen",
-  "orientation"      : "any", //優先する表示方向
-  "display"          : "standalone",
-  "background_color" : "#fc980c",
-  "theme_color"      : "#fc980c",
+  "name": "PWA Sample",
+  "short_name": "PWA",
+  "background_color": "#fc980c",
+  "start_url": "./?utm_source=homescreen",
+  "display": "standalone",
   "icons": [{
       "src": "./images/icons/icon-256.png",
       "sizes": "256x256",
