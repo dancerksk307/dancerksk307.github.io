@@ -24,40 +24,11 @@
 
 
   <div id="app">
-
-    タスク：<input v-model="addName"><button @click="addItem(0)">前に追加</button><button @click="addItem(1)">後ろに追加</button>
-
-    <h1 class="top">リマインダー</h1>
-
-    <ul v-for="(item,index,newList) in todoList" class="todo">
-      <li>
-        <div @click="upList(index)" class="up">▲</div>
-      </li>
-      <li>
-        <div @click="downList(index)" class="down">▼</div>
-      </li>
-      <li>
-        <span
-          @click="changeStatus(index)"
-          class="status"
-          :class="item.complete ? 'finished' : 'working' "
-        >{{ item.complete ? "完了" : "作業中" }}</span>
-      </li>
-      <li>[{{ item.index }}] {{ item.title }}</li>
-      <li @click="deleteItem(index)" class="delete">×</li>
-    </ul>
-
-    <button @click="deleteCompItem()">完了を削除</button>
-    <button @click="saveData()">データ保存</button>
-
-    <div class="data_view">
-      {{todoList}}
-    </div>
-
+test
   </div><!-- /#app -->
 
 
-  <script src="./app.js?8"></script>
+  <script src="./app.js"></script>
   <link rel="stylesheet" type="text/css" href="./css/app.css">
 </body>
 </html>
