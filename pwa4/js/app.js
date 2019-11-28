@@ -19,21 +19,24 @@ var app = new Vue({
   data: {
     ver:"1.1.0",
     testText:"",
+    selected:"0",
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },
 
   methods: {
     saveJson:function(){
-      localStorage.setItem('save_text', this.testText);
+      localStorage.setItem('testText', this.testText);
+      localStorage.setItem('selected', this.selected);
     },
     deleteJson:function(){
-      // localStorage.removeItem('save_text');
+      // localStorage.removeItem('testText');
       localStorage.clear();
     },
   },
   mounted : function(){
     console.log('mounted')
-    this.testText = localStorage.getItem('save_text');
+    this.testText = localStorage.getItem('testText');
+    this.selected = localStorage.getItem('selected');
   }
 });

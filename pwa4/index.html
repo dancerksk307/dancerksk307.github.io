@@ -24,6 +24,12 @@
     <h1>Hello PWA.</h1>
     <img src="./images/icons/icon-192x192.png" alt="PWA logo" class="image" />
     <h1>ver : {{ver}}</h1>
+    <h1>ver : {{selected}}</h1>
+    <select v-model="selected">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+    </select>
     <input type="text" v-model="testText" />
     <button @click="saveJson">SAVE</button>
     <button @click="deleteJson">Delete</button>
