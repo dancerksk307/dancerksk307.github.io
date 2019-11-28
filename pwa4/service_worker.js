@@ -6,7 +6,7 @@ var urlsToCache = [
     "app.css",
     "axios.min.js",
     "vue.min.js",
-    "images/icons/logo192.png",
+    "images/icons/icon-72x72.png",
     "offline.html",
 ];
 
@@ -17,12 +17,12 @@ const CACHE_KEYS = [
 ];
 
 self.addEventListener('install', function(event) {
-  console.log('[ServiceWorker] Install');
   event.waitUntil(
     caches.open(CACHE_NAME) // 上記で指定しているキャッシュ名
-      .then(
-      function(cache){
-        return cache.addAll(urlsToCache); // 指定したリソースをキャッシュへ追加
+      .then(function(cache){
+        // 指定したリソースをキャッシュへ追加
+        return cache.addAll(urlsToCache);
+        // return cache.addAll(urlsToCache.map(url => new Request(url, {credentials: 'same-origin'})));
         // 1つでも失敗したらService Workerのインストールはスキップされる
       })
   );
@@ -30,7 +30,6 @@ self.addEventListener('install', function(event) {
 
 //新しいバージョンのServiceWorkerが有効化されたとき
 self.addEventListener('activate', event => {
-  console.log('[ServiceWorker] Activate');
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
@@ -48,10 +47,10 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', function(event) {
   var online = navigator.onLine;
 
-  // // ファイルパス ~/test.htmlにアクセスすると、このファイル自体は無いがServiceWorkerがResponseを作成して表示してくれる
-  // if (event.request.url.indexOf('test.html') != -1) {
-  //   return event.respondWith(new Response('任意のURLの内容をここで自由に返却できる'));
-  // }
+  // ファイルパス ~/test.htmlにアクセスすると、このファイル自体は無いがServiceWorkerがResponseを作成して表示してくれる
+  if (event.request.url.indexOf('test.html') != -1) {
+    return event.respondWith(new Response('任意のURLの内容をここで自由に返却できる'));
+  }
 
   if(online){
     console.log("ONLINE");
