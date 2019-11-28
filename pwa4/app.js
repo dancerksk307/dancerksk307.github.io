@@ -1,8 +1,9 @@
 //service worker 登録
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service_worker.js?111', {
-        // scope: '/'
-    }).then(function(e) {
+    navigator.serviceWorker.register(
+      './service_worker.js',
+      {scope: './pwa4'}
+    ).then(function(e) {
         // success
       console.log('[Success]\n Service Worker Registered!!!');
       console.log(e);
