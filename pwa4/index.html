@@ -21,10 +21,10 @@
 
   <div id="app">
 
-    <h1>Hello PWA.</h1>
-    <img src="./images/icons/icon-192x192.png" alt="PWA logo" class="image" />
     <h1>ver : {{ver}}</h1>
-    <h1>ver : {{selected}}</h1>
+    <ul v-for="(items,key) in testJson">
+      <li style="font-size: 10px;"><a :href="items.url" target="_blank">{{items.title}}</a></li>
+    </ul>
     <select v-model="selected">
       <option value="0">0</option>
       <option value="1">1</option>

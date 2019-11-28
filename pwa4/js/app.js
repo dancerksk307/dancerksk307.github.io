@@ -22,6 +22,7 @@ var app = new Vue({
     ver:"1.1.0",
     testText:"",
     selected:"0",
+    testJson:null,
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },
@@ -52,7 +53,6 @@ var app = new Vue({
 
       // var params = new URLSearchParams();
       // params.append('data', JSON.stringify(sendData));
-
       axios.get(
         'https://qiita.com/api/v2/items',
         // params,
@@ -60,6 +60,7 @@ var app = new Vue({
       )
       .then(function (response) {
         console.log("Success",response.data);
+        app.testJson = response.data;
       })
       .catch(function (error) {
         console.log("Error",error);
