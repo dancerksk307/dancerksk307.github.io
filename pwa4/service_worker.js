@@ -1,43 +1,43 @@
-var CACHE_NAME  = "fb-cache-v8-10";
+var CACHE_NAME  = "cache_1.0.0";
 
 var urlsToCache = [
     "index.html",
-    "app.js",
-    "app.css",
-    "axios.min.js",
-    "vue.min.js",
+    "js/app.js",
+    "css/app.css",
+    "js/axios.min.js",
+    "js/vue.min.js",
     "images/icons/icon-72x72.png",
     "offline.html",
 ];
 
-// 残したいキャッシュのバージョンをこの配列に入れる
-// 基本的に現行の1つだけでよい。他は削除される。
-const CACHE_KEYS = [
-  CACHE_NAME
-];
 
 self.addEventListener('install', function(event) {
+  console.log('[Service Worker]',event.type);
   event.waitUntil(
-    caches.open(CACHE_NAME) // 上記で指定しているキャッシュ名
-      .then(function(cache){
-        // 指定したリソースをキャッシュへ追加
-        return cache.addAll(urlsToCache);
-        // return cache.addAll(urlsToCache.map(url => new Request(url, {credentials: 'same-origin'})));
-        // 1つでも失敗したらService Workerのインストールはスキップされる
-      })
+    caches.open(CACHE_NAME).then(function(cache){
+      // 指定したリソースをキャッシュへ追加
+      return cache.addAll(urlsToCache);
+      // return cache.addAll(urlsToCache.map(url => new Request(url, {credentials: 'same-origin'})));
+      // 1つでも失敗したらService Workerのインストールはスキップされる
+    })
   );
 });
 
 //新しいバージョンのServiceWorkerが有効化されたとき
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker]',event.type);
+  var cacheWhitelist = [CACHE_NAME];
+
   event.waitUntil(
-    caches.keys().then(keys => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.filter(key => {
-          return !CACHE_KEYS.includes(key);
-        }).map(key => {
-          // 不要なキャッシュを削除
-          return caches.delete(key);
+        cacheNames.map((cacheName) => {
+          console.log(cacheName,cacheNames);
+          // ホワイトリストにないキャッシュ(古いキャッシュ)は削除する
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log("[Cache Delete]",cacheName);
+            return caches.delete(cacheName);
+          }
         })
       );
     })
@@ -45,6 +45,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', function(event) {
+  console.log('[Service Worker]',event.request.url);
   var online = navigator.onLine;
 
   // ファイルパス ~/test.htmlにアクセスすると、このファイル自体は無いがServiceWorkerがResponseを作成して表示してくれる

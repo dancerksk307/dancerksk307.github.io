@@ -5,11 +5,10 @@ if ('serviceWorker' in navigator) {
       {scope: './pwa4'}
     ).then(function(e) {
         // success
-      console.log('[Success]\n Service Worker Registered!!!');
-      console.log(e);
+      console.log('[Service Worker:Regist]',e);
     }).catch(function(err) {
         // failed
-      console.log('[Error]',err);
+      console.log('[Service Worker:Error]',err);
     });
 }
 
@@ -18,7 +17,7 @@ if ('serviceWorker' in navigator) {
 var app = new Vue({
   el: '#app',
   data: {
-    ver:"1.0.8",
+    ver:"1.0.9",
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },
