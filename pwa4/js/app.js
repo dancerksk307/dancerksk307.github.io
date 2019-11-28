@@ -1,3 +1,5 @@
+"use strict";
+
 //service worker 登録
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register(
@@ -33,10 +35,45 @@ var app = new Vue({
       // localStorage.removeItem('testText');
       localStorage.clear();
     },
+    getPost:function(){
+      // fetch('https://qiita.com/api/v2/items').then(response => {
+      //   return response.json();
+      // }).then(res => {
+
+      //   console.log(res);
+      //   // const title = res[0].title;
+      //   // const url = res[0].url;
+      //   // const data = `<a href="${url}">${title}</a>`;
+      //   // document.getElementById("newitem").innerHTML = data;
+
+      // }).catch(function (error) {
+      //   console.log(error);
+      // });
+
+      // var params = new URLSearchParams();
+      // params.append('data', JSON.stringify(sendData));
+
+      axios.get(
+        'https://qiita.com/api/v2/items',
+        // params,
+        {timeout  : 15000,}
+      )
+      .then(function (response) {
+        console.log("Success",response.data);
+      })
+      .catch(function (error) {
+        console.log("Error",error);
+      });
+
+
+
+    }//getPost
   },
   mounted : function(){
     console.log('mounted')
     this.testText = localStorage.getItem('testText');
     this.selected = localStorage.getItem('selected');
+
+    this.getPost();
   }
 });
