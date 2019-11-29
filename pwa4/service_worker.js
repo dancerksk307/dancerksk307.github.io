@@ -2,12 +2,13 @@ var CACHE_NAME  = "cache_1.0.0";
 
 var urlsToCache = [
     "index.html",
-    "js/app.js",
-    "css/app.css",
-    "js/axios.min.js",
-    "js/vue.min.js",
-    "images/icons/icon-72x72.png",
     "offline.html",
+    "css/app.css",
+    "js/app.js",
+    "js/vue.min.js",
+    "js/axios.min.js",
+    "js/localforage.min.js",
+    "images/icons/icon-72x72.png",
 ];
 
 

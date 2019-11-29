@@ -14,12 +14,16 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+localforage.config({
+  name: 'qiitadb',
+  storeName: 'postJson',
+});
 
 
 var app = new Vue({
   el: '#app',
   data: {
-    ver:"1.1.0",
+    ver:"1.1.2",
     testText:"",
     selected:"0",
     testJson:null,
@@ -61,12 +65,11 @@ var app = new Vue({
       .then(function (response) {
         console.log("Success",response.data);
         app.testJson = response.data;
+        localforage.setItem('qiita', response.data);
       })
       .catch(function (error) {
         console.log("Error",error);
       });
-
-
 
     }//getPost
   },
@@ -76,5 +79,14 @@ var app = new Vue({
     this.selected = localStorage.getItem('selected');
 
     this.getPost();
+
+    //カメラアクセス
+    var player = document.getElementById('player');
+    var handleSuccess = function(stream) {
+      player.srcObject = stream;
+    };
+    navigator.mediaDevices.getUserMedia({video: true}).then(handleSuccess);
+
+
   }
 });
