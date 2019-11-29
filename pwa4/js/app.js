@@ -58,7 +58,8 @@ var app = new Vue({
       // var params = new URLSearchParams();
       // params.append('data', JSON.stringify(sendData));
       axios.get(
-        'https://qiita.com/api/v2/items',
+        // 'https://qiita.com/api/v2/items',
+        'https://map.yahooapis.jp/weather/V1/place?coordinates=139.732293,35.663613&appid=dj00aiZpPW1MMVExQklNTTEzSSZzPWNvbnN1bWVyc2VjcmV0Jng9ZDk-&output=json',
         // params,
         {timeout  : 15000,}
       )
