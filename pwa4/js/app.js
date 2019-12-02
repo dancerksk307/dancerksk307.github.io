@@ -113,6 +113,9 @@ var app = new Vue({
       this.deviceOrientation.beta     = orientation.beta;
       this.deviceOrientation.gamma    = orientation.gamma;
     },//deviceOrientationHandler
+    deviceMotionHandler:function(orientation){
+      aleart("もーしょん")
+    },//deviceMotionHandler
   },
   mounted : function(){
     console.log('mounted')
@@ -135,5 +138,10 @@ var app = new Vue({
     }
 
     //端末画面のモーションイベント
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', this.deviceMotionHandler);
+      // setTimeout(stopJump, 3*1000);
+      alert("deviceMotionHandler Supported");
+    }
   }
 });
