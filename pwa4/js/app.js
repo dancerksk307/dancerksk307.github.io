@@ -27,6 +27,8 @@ var app = new Vue({
     testText:"",
     selected:"0",
     testJson:null,
+    latitude:0,
+    longitude:0,
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },
@@ -79,7 +81,7 @@ var app = new Vue({
     this.testText = localStorage.getItem('testText');
     this.selected = localStorage.getItem('selected');
 
-    this.getPost();
+    // this.getPost();
 
     //カメラアクセス
     var player = document.getElementById('player');
@@ -87,6 +89,32 @@ var app = new Vue({
       player.srcObject = stream;
     };
     navigator.mediaDevices.getUserMedia({video: true}).then(handleSuccess);
+
+    //GPS位置情報
+    navigator.geolocation.getCurrentPosition(
+      function(position) {//success
+        console.log(
+          position.coords.latitude,
+          position.coords.longitude
+        );
+        app.latitude  = position.coords.latitude;
+        app.longitude = position.coords.longitude;
+      },
+      function(error) {//error
+        console.log(error);
+        // error.code can be:
+        //   0: unknown error
+        //   1: permission denied
+        //   2: position unavailable (error response from location provider)
+        //   3: timed out
+      },
+      {//options
+        timeout: 10 * 1000,
+        enableHighAccuracy: true //高精度GPS
+      }
+    );
+
+
 
 
   }
