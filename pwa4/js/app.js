@@ -133,10 +133,25 @@ var app = new Vue({
     // navigator.mediaDevices.getUserMedia({video: true}).then(handleSuccess);
 
     //端末画面の向き
-    if (window.DeviceOrientationEvent) {
+    // if (window.DeviceOrientationEvent) {
+    //   window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
+    //   this.log += "DeviceOrientationEvent Supported\n";
+    // }
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // iOS 13+
+      popupOpen("requestPermissionPopup");
+    } else {
+      // non iOS 13+
       window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
-      this.log += "DeviceOrientationEvent Supported\n";
     }
+
+    var requestPermission = ()=> {
+      DeviceOrientationEvent.requestPermission().then(response => {
+        if (response === 'granted') {
+          window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
+        }
+      }).catch(console.error);
+    };
 
     //端末画面のモーションイベント
     if (window.DeviceMotionEvent) {
