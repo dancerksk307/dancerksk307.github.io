@@ -27,8 +27,8 @@ var app = new Vue({
     testText:"",
     selected:"0",
     testJson:null,
-    latitude:0,
-    longitude:0,
+    latitude :20.00000,
+    longitude:50.00000,
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },
@@ -41,6 +41,31 @@ var app = new Vue({
     deleteJson:function(){
       // localStorage.removeItem('testText');
       localStorage.clear();
+    },
+    getGps:function(){
+      //GPS位置情報
+      navigator.geolocation.getCurrentPosition(
+        function(position) {//success
+          console.log(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+          app.latitude  = position.coords.latitude;
+          app.longitude = position.coords.longitude;
+        },
+        function(error) {//error
+          console.log(error);
+          // error.code can be:
+          //   0: unknown error
+          //   1: permission denied
+          //   2: position unavailable (error response from location provider)
+          //   3: timed out
+        },
+        {//options
+          timeout: 10 * 1000,
+          enableHighAccuracy: true //高精度GPS
+        }
+      );
     },
     getPost:function(){
       // fetch('https://qiita.com/api/v2/items').then(response => {
@@ -84,37 +109,11 @@ var app = new Vue({
     // this.getPost();
 
     //カメラアクセス
-    var player = document.getElementById('player');
-    var handleSuccess = function(stream) {
-      player.srcObject = stream;
-    };
-    navigator.mediaDevices.getUserMedia({video: true}).then(handleSuccess);
-
-    //GPS位置情報
-    navigator.geolocation.getCurrentPosition(
-      function(position) {//success
-        console.log(
-          position.coords.latitude,
-          position.coords.longitude
-        );
-        app.latitude  = position.coords.latitude;
-        app.longitude = position.coords.longitude;
-      },
-      function(error) {//error
-        console.log(error);
-        // error.code can be:
-        //   0: unknown error
-        //   1: permission denied
-        //   2: position unavailable (error response from location provider)
-        //   3: timed out
-      },
-      {//options
-        timeout: 10 * 1000,
-        enableHighAccuracy: true //高精度GPS
-      }
-    );
-
-
+    // var player = document.getElementById('player');
+    // var handleSuccess = function(stream) {
+    //   player.srcObject = stream;
+    // };
+    // navigator.mediaDevices.getUserMedia({video: true}).then(handleSuccess);
 
 
   }
