@@ -30,10 +30,10 @@ var app = new Vue({
     latitude :20.00000,
     longitude:50.00000,
     deviceOrientation:{
-      absolute : false,
-      alpha    : false,
-      beta     : false,
-      gamma    : false,
+      absolute : true,
+      alpha    : 10,
+      beta     : 10,
+      gamma    : 10,
     }
     // newTask:"new task",
     // newLimit:"2019/11/27",
