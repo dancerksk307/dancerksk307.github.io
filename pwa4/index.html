@@ -28,6 +28,8 @@
     <span>alpha:{{deviceOrientation.alpha}}</span>
     <span>beta:{{deviceOrientation.beta}}</span>
     <span>gamma:{{deviceOrientation.gamma}}</span>
+    <br />
+    <button @click="deviceOrientationHandler">deviceOrientationHandler</button>
 
     <ul v-for="(items,key) in testJson">
       <li style="font-size: 10px;"><a :href="items.url" target="_blank">{{items.title}}</a></li>
