@@ -114,7 +114,7 @@ var app = new Vue({
       this.deviceOrientation.gamma    = orientation.gamma;
     },//deviceOrientationHandler
     deviceMotionHandler:function(orientation){
-      aleart("もーしょん")
+      alert("もーしょん")
     },//deviceMotionHandler
   },
   mounted : function(){
