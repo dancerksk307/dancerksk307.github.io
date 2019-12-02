@@ -23,6 +23,12 @@
   <div id="app">
 
     <h1>ver : {{ver}}</h1>
+
+    <span>absolute:{{deviceOrientation.absolute}}</span>
+    <span>alpha:{{deviceOrientation.alpha}}</span>
+    <span>beta:{{deviceOrientation.beta}}</span>
+    <span>gamma:{{deviceOrientation.gamma}}</span>
+
     <ul v-for="(items,key) in testJson">
       <li style="font-size: 10px;"><a :href="items.url" target="_blank">{{items.title}}</a></li>
     </ul>
@@ -38,8 +44,8 @@
     <!-- <video id="player" controls autoplay></video> -->
 
     <input type="text" v-model="latitude" />
-    <span>{{latitude}}</span>/
-    <span>{{longitude}}</span>
+    <input type="text" v-model="longitude" />
+    <span>{{latitude}}</span> / <span>{{longitude}}</span>
     <iframe :src="'https://maps.google.co.jp/maps?q=' + latitude + ',' + longitude + '&output=embed&t=m&z=16&hl=ja'"
       frameborder  = "0"
       scrolling    = "no"

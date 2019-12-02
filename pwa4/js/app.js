@@ -29,6 +29,12 @@ var app = new Vue({
     testJson:null,
     latitude :20.00000,
     longitude:50.00000,
+    deviceOrientation:{
+      absolute : false,
+      alpha    : false,
+      beta     : false,
+      gamma    : false,
+    }
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },
@@ -99,7 +105,14 @@ var app = new Vue({
         console.log("Error",error);
       });
 
-    }//getPost
+    },//getPost
+    deviceOrientationHandler:function(orientation){
+      console.log(orientation);
+      this.deviceOrientation.absolute = orientation.absolute;
+      this.deviceOrientation.alpha    = orientation.alpha;
+      this.deviceOrientation.beta     = orientation.beta;
+      this.deviceOrientation.gamma    = orientation.gamma;
+    },//deviceOrientationHandler
   },
   mounted : function(){
     console.log('mounted')
@@ -115,6 +128,12 @@ var app = new Vue({
     // };
     // navigator.mediaDevices.getUserMedia({video: true}).then(handleSuccess);
 
+    //端末画面の向き
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
+      console.log("DeviceOrientationEvent Supported");
+    }
 
+    //端末画面のモーションイベント
   }
 });
