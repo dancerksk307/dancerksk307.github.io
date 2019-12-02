@@ -131,7 +131,7 @@ var app = new Vue({
     //端末画面の向き
     if (window.DeviceOrientationEvent) {
       window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
-      console.log("DeviceOrientationEvent Supported");
+      alert("DeviceOrientationEvent Supported");
     }
 
     //端末画面のモーションイベント
