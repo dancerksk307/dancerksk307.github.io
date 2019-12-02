@@ -24,6 +24,7 @@ var app = new Vue({
   el: '#app',
   data: {
     ver:"1.1.2",
+    log:"",
     testText:"",
     selected:"0",
     testJson:null,
@@ -134,14 +135,14 @@ var app = new Vue({
     //端末画面の向き
     if (window.DeviceOrientationEvent) {
       window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
-      alert("DeviceOrientationEvent Supported");
+      this.log += "DeviceOrientationEvent Supported\n";
     }
 
     //端末画面のモーションイベント
     if (window.DeviceMotionEvent) {
       window.addEventListener('devicemotion', this.deviceMotionHandler);
       // setTimeout(stopJump, 3*1000);
-      alert("deviceMotionHandler Supported");
+      this.log += "deviceMotionHandler Supported\n";
     }
   }
 });
