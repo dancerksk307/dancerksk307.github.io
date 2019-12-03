@@ -92,8 +92,8 @@ var app = new Vue({
       // var params = new URLSearchParams();
       // params.append('data', JSON.stringify(sendData));
       axios.get(
-        // 'https://qiita.com/api/v2/items',
-        'https://map.yahooapis.jp/weather/V1/place?coordinates=139.732293,35.663613&appid=dj00aiZpPW1MMVExQklNTTEzSSZzPWNvbnN1bWVyc2VjcmV0Jng9ZDk-&output=json',
+        'https://qiita.com/api/v2/items',
+        // 'https://map.yahooapis.jp/weather/V1/place?coordinates=139.732293,35.663613&appid=dj00aiZpPW1MMVExQklNTTEzSSZzPWNvbnN1bWVyc2VjcmV0Jng9ZDk-&output=json',
         // params,
         {timeout  : 15000,}
       )
@@ -115,7 +115,7 @@ var app = new Vue({
       this.deviceOrientation.gamma    = orientation.gamma;
     },//deviceOrientationHandler
     deviceMotionHandler:function(orientation){
-      alert("もーしょん")
+      // alert("もーしょん")
     },//deviceMotionHandler
   },
   mounted : function(){
@@ -123,7 +123,7 @@ var app = new Vue({
     this.testText = localStorage.getItem('testText');
     this.selected = localStorage.getItem('selected');
 
-    // this.getPost();
+    this.getPost();
 
     //カメラアクセス
     // var player = document.getElementById('player');
@@ -144,14 +144,6 @@ var app = new Vue({
       // non iOS 13+
       window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
     }
-
-    var requestPermission = ()=> {
-      DeviceOrientationEvent.requestPermission().then(response => {
-        if (response === 'granted') {
-          window.addEventListener('deviceorientation', this.deviceOrientationHandler, false);
-        }
-      }).catch(console.error);
-    };
 
     //端末画面のモーションイベント
     if (window.DeviceMotionEvent) {
