@@ -17,3 +17,21 @@ body,html,* {
   margin: auto;
   display: block;
 }
+
+#anime_obj{
+  width: 100px;
+  height: 100px;
+  background-color: #d33;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .3s;
+  transform-origin: 0 0;
+  transform: scale(1);
+  user-select: none;
+}
+
+#anime_obj.small{
+  transform: scale(.5);
+}

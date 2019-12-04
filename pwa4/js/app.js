@@ -28,14 +28,15 @@ var app = new Vue({
     testText:"",
     selected:"0",
     testJson:null,
-    latitude :20.00000,
-    longitude:50.00000,
+    latitude :34.701092,
+    longitude:135.4980214,
     deviceOrientation:{
       absolute : true,
       alpha    : 10,
       beta     : 10,
       gamma    : 10,
-    }
+    },
+    animeClass:false,
     // newTask:"new task",
     // newLimit:"2019/11/27",
   },
@@ -70,7 +71,7 @@ var app = new Vue({
         },
         {//options
           timeout: 10 * 1000,
-          enableHighAccuracy: true //高精度GPS
+          // enableHighAccuracy: true //高精度GPS
         }
       );
     },
@@ -124,6 +125,7 @@ var app = new Vue({
     this.selected = localStorage.getItem('selected');
 
     this.getPost();
+    this.getGps();
 
     //カメラアクセス
     // var player = document.getElementById('player');
