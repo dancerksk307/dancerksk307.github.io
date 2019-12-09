@@ -1,0 +1,71 @@
+doctype html
+html(lang="ja")
+  head
+    meta(charset="utf-8")
+    //- link(
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="favicon.ico"
+      )
+
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
+    // manifest.json
+    link(rel="manifest" href="./manifest.json")
+    // ホーム画面に表示されるアプリアイコン（iOS）
+    link(rel="apple-touch-icon" href="images/icons/icon-192x192.png" sizes="192x192")
+
+    // library
+    script(src="./js/vue.min.js")
+    script(src="./js/localforage.min.js")
+    script(src="./js/axios.min.js")
+
+    //- //vuetify
+    //- script(src="./js/vuetify.min.js")
+    //- link(rel="stylesheet" href="./css/vuetify.min.css")
+    //- link(rel="stylesheet" href="./css/materialdesignicons.min.css")
+
+    //- //Vee Validate
+    //- script(src="./js/lib/vee-validate.js")
+    //- script(src="./js/lib/vee-validate-ja.js")
+
+
+    title 俺のToDo
+
+  body(ontouchstart="")
+
+    v-app#app(v-cloak)
+
+      div ver : {{ver}}
+
+      div {{todo.selectedTab}}
+
+      ul.tabs(v-for="(tab,key) in todo.tabs")
+        li(@click="todo.selectedTab = tab.id")
+          span(v-if="todo.selectedTab === tab.id") ●
+          span {{key}}
+
+      ul.todo
+        li.item(
+          v-for="(item,key) in todo.items"
+          v-if="todo.selectedTab === item.tab_id"
+          )
+          button(@click="todo.items.splice(key,1)") ×
+          input(type="checkbox" v-model="item.complate")
+          span.label
+            input(type="text" v-model.lazy="item.label")
+
+        li.item.new
+          input(type="checkbox" disabled)
+          span.label
+            input(type="text" v-model="newItem.label" @blur="addNewItem")
+
+      div
+        hr
+        button(@click="saveJson") SAVE
+        button(@click="deleteJson") Delete
+
+
+    //css,js
+    script(src="./js/app.js")
+    link(rel="stylesheet" href="./css/app.css")

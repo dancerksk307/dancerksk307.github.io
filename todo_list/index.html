@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- manifest.json-->
+    <link rel="manifest" href="./manifest.json">
+    <!-- ホーム画面に表示されるアプリアイコン（iOS）-->
+    <link rel="apple-touch-icon" href="images/icons/icon-192x192.png" sizes="192x192">
+    <!-- library-->
+    <script src="./js/vue.min.js"></script>
+    <script src="./js/localforage.min.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <title>俺のToDo</title>
+  </head>
+  <body ontouchstart="">
+    <v-app id="app" v-cloak>
+      <div>ver : {{ver}}</div>
+      <div>{{todo.selectedTab}}</div>
+      <ul class="tabs" v-for="(tab,key) in todo.tabs">
+        <li @click="todo.selectedTab = tab.id"><span v-if="todo.selectedTab === tab.id">●</span><span>{{key}}</span></li>
+      </ul>
+      <ul class="todo">
+        <li class="item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id">
+          <button @click="todo.items.splice(key,1)">×</button>
+          <input type="checkbox" v-model="item.complate"><span class="label">
+            <input type="text" v-model.lazy="item.label"></span>
+        </li>
+        <li class="item new">
+          <input type="checkbox" disabled><span class="label">
+            <input type="text" v-model="newItem.label" @blur="addNewItem"></span>
+        </li>
+      </ul>
+      <div>
+        <hr>
+        <button @click="saveJson">SAVE</button>
+        <button @click="deleteJson">Delete</button>
+      </div>
+    </v-app>
+    <!--css,js-->
+    <script src="./js/app.js"></script>
+    <link rel="stylesheet" href="./css/app.css">
+  </body>
+</html>

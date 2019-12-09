@@ -1,0 +1,49 @@
+﻿//_setting.scss をimport
+@import "./setting";
+
+
+/* reset css ***********************************************/
+@import "compass/reset/";
+
+
+/* base html ***********************************************/
+*,
+*:before,
+*:after{
+  box-sizing: border-box;
+  // user-select:none;
+}
+
+html,body{
+  font-family:$baseFontFamily;
+  font-size:14px;
+  line-height:1;
+  color: $cl_black;
+  position:relative;
+  word-wrap: break-word;
+  -webkit-overflow-scrolling: touch;
+}
+
+img{vertical-align: bottom;}
+
+p{
+  margin: 1em;
+  line-height: 1.4;
+}
+
+/*-------------------------------
+ ■汎用スタイル
+ -------------------------------*/
+
+/* マウスイベント停止 */
+.pointer_off{
+  pointer-events: none;
+}
+
+/* 表示切り替え */
+.no_disp {
+  display: none !important;
+}
+.no_visible {
+  visibility: hidden !important;
+}
