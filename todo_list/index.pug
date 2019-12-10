@@ -19,8 +19,10 @@ html(lang="ja")
     script(src="./js/vue.min.js")
     script(src="./js/localforage.min.js")
     script(src="./js/axios.min.js")
-    script(src="./js/Sortable.min.js")
-    script(src="./js/vuedraggable.js")
+
+    // Vue.Draggable
+    script(src="./js/sortable.min.js")
+    script(src="./js/vuedraggable.umd.min.js")
 
     //- //vuetify
     //- script(src="./js/vuetify.min.js")
@@ -38,7 +40,6 @@ html(lang="ja")
 
     main#app(v-cloak)
 
-      div ver : {{ver}}
 
       section.todo_edit
         ul.tabs
@@ -47,22 +48,28 @@ html(lang="ja")
             @click = "todo.selectedTab = tab.id"
             :class = "{select : todo.selectedTab === tab.id}"
             )
-            span {{tab.label}}
+            span [{{tab.id}}] {{tab.label}}
           li.edit
             button(@click="newTab.dialog=true") Edit
 
         hr
 
-        ul.todo
-          draggable(:list="todo.items" @end="console.log('chg')")
-            li.item(
-              v-for="(item,key) in todo.items"
-              v-if="todo.selectedTab === item.tab_id"
-              )
-              button(@click="todo.items.splice(key,1)") ×
-              input(type="checkbox" v-model="item.complate")
-              span.label
-                input(type="text" v-model.lazy="item.label")
+        draggable.todo(
+          :list="todo.items"
+          @end="console.log('chg')"
+          tag="ul"
+          handle=".handle"
+          )
+          transition-group(type="transition" name="flip-list")
+          li.item(
+            v-for="(item,key) in todo.items"
+            v-if="todo.selectedTab === item.tab_id"
+            )
+            button(@click="todo.items.splice(key,1)") ×
+            input(type="checkbox" v-model="item.complate")
+            span.label
+              input(type="text" v-model.lazy="item.label")
+            div.handle =
 
           li.item.new
             input(type="checkbox" disabled)
@@ -78,16 +85,20 @@ html(lang="ja")
         h1.sec_title タブ編集
         ul.tabs
           li.item(
-            v-for="(item,key) in todo.tabs"
+            v-for="(tab,key) in todo.tabs"
             )
             button(@click="$delete(todo.tabs, key)") ×
+            span [{{tab.id}}]
             span.label
-              input(type="text" v-model.lazy="item.label")
+              input(type="text" v-model.lazy="tab.label")
 
           li.item.new
             input(type="checkbox" disabled)
             span.label
               input(type="text" v-model="newTab.label" @blur="addNewTab")
+
+      div ver:{{ver}}
+      div selectedTab:{{todo.selectedTab}}
 
 
     //css,js

@@ -22,6 +22,7 @@ html,body{
   position:relative;
   word-wrap: break-word;
   -webkit-overflow-scrolling: touch;
+  user-select: none;
 }
 
 img{vertical-align: bottom;}
@@ -68,6 +69,12 @@ p{
   align-items: center;
   height: 30px;
   border-bottom: 1px solid #ddd;
+
+  .handle{
+    padding: 8px;
+    background-color: #ddd;
+    display: block;
+  }
 }
 
 /*-------------------------------

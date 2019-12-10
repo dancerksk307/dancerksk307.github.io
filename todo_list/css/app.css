@@ -72,6 +72,10 @@ html, body {
   position: relative;
   word-wrap: break-word;
   -webkit-overflow-scrolling: touch;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 
 img {
@@ -131,6 +135,11 @@ p {
           align-items: center;
   height: 30px;
   border-bottom: 1px solid #dddddd;
+}
+.item .handle {
+  padding: 8px;
+  background-color: #ddd;
+  display: block;
 }
 
 /*-------------------------------

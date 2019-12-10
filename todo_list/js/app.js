@@ -40,8 +40,8 @@ var app = new Vue({
           label:"やること",
         },
         {
-          label:"買うもの",
           id:1,
+          label:"買うもの",
         },
       ],
       items:[
@@ -111,6 +111,7 @@ var app = new Vue({
       var tabs = this.todo.tabs;
       var addObj = {
         label :this.newTab.label,
+        id    :tabs.length,
       };
       this.$set(tabs, tabs.length, addObj);
     },//addNewTab
