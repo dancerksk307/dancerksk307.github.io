@@ -83,6 +83,10 @@ p {
   line-height: 1.4;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 /*-------------------------------
  ■汎用スタイル
  -------------------------------*/
@@ -99,3 +103,53 @@ p {
 .no_visible {
   visibility: hidden !important;
 }
+
+.flex {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.flex_wrap {
+  -webkit-flex-wrap: wrap;
+      -ms-flex-wrap: wrap;
+          flex-wrap: wrap;
+}
+
+/*-------------------------------
+ list
+ -------------------------------*/
+.item {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  height: 30px;
+  border-bottom: 1px solid #dddddd;
+}
+
+/*-------------------------------
+ todo_edit
+ -------------------------------*/
+.todo_edit .tabs {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+.todo_edit .tabs li {
+  padding: 8px;
+  border: 1px solid #bbbbbb;
+}
+.todo_edit .tabs li.select {
+  background-color: #DEF8A5;
+}
+
+/*-------------------------------
+ tabs_edit
+ -------------------------------*/

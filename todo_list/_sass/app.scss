@@ -31,6 +31,10 @@ p{
   line-height: 1.4;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 /*-------------------------------
  ■汎用スタイル
  -------------------------------*/
@@ -46,4 +50,54 @@ p{
 }
 .no_visible {
   visibility: hidden !important;
+}
+
+.flex{
+  display: flex;
+}
+.flex_wrap{
+  flex-wrap: wrap;
+}
+
+
+/*-------------------------------
+ list
+ -------------------------------*/
+.item{
+  display: flex;
+  align-items: center;
+  height: 30px;
+  border-bottom: 1px solid #ddd;
+}
+
+/*-------------------------------
+ todo_edit
+ -------------------------------*/
+.todo_edit{
+  .tabs{
+    display: flex;
+
+    li{
+      padding: 8px;
+      border: 1px solid #bbb;
+      &.select{
+        background-color: #DEF8A5;
+      }
+    }
+  }//tabs
+}
+
+/*-------------------------------
+ tabs_edit
+ -------------------------------*/
+.tabs_edit{
+  .tabs{
+    // li{
+    //   padding: 8px;
+    //   border: 1px solid #bbb;
+    //   &.select{
+    //     background-color: #DEF8A5;
+    //   }
+    // }
+  }//tabs
 }

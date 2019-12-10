@@ -11,32 +11,54 @@
     <script src="./js/vue.min.js"></script>
     <script src="./js/localforage.min.js"></script>
     <script src="./js/axios.min.js"></script>
+    <script src="./js/Sortable.min.js"></script>
+    <script src="./js/vuedraggable.js"></script>
     <title>俺のToDo</title>
   </head>
   <body ontouchstart="">
-    <v-app id="app" v-cloak>
+    <main id="app" v-cloak>
       <div>ver : {{ver}}</div>
-      <div>{{todo.selectedTab}}</div>
-      <ul class="tabs" v-for="(tab,key) in todo.tabs">
-        <li @click="todo.selectedTab = tab.id"><span v-if="todo.selectedTab === tab.id">●</span><span>{{key}}</span></li>
-      </ul>
-      <ul class="todo">
-        <li class="item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id">
-          <button @click="todo.items.splice(key,1)">×</button>
-          <input type="checkbox" v-model="item.complate"><span class="label">
-            <input type="text" v-model.lazy="item.label"></span>
-        </li>
-        <li class="item new">
-          <input type="checkbox" disabled><span class="label">
-            <input type="text" v-model="newItem.label" @blur="addNewItem"></span>
-        </li>
-      </ul>
-      <div>
+      <section class="todo_edit">
+        <ul class="tabs">
+          <li v-for="(tab,key) in todo.tabs" @click="todo.selectedTab = tab.id" :class="{select : todo.selectedTab === tab.id}"><span>{{tab.label}}</span></li>
+          <li class="edit">
+            <button @click="newTab.dialog=true">Edit</button>
+          </li>
+        </ul>
         <hr>
-        <button @click="saveJson">SAVE</button>
-        <button @click="deleteJson">Delete</button>
-      </div>
-    </v-app>
+        <ul class="todo">
+          <draggable :list="todo.items" @end="console.log('chg')">
+            <li class="item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id">
+              <button @click="todo.items.splice(key,1)">×</button>
+              <input type="checkbox" v-model="item.complate"><span class="label">
+                <input type="text" v-model.lazy="item.label"></span>
+            </li>
+          </draggable>
+          <li class="item new">
+            <input type="checkbox" disabled><span class="label">
+              <input type="text" v-model="newItem.label" @blur="addNewItem"></span>
+          </li>
+        </ul>
+        <div>
+          <hr>
+          <button @click="saveJson">SAVE</button>
+          <button @click="deleteJson">Delete</button>
+        </div>
+      </section>
+      <section class="tabs_edit" v-show="newTab.dialog">
+        <h1 class="sec_title">タブ編集</h1>
+        <ul class="tabs">
+          <li class="item" v-for="(item,key) in todo.tabs">
+            <button @click="$delete(todo.tabs, key)">×</button><span class="label">
+              <input type="text" v-model.lazy="item.label"></span>
+          </li>
+          <li class="item new">
+            <input type="checkbox" disabled><span class="label">
+              <input type="text" v-model="newTab.label" @blur="addNewTab"></span>
+          </li>
+        </ul>
+      </section>
+    </main>
     <!--css,js-->
     <script src="./js/app.js"></script>
     <link rel="stylesheet" href="./css/app.css">

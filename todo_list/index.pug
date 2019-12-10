@@ -19,6 +19,8 @@ html(lang="ja")
     script(src="./js/vue.min.js")
     script(src="./js/localforage.min.js")
     script(src="./js/axios.min.js")
+    script(src="./js/Sortable.min.js")
+    script(src="./js/vuedraggable.js")
 
     //- //vuetify
     //- script(src="./js/vuetify.min.js")
@@ -34,36 +36,58 @@ html(lang="ja")
 
   body(ontouchstart="")
 
-    v-app#app(v-cloak)
+    main#app(v-cloak)
 
       div ver : {{ver}}
 
-      div {{todo.selectedTab}}
+      section.todo_edit
+        ul.tabs
+          li(
+            v-for  = "(tab,key) in todo.tabs"
+            @click = "todo.selectedTab = tab.id"
+            :class = "{select : todo.selectedTab === tab.id}"
+            )
+            span {{tab.label}}
+          li.edit
+            button(@click="newTab.dialog=true") Edit
 
-      ul.tabs(v-for="(tab,key) in todo.tabs")
-        li(@click="todo.selectedTab = tab.id")
-          span(v-if="todo.selectedTab === tab.id") ●
-          span {{key}}
-
-      ul.todo
-        li.item(
-          v-for="(item,key) in todo.items"
-          v-if="todo.selectedTab === item.tab_id"
-          )
-          button(@click="todo.items.splice(key,1)") ×
-          input(type="checkbox" v-model="item.complate")
-          span.label
-            input(type="text" v-model.lazy="item.label")
-
-        li.item.new
-          input(type="checkbox" disabled)
-          span.label
-            input(type="text" v-model="newItem.label" @blur="addNewItem")
-
-      div
         hr
-        button(@click="saveJson") SAVE
-        button(@click="deleteJson") Delete
+
+        ul.todo
+          draggable(:list="todo.items" @end="console.log('chg')")
+            li.item(
+              v-for="(item,key) in todo.items"
+              v-if="todo.selectedTab === item.tab_id"
+              )
+              button(@click="todo.items.splice(key,1)") ×
+              input(type="checkbox" v-model="item.complate")
+              span.label
+                input(type="text" v-model.lazy="item.label")
+
+          li.item.new
+            input(type="checkbox" disabled)
+            span.label
+              input(type="text" v-model="newItem.label" @blur="addNewItem")
+
+        div
+          hr
+          button(@click="saveJson") SAVE
+          button(@click="deleteJson") Delete
+
+      section.tabs_edit(v-show="newTab.dialog")
+        h1.sec_title タブ編集
+        ul.tabs
+          li.item(
+            v-for="(item,key) in todo.tabs"
+            )
+            button(@click="$delete(todo.tabs, key)") ×
+            span.label
+              input(type="text" v-model.lazy="item.label")
+
+          li.item.new
+            input(type="checkbox" disabled)
+            span.label
+              input(type="text" v-model="newTab.label" @blur="addNewTab")
 
 
     //css,js

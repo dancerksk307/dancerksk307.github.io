@@ -23,20 +23,27 @@ var app = new Vue({
   el: '#app',
   data: {
     ver:"1.0.0",
+    isReady :false,
     newItem : {
       label:"",
       // limit:"2019/11/27",
     },
+    newTab : {
+      dialog : false,
+      label:"",
+    },
     todo:{
       selectedTab:0,
-      tabs :{
-        "やること":{
+      tabs :[
+        {
           id:0,
+          label:"やること",
         },
-        "買うもの":{
+        {
+          label:"買うもの",
           id:1,
         },
-      },
+      ],
       items:[
         {
           seq    : 0,
@@ -78,10 +85,12 @@ var app = new Vue({
           console.log("Save Faild",err);
         });
     },
+
     deleteJson:function(){
       // localStorage.removeItem('testText');
-      localStorage.clear();
+      localforage.clear();
     },
+
     addNewItem:function(){
       console.log("addNewItem");
       if(!this.newItem.label) return;
@@ -94,7 +103,23 @@ var app = new Vue({
           complate : false,
         }
       );
-    },
+    },//addNewItem
+
+    addNewTab:function(){
+      console.log("addNewTab");
+      if(!this.newTab.label) return;
+      var tabs = this.todo.tabs;
+      var addObj = {
+        label :this.newTab.label,
+      };
+      this.$set(tabs, tabs.length, addObj);
+    },//addNewTab
+
+    removeTab:function(key){
+      console.log("removeTab",key);
+      console.log(this.todo.tabs[key]);
+      this.$delete(this.todo.tabs, key);
+    },//removeTab
   },
   mounted : function(){
     console.log('mounted');
@@ -111,5 +136,6 @@ var app = new Vue({
       .catch(function(err){
         console.log('Data Load Faild',err);
       });
+
   }//mounted
 });
