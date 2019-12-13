@@ -22,7 +22,8 @@ html(lang="ja")
 
     // Vue.Draggable
     script(src="./js/sortable.min.js")
-    script(src="./js/vuedraggable.umd.min.js")
+    script(src="./js/vuedraggable.js")
+    //- script(src="./js/vuedraggable.umd.min.js")
 
     //- //vuetify
     //- script(src="./js/vuetify.min.js")
@@ -54,22 +55,26 @@ html(lang="ja")
 
         hr
 
-        draggable.todo(
-          :list="todo.items"
-          @end="console.log('chg')"
-          tag="ul"
-          handle=".handle"
-          )
-          transition-group(type="transition" name="flip-list")
-          li.item(
-            v-for="(item,key) in todo.items"
-            v-if="todo.selectedTab === item.tab_id"
+        ul.todo
+          draggable(
+            :list="todo.items"
+            @start="console.log('start')"
+            @end="console.log('end')"
+            tag="ul"
+            handle=".handle"
+            v-bind="dragOptions"
             )
-            button(@click="todo.items.splice(key,1)") ×
-            input(type="checkbox" v-model="item.complate")
-            span.label
-              input(type="text" v-model.lazy="item.label")
-            div.handle =
+            transition-group(type="transition" name="flip-list" tag="ul")
+              li.item(
+                v-for="(item,key) in todo.items"
+                v-if="todo.selectedTab === item.tab_id"
+                :key="key"
+                )
+                button(@click="todo.items.splice(key,1)") ×
+                input(type="checkbox" v-model="item.complate")
+                span.label
+                  input(type="text" v-model.lazy="item.label")
+                div.handle =
 
           li.item.new
             input(type="checkbox" disabled)

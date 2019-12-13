@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <title>TODOサンプル</title>
+
+  <script src="../js/vue.min.js"></script>
+  <script src="../js/axios.min.js"></script>
+  <script src="../js/xdate.js"></script>
+
+  <script src="../js/index.js"></script>
+
+  <link rel="stylesheet" href="../css/index.css">
+
+  <!-- Google Material-icon -->
+  <link rel="stylesheet" href="../iconfont/material-icons.css">
+
+  <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
+
+  <meta name="viewport" content="width=device-width">
+</head>
+<body>
+
+<div id="app">
+
+  <section class="task_status_section">
+    <ul class="task_status">
+      <li class="delete" @click="removeTodoItem" :disabled="!isSelectTodo">
+        <span class="material-icons">delete</span>
+      </li>
+      <li class="all">全{{todoList.length}} 件</li>
+      <li class="comp">完了:{{complateNum}}件</li>
+      <li class="no_comp">未完了:{{todoList.length - complateNum}}件</li>
+      <li class="label">達成度: {{(levelOfAchievement * 100).toFixed()}} %</li>
+      <li class="note_btn" @click="noteShow = true">
+        <span class="material-icons">notes</span>
+      </li>
+    </ul>
+    <div class="level_meter_wrap">
+      <div class="level_meter" :style="'transform:scaleX(' + levelOfAchievement + ');'"></div>
+    </div><!-- /.level_meter_wrap -->
+  </section>
+  <!-- /.task_status_section -->
+
+
+  <section class="todo_list_section">
+
+    <ul class="todo_list">
+      <li class="todo_list_item" v-for="(item,key) in todoList" :comp="item.complete">
+        <!-- 選択 -->
+        <div class="select_check" @click="item.select = !item.select">
+          <span class="material-icons">{{item.select ? 'check_box' : 'check_box_outline_blank'}}</span>
+        </div><!-- /.select_check -->
+
+        <!-- 詳細欄 -->
+        <div class="detail">
+
+          <!-- 件名 -->
+          <div class="label">
+            <template v-if="item.limit != null">
+              <!-- 期日超過アイコン -->
+              <span v-if="remainingDate(item.limit) < 0" class="material-icons">whatshot</span>
+              <!-- 期日間近アイコン -->
+              <span v-else-if="remainingDate(item.limit) <= 3" class="material-icons">priority_high</span>
+            </template>
+
+            <!-- 件名 -->
+            <input type="text" class="label_input" v-model="item.label" />
+          </div><!-- /.label -->
+
+          <!-- 期日 -->
+          <div class="limit">
+
+            <div class="date_label">
+              <span class="material-icons">date_range</span>
+              <span class="date">{{item.limit != null ? item.limit : '期日未設定'}}</span>
+              <input type="date" class="date_select" v-model="item.limit" />
+            </div>
+
+            <div class="remaining">
+              <!-- 期日未設定 -->
+              <template v-if="item.limit == null"></template>
+              <!-- 期日当日 -->
+              <template v-else-if="remainingDate(item.limit) == 0">
+                <span class="material-icons">av_timer</span>
+                <span>期限当日</span>
+              </template>
+              <!-- 期日超過 -->
+              <template v-else-if="remainingDate(item.limit) < 0">
+                <span class="material-icons">av_timer</span>
+                <span>{{ remainingDate(item.limit)*-1 }}日超過</span>
+              </template>
+              <!-- 期日間近 -->
+              <template v-else-if="remainingDate(item.limit) <= 3">
+                <span class="material-icons">av_timer</span>
+                <span>あと{{ remainingDate(item.limit) }}日</span>
+              </template>
+            </div><!-- /.remaining -->
+          </div>
+        </div>
+
+        <!-- 完了チェック -->
+        <div class="comp_check" @click="item.complete = !item.complete">
+          <span class="material-icons">check</span>
+        </div><!-- /.comp_check -->
+
+      </li>
+    </ul><!-- /.todo -->
+  </section><!-- /.todo_list_section -->
+
+
+  <section class="new_item_section">
+
+    <div class="label">
+      <input type="text" placeholder="新規Todo" v-model="newItem.label" />
+    </div>
+
+    <div class="item date" :disabled="!newItem.limitFlg">
+      <span class="material-icons">date_range</span>
+      <span class="date">{{newItem.limit}}</span>
+      <input type="date" class="date_select" v-model="newItem.limit" />
+    </div>
+
+    <div class="item limit_flg">
+      <span class="material-icons">{{newItem.limitFlg ? 'check_box' : 'check_box_outline_blank'}}</span>
+      <input type="checkbox" id="limitFlgCheck" v-model="newItem.limitFlg" />
+      <label for="limitFlgCheck">期限を設定する</label>
+    </div><!-- /.limit_flg -->
+
+    <div class="flex-spacer"></div>
+
+    <div class="item add_btn" @click="addNewItem">
+      <span class="material-icons">add_circle_outline</span>
+      <span>追加</span>
+    </div><!-- /.add_btn -->
+  </section><!-- /.new_item_section -->
+
+
+  <section class="note_view" v-show="noteShow" @click="noteShow=false">
+    <div class="note_title">メモ</div>
+    <ul>
+      <li v-for="note in notes">{{note}}</li>
+    </ul>
+  </section><!-- /.note -->
+
+
+</div>
+
+</body>
+</html>

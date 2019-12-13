@@ -13,7 +13,7 @@
     <script src="./js/axios.min.js"></script>
     <!-- Vue.Draggable-->
     <script src="./js/sortable.min.js"></script>
-    <script src="./js/vuedraggable.umd.min.js"></script>
+    <script src="./js/vuedraggable.js"></script>
     <title>俺のToDo</title>
   </head>
   <body ontouchstart="">
@@ -26,19 +26,22 @@
           </li>
         </ul>
         <hr>
-        <draggable class="todo" :list="todo.items" @end="console.log('chg')" tag="ul" handle=".handle">
-          <transition-group type="transition" name="flip-list"></transition-group>
-          <li class="item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id">
-            <button @click="todo.items.splice(key,1)">×</button>
-            <input type="checkbox" v-model="item.complate"><span class="label">
-              <input type="text" v-model.lazy="item.label"></span>
-            <div class="handle">=</div>
-          </li>
+        <ul class="todo">
+          <draggable :list="todo.items" @start="console.log('start')" @end="console.log('end')" tag="ul" handle=".handle" v-bind="dragOptions">
+            <transition-group type="transition" name="flip-list" tag="ul">
+              <li class="item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id" :key="key">
+                <button @click="todo.items.splice(key,1)">×</button>
+                <input type="checkbox" v-model="item.complate"><span class="label">
+                  <input type="text" v-model.lazy="item.label"></span>
+                <div class="handle">=</div>
+              </li>
+            </transition-group>
+          </draggable>
           <li class="item new">
             <input type="checkbox" disabled><span class="label">
               <input type="text" v-model="newItem.label" @blur="addNewItem"></span>
           </li>
-        </draggable>
+        </ul>
         <div>
           <hr>
           <button @click="saveJson">SAVE</button>
@@ -60,6 +63,39 @@
       </section>
       <div>ver:{{ver}}</div>
       <div>selectedTab:{{todo.selectedTab}}</div>
+
+
+      <div class="col-6">
+        <h3>Transition</h3>
+        <draggable
+          class="list-group"
+          tag="ul"
+          v-model="list"
+          v-bind="dragOptions"
+          @start="drag = true"
+          @end="drag = false"
+        >
+          <transition-group type="transition" :name="!drag ? 'flip-list' : null">
+            <li
+              class="list-group-item"
+              v-for="element in list"
+              :key="element.order"
+            >
+              <i
+                :class="
+                  element.fixed ? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'
+                "
+                @click="element.fixed = !element.fixed"
+                aria-hidden="true"
+              ></i>
+              {{ element.name }}
+            </li>
+          </transition-group>
+        </draggable>
+      </div>
+
+
+
     </main>
     <!--css,js-->
     <script src="./js/app.js"></script>

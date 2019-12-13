@@ -65,6 +65,7 @@ p{
  list
  -------------------------------*/
 .item{
+  position: relative;
   display: flex;
   align-items: center;
   height: 30px;
@@ -76,6 +77,24 @@ p{
     display: block;
   }
 }
+
+.flip-list-move {
+  transition: transform 0.5s;
+}
+// .no-move {
+//   transition: transform 0s;
+// }
+// .flip-list-enter-active, .flip-list-leave-active {
+//   transition: opacity 1s;
+// }
+// .flip-list-enter, .flip-list-leave-to {
+//   opacity: 0;
+// }
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+
 
 /*-------------------------------
  todo_edit
@@ -107,4 +126,39 @@ p{
     //   }
     // }
   }//tabs
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.button {
+  margin-top: 35px;
+}
+.flip-list-move {
+  transition: transform 0.5s;
+}
+.no-move {
+  transition: transform 0s;
+}
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+.list-group {
+  min-height: 20px;
+}
+.list-group-item {
+  cursor: move;
+}
+.list-group-item i {
+  cursor: pointer;
 }

@@ -48,13 +48,13 @@ var app = new Vue({
         {
           seq    : 0,
           tab_id : 0,
-          label  :"年賀状を出す",
+          label  :"TODO 1",
           complate :false,
         },
         {
           seq    : 1,
           tab_id : 0,
-          label  :"美容院連絡",
+          label  :"TODO 2",
           complate :false,
         },
         {
@@ -63,17 +63,86 @@ var app = new Vue({
           label  :"サプリ",
           complate :false,
         },
+        {
+          seq    : 3,
+          tab_id : 0,
+          label  :"TODO 3",
+          complate :false,
+        },
+        {
+          seq    : 4,
+          tab_id : 0,
+          label  :"TODO 4",
+          complate :false,
+        },
+        {
+          seq    : 5,
+          tab_id : 0,
+          label  :"TODO 5",
+          complate :true,
+        },
+        {
+          seq    : 6,
+          tab_id : 0,
+          label  :"TODO 6",
+          complate :false,
+        },
       ],
     },
+list:[
+  {
+    "name": "vue.draggable",
+    "order": 1
+  },
+  {
+    "name": "draggable",
+    "order": 2
+  },
+  {
+    "name": "component",
+    "order": 3
+  },
+  {
+    "name": "for",
+    "order": 4
+  },
+  {
+    "name": "vue.js 2.0",
+    "order": 5
+  },
+  {
+    "name": "based",
+    "order": 6
+  },
+  {
+    "name": "on",
+    "order": 7
+  },
+  {
+    "name": "Sortablejs",
+    "order": 8
+  }
+],
+drag: false,
   },
   watch: {
     todo: {
       handler: function(value){
         console.log(value);
-        this.saveJson();
+        // this.saveJson();
       },
       deep: true,
     },
+  },
+  computed: {
+    dragOptions() {
+      return {
+        animation: 0,
+        group: "description",
+        disabled: false,
+        ghostClass: "ghost"
+      };
+    }
   },
   methods: {
     saveJson:function(){
@@ -121,6 +190,10 @@ var app = new Vue({
       console.log(this.todo.tabs[key]);
       this.$delete(this.todo.tabs, key);
     },//removeTab
+
+    sort:function() {
+      this.todo.items = this.todo.items.sort((a, b) => a.seq - b.seq);
+    }
   },
   mounted : function(){
     console.log('mounted');
@@ -131,8 +204,10 @@ var app = new Vue({
           console.log('No Data',value);
         }else{
           console.log('Data Load Success',value);
-          app.todo = value;
+          // app.todo = value;
+          // app.$set(app, 'todo', value);
         }
+        // app.isReady = true;
       })
       .catch(function(err){
         console.log('Data Load Faild',err);
