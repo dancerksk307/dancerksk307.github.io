@@ -62,7 +62,7 @@
           <div class="label">
             <template v-if="item.limit != null">
               <!-- 期日超過アイコン -->
-              <span v-if="remainingDate(item.limit) < 0" class="material-icons">whatshot</span>
+              <span v-if="remainingDate(item.limit) < 0" class="material-icons limit_over">whatshot</span>
               <!-- 期日間近アイコン -->
               <span v-else-if="remainingDate(item.limit) <= 3" class="material-icons">priority_high</span>
             </template>
