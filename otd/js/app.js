@@ -36,7 +36,7 @@ var app = new Vue({
     },
     today:new XDate().toString("yyyy-MM-dd"),
 
-    enableEditOrder:false,
+    editOrder: false,
     listDrag : false,
     todo:{
       selectedTab:0,
@@ -69,7 +69,7 @@ var app = new Vue({
   },
   computed: {
     //完了したTODOの数
-    complateNum:function(){
+    completeNum:function(){
       var num = 0;
       this.todo.items.forEach(function(obj){
         //complete が trueだったら加算
@@ -79,8 +79,9 @@ var app = new Vue({
     },
     //達成度の算出（％）
     levelOfAchievement:function(){
-      return this.complateNum / this.todo.items.length;
+      return this.completeNum / this.todo.items.length;
     },
+    //TODOの選択があるかどうか
     isSelectTodo:function(){
       return this.todo.items.some(function(obj){
         return obj.select;
@@ -110,17 +111,15 @@ var app = new Vue({
       console.log("addNewItem");
       // if(!this.newItem.label) return;
       var items = this.todo.items;
-      items.push(
-        Vue.util.extend({},{
-            index    : items.length,
-            tab_id   : this.todo.selectedTab,
-            label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
-            limit    : this.newItem.limitFlg ? this.newItem.limit : null,
-            complate : false,
-            select   : false,
-          }
-        )
-      );
+      var addObj = {
+        index    : items.length,
+        tab_id   : this.todo.selectedTab,
+        label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
+        limit    : this.newItem.limitFlg ? this.newItem.limit : null,
+        complete : false,
+        select   : false,
+      };
+      this.$set(items, items.length, addObj);
     },//addNewItem
 
     /**

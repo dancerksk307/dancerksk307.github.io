@@ -303,9 +303,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 #header .task_status li.label {
   font-size: 10px;
 }
-#header .task_status li.note_btn {
+#header .task_status li.order_btn {
   width: 10vw;
   text-align: center;
+}
+#header .task_status li.order_btn[disabled] {
+  opacity: .3;
+  pointer-events: none;
+}
+#header .task_status li.order_btn.active {
+  color: #ff3;
 }
 #header .level_meter_wrap {
   background-color: #414d82;
@@ -448,7 +455,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 1.5em;
   padding-right: 4px;
 }
-#main .todo_list .todo_list_item .comp_check {
+#main .todo_list .todo_list_item .check {
   width: 15vw;
   display: -webkit-box;
   display: -webkit-flex;
@@ -464,14 +471,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
           justify-content: center;
   border-left: 1px solid #dddddd;
 }
-#main .todo_list .todo_list_item .comp_check span {
+#main .todo_list .todo_list_item .check.comp span {
   opacity: .2;
 }
 #main .todo_list .todo_list_item[comp] .detail {
   opacity: .2;
   pointer-events: none;
 }
-#main .todo_list .todo_list_item[comp] .comp_check span {
+#main .todo_list .todo_list_item[comp] .comp.check span {
   opacity: 1;
 }
 

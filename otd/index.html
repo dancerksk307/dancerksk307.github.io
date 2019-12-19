@@ -24,17 +24,17 @@
         <ul class="task_status">
           <li class="delete" @click="removeTodoItem" :disabled="!isSelectTodo"><span class="material-icons">delete</span></li>
           <li class="all">全{{todo.items.length}} 件</li>
-          <li class="comp">完了:{{complateNum}}件</li>
-          <li class="no_comp">未完了:{{todo.items.length - complateNum}}件</li>
+          <li class="comp">完了:{{completeNum}}件</li>
+          <li class="no_comp">未完了:{{todo.items.length - completeNum}}件</li>
           <li class="label">達成度: {{(levelOfAchievement * 100).toFixed()}} %</li>
-          <li class="note_btn" @click="noteShow = true"><span class="material-icons">notes</span></li>
+          <li class="order_btn" @click="editOrder = !editOrder" :class="{active:editOrder}" :disabled="!todo.items.length"><span class="material-icons">import_export</span></li>
         </ul>
         <div class="level_meter_wrap">
           <div class="level_meter" :style="'transform:scaleX(' + levelOfAchievement + ');'"></div>
         </div>
       </header>
       <main id="main">
-        <draggable v-if="isLoadData" v-model="todo.items" ghost-class="ghost" animation="100" handle=".handle" :disabled="enableEditOrder" @start="listDrag = true" @end="listDrag = false">
+        <draggable v-if="isLoadData" v-model="todo.items" ghost-class="ghost" animation="100" handle=".handle" :disabled="!editOrder" @start="listDrag = true" @end="listDrag = false">
           <transition-group class="todo_list" tag="ul" type="transition" :name="!listDrag ? 'flip-list' : null">
             <li class="todo_list_item" v-for="(item,key) in todo.items" :comp="item.complete" :key="item.index">
               <div class="select_check" @click="item.select = !item.select"><span class="material-icons">{{item.select ? 'check_box' : 'check_box_outline_blank'}}</span></div>
@@ -47,7 +47,6 @@
                   <div class="date_label"><span class="material-icons">date_range</span><span class="date">{{item.limit != null ? item.limit : '期日未設定'}}</span>
                     <input class="date_select" type="date" v-model="item.limit">
                   </div>
-                  <div class="handle"><span class="material-icons">menu</span></div>
                   <div class="remaining">
                     <template v-if="item.limit == null"></template>
                     <template v-else-if="remainingDate(item.limit) == 0"><span class="material-icons">av_timer</span><span>期限当日</span></template>
@@ -56,7 +55,8 @@
                   </div>
                 </div>
               </div>
-              <div class="comp_check" @click="item.complete = !item.complete"><span class="material-icons">check</span></div>
+              <div class="check handle" v-if="editOrder"><span class="material-icons">menu</span></div>
+              <div class="check comp" @click="item.complete = !item.complete" v-else><span class="material-icons">check</span></div>
             </li>
           </transition-group>
         </draggable>
