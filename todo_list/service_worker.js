@@ -8,6 +8,9 @@ var urlsToCache = [
     "js/vue.min.js",
     "js/axios.min.js",
     "js/localforage.min.js",
+    "js/xdate.js",
+    "js/sortable.min.js",
+    "js/vuedraggable.umd.min.js",
     "images/icons/icon-72x72.png",
 ];
 

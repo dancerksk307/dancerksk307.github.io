@@ -40,7 +40,7 @@
             <input type="checkbox" v-model="enableEditOrder">
           </li>
         </ul>
-        <draggable v-model="todo.items" handle=".handle" ghost-class="ghost" animation="100" :disabled="enableEditOrder" @start="listDrag = true" @end="listDrag = false">
+        <draggable v-model="todo.items" ghost-class="ghost" animation="100" :disabled="enableEditOrder" @start="listDrag = true" @end="listDrag = false">
           <transition-group class="todo_list" tag="ul" type="transition" :name="!listDrag ? 'flip-list' : null">
             <li class="todo_list_item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id" :comp="item.complete" :key="item.index">
               <div class="select_check" @click="item.select = !item.select"><span class="material-icons">{{item.select ? 'check_box' : 'check_box_outline_blank'}}</span></div>

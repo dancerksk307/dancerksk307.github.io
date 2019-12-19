@@ -1,6 +1,6 @@
 {
-  "name"             : "bmb_PWA",
-  "short_name"       : "b_PWA",
+  "name"             : "俺のToDo",
+  "short_name"       : "俺のToDo",
   "theme_color"      : "#f1c817",
   "background_color" : "#a2bcd0",
   "display"          : "standalone",
