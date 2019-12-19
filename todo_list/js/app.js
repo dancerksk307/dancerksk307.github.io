@@ -14,6 +14,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+//localStrage
 localforage.config({
   name: 'ore_no_todo_db',
   storeName: 'todo_json',
@@ -23,126 +24,87 @@ var app = new Vue({
   el: '#app',
   data: {
     ver:"1.0.0",
-    isReady :false,
-    newItem : {
-      label:"",
-      // limit:"2019/11/27",
-    },
     newTab : {
       dialog : false,
       label:"",
     },
+    newItem:{
+      label:"",
+      limit:new XDate().toString("yyyy-MM-dd"),
+      limitFlg:false,
+    },
+    today:new XDate().toString("yyyy-MM-dd"),
+
+    enableEditOrder:false,
+    listDrag : false,
     todo:{
       selectedTab:0,
       tabs :[
-        {
-          id:0,
-          label:"やること",
-        },
-        {
-          id:1,
-          label:"買うもの",
-        },
+        // {
+        //   id:0,
+        //   label:"やること",
+        // },
+        // {
+        //   id:1,
+        //   label:"買うもの",
+        // },
       ],
       items:[
-        {
-          seq    : 0,
-          tab_id : 0,
-          label  :"TODO 1",
-          complate :false,
-        },
-        {
-          seq    : 1,
-          tab_id : 0,
-          label  :"TODO 2",
-          complate :false,
-        },
-        {
-          seq    : 2,
-          tab_id : 1,
-          label  :"サプリ",
-          complate :false,
-        },
-        {
-          seq    : 3,
-          tab_id : 0,
-          label  :"TODO 3",
-          complate :false,
-        },
-        {
-          seq    : 4,
-          tab_id : 0,
-          label  :"TODO 4",
-          complate :false,
-        },
-        {
-          seq    : 5,
-          tab_id : 0,
-          label  :"TODO 5",
-          complate :true,
-        },
-        {
-          seq    : 6,
-          tab_id : 0,
-          label  :"TODO 6",
-          complate :false,
-        },
+        // {
+        //   index    : 0,
+        //   tab_id   : 0,
+        //   label    : "Todo 1",//タスク名
+        //   complete : false, //完了判定
+        //   select   : false, //削除フラグ
+        //   limit    : "2019-12-10", //完了期限
+        // },
+        // {
+        //   index    : 1,
+        //   tab_id   : 0,
+        //   label    : "Todo 2",//タスク名
+        //   complete : true, //完了判定
+        //   select   : false, //削除フラグ
+        //   limit    : "2019-12-13", //完了期限
+        // },
+        // {
+        //   index    : 2,
+        //   tab_id   : 1,
+        //   label    : "Todo 3",//タスク名
+        //   complete : false, //完了判定
+        //   select   : false, //削除フラグ
+        //   limit    : "2019-12-14", //完了期限
+        // },
       ],
     },
-list:[
-  {
-    "name": "vue.draggable",
-    "order": 1
-  },
-  {
-    "name": "draggable",
-    "order": 2
-  },
-  {
-    "name": "component",
-    "order": 3
-  },
-  {
-    "name": "for",
-    "order": 4
-  },
-  {
-    "name": "vue.js 2.0",
-    "order": 5
-  },
-  {
-    "name": "based",
-    "order": 6
-  },
-  {
-    "name": "on",
-    "order": 7
-  },
-  {
-    "name": "Sortablejs",
-    "order": 8
-  }
-],
-drag: false,
   },
   watch: {
     todo: {
       handler: function(value){
         console.log(value);
-        // this.saveJson();
+        this.saveJson();
       },
       deep: true,
     },
   },
   computed: {
-    dragOptions() {
-      return {
-        animation: 0,
-        group: "description",
-        disabled: false,
-        ghostClass: "ghost"
-      };
-    }
+    //完了したTODOの数
+    complateNum:function(){
+      var num = 0;
+      this.todo.items.forEach(function(obj){
+        //complete が trueだったら加算
+        if(obj.complete) num++;
+      });
+      return num;
+    },
+    //達成度の算出（％）
+    levelOfAchievement:function(){
+      return this.complateNum / this.todo.items.length;
+    },
+    isSelectTodo:function(){
+      return this.todo.items.some(function(obj){
+        return obj.select;
+      });
+    },
   },
   methods: {
     saveJson:function(){
@@ -166,10 +128,12 @@ drag: false,
       var items = this.todo.items;
       items.push(
         {
-          seq      : items.length,
+          index    : items.length,
           tab_id   : this.todo.selectedTab,
           label    : this.newItem.label,
           complate : false,
+          select   : false,
+          limit    : this.newItem.limit,
         }
       );
     },//addNewItem
@@ -192,8 +156,34 @@ drag: false,
     },//removeTab
 
     sort:function() {
-      this.todo.items = this.todo.items.sort((a, b) => a.seq - b.seq);
-    }
+      // this.todo.items = this.todo.items.sort((a, b) => a.seq - b.seq);
+      this.list = this.list.sort((a, b) => a.order - b.order);
+    },//sort
+
+    /**
+     * [convertDate カレンダーの日付をXDate形式に変換]
+     * @param  {[string]} date ["yyyy-MM-dd"]
+     * @return {[date]}        [XDate]
+     */
+    convertDate:function(date){
+      var d_ary = date.split( '-' );
+      // console.log(d_ary1,d_ary2);
+      return new XDate(d_ary[0], Number(d_ary[1]) - 1, d_ary[2]);
+    },
+    /**
+     * [remainingDate 期限までの残りに数を算出]
+     * @param  {[string]} date [期限]
+     * @return {[number]}      [残日数]
+     */
+    remainingDate:function(date){
+      var dif = this.convertDate(this.today).diffDays( this.convertDate(date) );
+      // console.log(dif);
+      return dif;
+    },
+
+
+
+
   },
   mounted : function(){
     console.log('mounted');
@@ -204,10 +194,8 @@ drag: false,
           console.log('No Data',value);
         }else{
           console.log('Data Load Success',value);
-          // app.todo = value;
-          // app.$set(app, 'todo', value);
+          app.todo = value;
         }
-        // app.isReady = true;
       })
       .catch(function(err){
         console.log('Data Load Faild',err);
