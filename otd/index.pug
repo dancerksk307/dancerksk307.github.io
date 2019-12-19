@@ -81,6 +81,7 @@ html(lang="ja")
           v-model     = "todo.items"
           ghost-class = "ghost"
           animation   = "100"
+          handle      = ".handle"
           :disabled   = "enableEditOrder"
           @start      = "listDrag = true"
           @end        = "listDrag = false"
@@ -123,6 +124,9 @@ html(lang="ja")
                     span.date {{item.limit != null ? item.limit : '期日未設定'}}
                     input(type="date" class="date_select" v-model="item.limit")
 
+                  .handle
+                    span.material-icons menu
+
                   .remaining
                     //- 期日未設定
                     template(v-if="item.limit == null")
@@ -141,7 +145,6 @@ html(lang="ja")
                       span.material-icons av_timer
                       span あと{{ remainingDate(item.limit) }}日
 
-                  .handle =
 
               //- 完了チェック
               .comp_check(@click="item.complete = !item.complete")

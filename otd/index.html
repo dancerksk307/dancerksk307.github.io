@@ -40,7 +40,7 @@
             <input type="checkbox" v-model="enableEditOrder">
           </li>
         </ul>
-        <draggable v-model="todo.items" ghost-class="ghost" animation="100" :disabled="enableEditOrder" @start="listDrag = true" @end="listDrag = false">
+        <draggable v-model="todo.items" ghost-class="ghost" animation="100" handle=".handle" :disabled="enableEditOrder" @start="listDrag = true" @end="listDrag = false">
           <transition-group class="todo_list" tag="ul" type="transition" :name="!listDrag ? 'flip-list' : null">
             <li class="todo_list_item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id" :comp="item.complete" :key="item.index">
               <div class="select_check" @click="item.select = !item.select"><span class="material-icons">{{item.select ? 'check_box' : 'check_box_outline_blank'}}</span></div>
@@ -53,13 +53,13 @@
                   <div class="date_label"><span class="material-icons">date_range</span><span class="date">{{item.limit != null ? item.limit : '期日未設定'}}</span>
                     <input class="date_select" type="date" v-model="item.limit">
                   </div>
+                  <div class="handle"><span class="material-icons">menu</span></div>
                   <div class="remaining">
                     <template v-if="item.limit == null"></template>
                     <template v-else-if="remainingDate(item.limit) == 0"><span class="material-icons">av_timer</span><span>期限当日</span></template>
                     <template v-else-if="remainingDate(item.limit) &lt; 0"><span class="material-icons">av_timer</span><span>{{ remainingDate(item.limit)*-1 }}日超過</span></template>
                     <template v-else-if="remainingDate(item.limit) &lt;= 3"><span class="material-icons">av_timer</span><span>あと{{ remainingDate(item.limit) }}日</span></template>
                   </div>
-                  <div class="handle">=</div>
                 </div>
               </div>
               <div class="comp_check" @click="item.complete = !item.complete"><span class="material-icons">check</span></div>
