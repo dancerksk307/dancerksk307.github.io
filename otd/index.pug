@@ -1,0 +1,227 @@
+doctype html
+html(lang="ja")
+  head
+    meta(charset="utf-8")
+    //- link(
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="favicon.ico"
+      )
+
+    meta(name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" )
+
+    // manifest.json
+    link(rel="manifest" href="./manifest.json")
+    // ホーム画面に表示されるアプリアイコン（iOS）
+    link(rel="apple-touch-icon" href="images/icons/icon-192x192.png" sizes="192x192")
+
+    // library
+    script(src="./js/vue.min.js")
+    script(src="./js/localforage.min.js")
+    script(src="./js/xdate.js")
+    //- script(src="./js/axios.min.js")
+
+    // Vue.Draggable
+    script(src="./js/sortable.min.js")
+    script(src="./js/vuedraggable.umd.min.js")
+
+    // Google Material-icon
+    link(rel="stylesheet" href="./iconfont/material-icons.css")
+
+    //- //vuetify
+    //- script(src="./js/vuetify.min.js")
+    //- link(rel="stylesheet" href="./css/vuetify.min.css")
+    //- link(rel="stylesheet" href="./css/materialdesignicons.min.css")
+
+    //- //Vee Validate
+    //- script(src="./js/lib/vee-validate.js")
+    //- script(src="./js/lib/vee-validate-ja.js")
+
+
+    title 俺のToDo
+
+  body(ontouchstart="")
+
+    #app(v-cloak)
+
+
+      header#header
+
+        ul.task_status
+          //- li.delete(
+            @click="removeTodoItem"
+            :disabled="!isSelectTodo"
+            )
+            span.material-icons delete
+          li.all 全{{todo.items.length}} 件
+          li.comp 完了:{{complateNum}}件
+          li.no_comp 未完了:{{todo.items.length - complateNum}}件
+          li.label 達成度: {{(levelOfAchievement * 100).toFixed()}} %
+          li.note_btn(@click="noteShow = true")
+            span.material-icons notes
+
+        .level_meter_wrap
+          .level_meter(:style="'transform:scaleX(' + levelOfAchievement + ');'")
+
+
+      main#main
+
+        ul.tabs
+          li(
+            v-for  = "(tab,key) in todo.tabs"
+            @click = "todo.selectedTab = tab.id"
+            :class = "{select : todo.selectedTab === tab.id}"
+            )
+            span [{{tab.id}}] {{tab.label}}
+          li.edit
+            button(@click="newTab.dialog=true") Edit
+            input(type="checkbox" v-model="enableEditOrder")
+
+        draggable(
+          v-model     = "todo.items"
+          ghost-class = "ghost"
+          animation   = "100"
+          :disabled   = "enableEditOrder"
+          @start      = "listDrag = true"
+          @end        = "listDrag = false"
+          )
+          transition-group.todo_list(
+            tag   = "ul"
+            type  = "transition"
+            :name = "!listDrag ? 'flip-list' : null"
+            )
+
+            li.todo_list_item(
+              v-for = "(item,key) in todo.items"
+              v-if  = "todo.selectedTab === item.tab_id"
+              :comp = "item.complete"
+              :key="item.index"
+              )
+
+              //- 選択
+              .select_check(@click="item.select = !item.select")
+                span.material-icons {{item.select ? 'check_box' : 'check_box_outline_blank'}}
+
+              //- 詳細欄
+              .detail
+
+                //- 件名
+                .label
+                  template(v-if="item.limit != null")
+                    //- 期日超過アイコン
+                    span.material-icons.limit_over(v-if="remainingDate(item.limit) < 0") whatshot
+                    //- 期日間近アイコン
+                    span.material-icons(v-else-if="remainingDate(item.limit) <= 3") priority_high
+
+                  //- 件名
+                  input(type="text" class="label_input" v-model="item.label")
+
+                //- 期日
+                .limit
+                  .date_label
+                    span.material-icons date_range
+                    span.date {{item.limit != null ? item.limit : '期日未設定'}}
+                    input(type="date" class="date_select" v-model="item.limit")
+
+                  .remaining
+                    //- 期日未設定
+                    template(v-if="item.limit == null")
+                    //- 期日当日
+                    template(v-else-if="remainingDate(item.limit) == 0")
+                      span.material-icons av_timer
+                      span 期限当日
+
+                    //- 期日超過
+                    template(v-else-if="remainingDate(item.limit) < 0")
+                      span.material-icons av_timer
+                      span {{ remainingDate(item.limit)*-1 }}日超過
+
+                    //- 期日間近
+                    template(v-else-if="remainingDate(item.limit) <= 3")
+                      span.material-icons av_timer
+                      span あと{{ remainingDate(item.limit) }}日
+
+                  .handle =
+
+              //- 完了チェック
+              .comp_check(@click="item.complete = !item.complete")
+                span.material-icons check
+
+
+      footer#footer
+
+        .label
+          input(type="text" placeholder="新規Todo" v-model="newItem.label")
+
+        .item.date(:disabled="!newItem.limitFlg")
+          span.material-icons date_range
+          span.date {{newItem.limit}}
+          input(type="date" class="date_select" v-model="newItem.limit")
+
+        .item.limit_flg
+          span.material-icons {{newItem.limitFlg ? 'check_box' : 'check_box_outline_blank'}}
+          input#limitFlgCheck(type="checkbox" v-model="newItem.limitFlg")
+          label(for="limitFlgCheck") 期限を設定する
+
+        .flex-spacer
+
+        .item.add_btn(@click="addNewItem")
+          span.material-icons.add_circle_outline
+          span 追加
+
+
+
+      //- section.todo_edit
+
+        hr
+
+        ul.todo
+          draggable(
+            :list="todo.items"
+            @start="console.log('start')"
+            @end="console.log('end')"
+            tag="ul"
+            handle=".handle"
+            v-bind="dragOptions"
+            )
+            transition-group(type="transition" name="flip-list" tag="ul")
+              li.item(
+                v-for="(item,key) in todo.items"
+                v-if="todo.selectedTab === item.tab_id"
+                :key="item.seq"
+                )
+                button(@click="todo.items.splice(key,1)") ×
+                input(type="checkbox" v-model="item.complate")
+                span.label
+                  input(type="text" v-model.lazy="item.label")
+                div.handle =
+
+          li.item.new
+            input(type="checkbox" disabled)
+            span.label
+              input(type="text" v-model="newItem.label" @blur="addNewItem")
+
+        div
+          hr
+          button(@click="saveJson") SAVE
+          button(@click="deleteJson") Delete
+
+      section.tabs_edit(v-show="newTab.dialog")
+        h1.sec_title タブ編集
+        ul.tabs
+          li.item(
+            v-for="(tab,key) in todo.tabs"
+            )
+            button(@click="$delete(todo.tabs, key)") ×
+            span [{{tab.id}}]
+            span.label
+              input(type="text" v-model.lazy="tab.label")
+
+          li.item.new
+            input(type="checkbox" disabled)
+            span.label
+              input(type="text" v-model="newTab.label" @blur="addNewTab")
+
+    //css,js
+    script(src="./js/app.js")
+    link(rel="stylesheet" href="./css/app.css")
