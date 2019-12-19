@@ -333,6 +333,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /*-------------------------------
  main
  ------------------------------ */
+#main {
+  height: 79vh;
+  overflow: hidden;
+}
 #main .tabs {
   display: -webkit-box;
   display: -webkit-flex;
