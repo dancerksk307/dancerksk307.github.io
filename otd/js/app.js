@@ -24,6 +24,7 @@ var app = new Vue({
   el: '#app',
   data: {
     ver:"1.0.0",
+    isLoadData:false,
     newTab : {
       dialog : false,
       label:"",
@@ -44,10 +45,6 @@ var app = new Vue({
         //   id:0,
         //   label:"やること",
         // },
-        // {
-        //   id:1,
-        //   label:"買うもの",
-        // },
       ],
       items:[
         // {
@@ -57,22 +54,6 @@ var app = new Vue({
         //   complete : false, //完了判定
         //   select   : false, //削除フラグ
         //   limit    : "2019-12-10", //完了期限
-        // },
-        // {
-        //   index    : 1,
-        //   tab_id   : 0,
-        //   label    : "Todo 2",//タスク名
-        //   complete : true, //完了判定
-        //   select   : false, //削除フラグ
-        //   limit    : "2019-12-13", //完了期限
-        // },
-        // {
-        //   index    : 2,
-        //   tab_id   : 1,
-        //   label    : "Todo 3",//タスク名
-        //   complete : false, //完了判定
-        //   select   : false, //削除フラグ
-        //   limit    : "2019-12-14", //完了期限
         // },
       ],
     },
@@ -122,22 +103,29 @@ var app = new Vue({
       localforage.clear();
     },
 
+    /**
+     * [addNewItem 新規にTODOを追加]
+     */
     addNewItem:function(){
       console.log("addNewItem");
-      if(!this.newItem.label) return;
+      // if(!this.newItem.label) return;
       var items = this.todo.items;
       items.push(
-        {
-          index    : items.length,
-          tab_id   : this.todo.selectedTab,
-          label    : this.newItem.label,
-          complate : false,
-          select   : false,
-          limit    : this.newItem.limit,
-        }
+        Vue.util.extend({},{
+            index    : items.length,
+            tab_id   : this.todo.selectedTab,
+            label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
+            limit    : this.newItem.limitFlg ? this.newItem.limit : null,
+            complate : false,
+            select   : false,
+          }
+        )
       );
     },//addNewItem
 
+    /**
+     * [addNewTab 新規にタブを追加]
+     */
     addNewTab:function(){
       console.log("addNewTab");
       if(!this.newTab.label) return;
@@ -159,6 +147,15 @@ var app = new Vue({
       // this.todo.items = this.todo.items.sort((a, b) => a.seq - b.seq);
       this.list = this.list.sort((a, b) => a.order - b.order);
     },//sort
+
+    /**
+     * [removeTodoItem チェックしたTODOリストのアイテムを削除]
+     */
+    removeTodoItem:function(){
+      this.todo.items = this.todo.items.filter(function( obj ) {
+        return !obj.select;
+      });
+    },
 
     /**
      * [convertDate カレンダーの日付をXDate形式に変換]
@@ -195,6 +192,7 @@ var app = new Vue({
         }else{
           console.log('Data Load Success',value);
           app.todo = value;
+          app.isLoadData = true;
         }
       })
       .catch(function(err){

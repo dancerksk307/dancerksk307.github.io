@@ -331,7 +331,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  height: 9vh;
 }
 #main .tabs li {
   padding: 8px;
@@ -341,7 +340,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background-color: #DEF8A5;
 }
 #main .todo_list {
-  height: 70vh;
+  height: 79vh;
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -557,4 +556,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 #footer .item.limit_flg {
   font-size: 12px;
+}
+
+/*-------------------------------
+ tabs_edit
+ -------------------------------*/
+.tabs_edit {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  background-color: #fff;
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+}
+.tabs_edit .tabs li {
+  padding: 8px;
+  border: 1px solid #bbbbbb;
+}
+.tabs_edit .tabs li.select {
+  background-color: #DEF8A5;
 }
