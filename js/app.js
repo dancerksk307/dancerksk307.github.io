@@ -2,11 +2,12 @@
 
 //service worker 登録
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service_worker.js'
-      // ,{scope: './otd'}
-    ).then(function(e) {
+    navigator.serviceWorker.register(
+      'service_worker.js'
+      // ,registration.scope
+    ).then(function(registration) {
         // success
-      console.log('[Service Worker:Regist]',e);
+      console.log('[Service Worker:Regist]',registration.scope);
     }).catch(function(err) {
         // failed
       console.log('[Service Worker:Error]',err);
@@ -22,7 +23,7 @@ localforage.config({
 var app = new Vue({
   el: '#app',
   data: {
-    ver:"1.0.0",
+    // ver:"1.0.0",
     // newTab : {
     //   dialog : false,
     //   label:"",
