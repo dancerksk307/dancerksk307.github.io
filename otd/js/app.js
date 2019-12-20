@@ -24,7 +24,6 @@ var app = new Vue({
   el: '#app',
   data: {
     ver:"1.0.0",
-    isLoadData:false,
     // newTab : {
     //   dialog : false,
     //   label:"",
@@ -111,25 +110,14 @@ var app = new Vue({
       console.log("addNewItem");
       // if(!this.newItem.label) return;
       var items = this.todo.items;
-      // var addObj = {
-      //   index    : items.length,
-      //   tab_id   : this.todo.selectedTab,
-      //   // label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
-      //   label    : this.newItem.label ? this.newItem.label : "ToDo - " + this.todo.items.length,
-      //   limit    : this.newItem.limitFlg ? this.newItem.limit : null,
-      //   complete : false,
-      //   select   : false,
-      // };
-      // items.push(addObj);
-
-      // this.$set(items, items.length,
       items.push(
         {
           index    : items.length,
           tab_id   : this.todo.selectedTab,
+          // label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
           label    : this.newItem.label ? this.newItem.label : "ToDo - " + this.todo.items.length,
           limit    : this.newItem.limitFlg ? this.newItem.limit : null,
-          complate : false,
+          complete : false,
           select   : false,
         }
       );
@@ -206,7 +194,6 @@ var app = new Vue({
         }else{
           console.log('Data Load Success',value);
           app.todo = value;
-          app.isLoadData = true;
         }
       })
       .catch(function(err){
