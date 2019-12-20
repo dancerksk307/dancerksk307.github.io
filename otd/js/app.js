@@ -2,8 +2,8 @@
 
 //service worker 登録
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service_worker.js',{
-      scope: './otd'
+    navigator.serviceWorker.register('./otd/service_worker.js',{
+      scope: '/'
     }).then(function(e) {
         // success
       console.log('[Service Worker:Regist]',e);
