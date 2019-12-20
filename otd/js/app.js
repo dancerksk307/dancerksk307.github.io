@@ -25,10 +25,10 @@ var app = new Vue({
   data: {
     ver:"1.0.0",
     isLoadData:false,
-    newTab : {
-      dialog : false,
-      label:"",
-    },
+    // newTab : {
+    //   dialog : false,
+    //   label:"",
+    // },
     newItem:{
       label:"",
       limit:new XDate().toString("yyyy-MM-dd"),
@@ -79,7 +79,7 @@ var app = new Vue({
     },
     //達成度の算出（％）
     levelOfAchievement:function(){
-      return this.completeNum / this.todo.items.length;
+      return this.todo.items.length ? this.completeNum / this.todo.items.length : 0 ;
     },
     //TODOの選択があるかどうか
     isSelectTodo:function(){
@@ -111,15 +111,29 @@ var app = new Vue({
       console.log("addNewItem");
       // if(!this.newItem.label) return;
       var items = this.todo.items;
-      var addObj = {
-        index    : items.length,
-        tab_id   : this.todo.selectedTab,
-        label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
-        limit    : this.newItem.limitFlg ? this.newItem.limit : null,
-        complete : false,
-        select   : false,
-      };
-      this.$set(items, items.length, addObj);
+      // var addObj = {
+      //   index    : items.length,
+      //   tab_id   : this.todo.selectedTab,
+      //   // label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
+      //   label    : this.newItem.label ? this.newItem.label : "ToDo - " + this.todo.items.length,
+      //   limit    : this.newItem.limitFlg ? this.newItem.limit : null,
+      //   complete : false,
+      //   select   : false,
+      // };
+      // items.push(addObj);
+
+      // this.$set(items, items.length,
+      items.push(
+        {
+          index    : items.length,
+          tab_id   : this.todo.selectedTab,
+          label    : this.newItem.label ? this.newItem.label : "ToDo - " + this.todo.items.length,
+          limit    : this.newItem.limitFlg ? this.newItem.limit : null,
+          complate : false,
+          select   : false,
+        }
+      );
+
     },//addNewItem
 
     /**
@@ -188,6 +202,7 @@ var app = new Vue({
       .then(function(value){
         if(!value){
           console.log('No Data',value);
+          app.$set(app.todo, 'items', []); //TODO追加時にリアクティブになるよう初期値をset
         }else{
           console.log('Data Load Success',value);
           app.todo = value;
