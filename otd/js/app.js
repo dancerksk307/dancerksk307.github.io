@@ -2,10 +2,9 @@
 
 //service worker 登録
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(
-      './service_worker.js'
-      // ,{scope: './otd'}
-    ).then(function(e) {
+    navigator.serviceWorker.register('./service_worker.js',{
+      // scope: './otd'
+    }).then(function(e) {
         // success
       console.log('[Service Worker:Regist]',e);
     }).catch(function(err) {
