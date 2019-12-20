@@ -6,6 +6,8 @@
   "display"          : "standalone",
   "Scope"            : "/otd/",
   "start_url"        : "./?src=pwa",
+  "description"      : "Vueを使ったTODOアプリ",
+  "orientation"      : "any", //優先する表示方向
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",
