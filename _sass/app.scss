@@ -23,11 +23,14 @@ html,body{
   font-size:14px;
   line-height:1;
   color: $cl_black;
-  position:relative;
+  // position:relative;
   word-wrap: break-word;
   -webkit-overflow-scrolling: touch;
   user-select: none;
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 img{vertical-align: bottom;}
