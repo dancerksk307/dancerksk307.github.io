@@ -4,10 +4,10 @@
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register(
       './service_worker.js',
-      {scope: './todo_list'}
-    ).then(function(e) {
+      {scope: './'}
+    ).then(function(register) {
         // success
-      console.log('[Service Worker:Regist]',e);
+      console.log('[Service Worker:Regist]',register);
     }).catch(function(err) {
         // failed
       console.log('[Service Worker:Error]',err);
@@ -24,10 +24,10 @@ var app = new Vue({
   el: '#app',
   data: {
     ver:"1.0.0",
-    newTab : {
-      dialog : false,
-      label:"",
-    },
+    // newTab : {
+    //   dialog : false,
+    //   label:"",
+    // },
     newItem:{
       label:"",
       limit:new XDate().toString("yyyy-MM-dd"),
@@ -35,7 +35,7 @@ var app = new Vue({
     },
     today:new XDate().toString("yyyy-MM-dd"),
 
-    enableEditOrder:false,
+    editOrder: false,
     listDrag : false,
     todo:{
       selectedTab:0,
@@ -43,10 +43,6 @@ var app = new Vue({
         // {
         //   id:0,
         //   label:"やること",
-        // },
-        // {
-        //   id:1,
-        //   label:"買うもの",
         // },
       ],
       items:[
@@ -57,22 +53,6 @@ var app = new Vue({
         //   complete : false, //完了判定
         //   select   : false, //削除フラグ
         //   limit    : "2019-12-10", //完了期限
-        // },
-        // {
-        //   index    : 1,
-        //   tab_id   : 0,
-        //   label    : "Todo 2",//タスク名
-        //   complete : true, //完了判定
-        //   select   : false, //削除フラグ
-        //   limit    : "2019-12-13", //完了期限
-        // },
-        // {
-        //   index    : 2,
-        //   tab_id   : 1,
-        //   label    : "Todo 3",//タスク名
-        //   complete : false, //完了判定
-        //   select   : false, //削除フラグ
-        //   limit    : "2019-12-14", //完了期限
         // },
       ],
     },
@@ -88,7 +68,7 @@ var app = new Vue({
   },
   computed: {
     //完了したTODOの数
-    complateNum:function(){
+    completeNum:function(){
       var num = 0;
       this.todo.items.forEach(function(obj){
         //complete が trueだったら加算
@@ -98,8 +78,9 @@ var app = new Vue({
     },
     //達成度の算出（％）
     levelOfAchievement:function(){
-      return this.complateNum / this.todo.items.length;
+      return this.todo.items.length ? this.completeNum / this.todo.items.length : 0 ;
     },
+    //TODOの選択があるかどうか
     isSelectTodo:function(){
       return this.todo.items.some(function(obj){
         return obj.select;
@@ -122,22 +103,30 @@ var app = new Vue({
       localforage.clear();
     },
 
+    /**
+     * [addNewItem 新規にTODOを追加]
+     */
     addNewItem:function(){
       console.log("addNewItem");
-      if(!this.newItem.label) return;
+      // if(!this.newItem.label) return;
       var items = this.todo.items;
       items.push(
         {
           index    : items.length,
           tab_id   : this.todo.selectedTab,
-          label    : this.newItem.label,
-          complate : false,
+          // label    : this.newItem.label ? this.newItem.label : this.todo.tabs[this.todo.selectedTab].label + " - " + this.todo.items.length,
+          label    : this.newItem.label ? this.newItem.label : "ToDo - " + this.todo.items.length,
+          limit    : this.newItem.limitFlg ? this.newItem.limit : null,
+          complete : false,
           select   : false,
-          limit    : this.newItem.limit,
         }
       );
+
     },//addNewItem
 
+    /**
+     * [addNewTab 新規にタブを追加]
+     */
     addNewTab:function(){
       console.log("addNewTab");
       if(!this.newTab.label) return;
@@ -159,6 +148,15 @@ var app = new Vue({
       // this.todo.items = this.todo.items.sort((a, b) => a.seq - b.seq);
       this.list = this.list.sort((a, b) => a.order - b.order);
     },//sort
+
+    /**
+     * [removeTodoItem チェックしたTODOリストのアイテムを削除]
+     */
+    removeTodoItem:function(){
+      this.todo.items = this.todo.items.filter(function( obj ) {
+        return !obj.select;
+      });
+    },
 
     /**
      * [convertDate カレンダーの日付をXDate形式に変換]
@@ -192,6 +190,7 @@ var app = new Vue({
       .then(function(value){
         if(!value){
           console.log('No Data',value);
+          app.$set(app.todo, 'items', []); //TODO追加時にリアクティブになるよう初期値をset
         }else{
           console.log('Data Load Success',value);
           app.todo = value;

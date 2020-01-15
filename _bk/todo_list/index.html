@@ -22,27 +22,21 @@
     <div id="app" v-cloak>
       <header id="header">
         <ul class="task_status">
+          <li class="delete" @click="removeTodoItem" :disabled="!isSelectTodo"><span class="material-icons">delete</span></li>
           <li class="all">全{{todo.items.length}} 件</li>
-          <li class="comp">完了:{{complateNum}}件</li>
-          <li class="no_comp">未完了:{{todo.items.length - complateNum}}件</li>
+          <li class="comp">完了:{{completeNum}}件</li>
+          <li class="no_comp">未完了:{{todo.items.length - completeNum}}件</li>
           <li class="label">達成度: {{(levelOfAchievement * 100).toFixed()}} %</li>
-          <li class="note_btn" @click="noteShow = true"><span class="material-icons">notes</span></li>
+          <li class="order_btn" @click="editOrder = !editOrder" :class="{active:editOrder}" :disabled="!todo.items.length"><span class="material-icons">import_export</span></li>
         </ul>
         <div class="level_meter_wrap">
           <div class="level_meter" :style="'transform:scaleX(' + levelOfAchievement + ');'"></div>
         </div>
       </header>
       <main id="main">
-        <ul class="tabs">
-          <li v-for="(tab,key) in todo.tabs" @click="todo.selectedTab = tab.id" :class="{select : todo.selectedTab === tab.id}"><span>[{{tab.id}}] {{tab.label}}</span></li>
-          <li class="edit">
-            <button @click="newTab.dialog=true">Edit</button>
-            <input type="checkbox" v-model="enableEditOrder">
-          </li>
-        </ul>
-        <draggable v-model="todo.items" ghost-class="ghost" animation="100" :disabled="enableEditOrder" @start="listDrag = true" @end="listDrag = false">
+        <draggable v-model="todo.items" ghost-class="ghost" animation="100" handle=".handle" :disabled="!editOrder" @start="listDrag = true" @end="listDrag = false">
           <transition-group class="todo_list" tag="ul" type="transition" :name="!listDrag ? 'flip-list' : null">
-            <li class="todo_list_item" v-for="(item,key) in todo.items" v-if="todo.selectedTab === item.tab_id" :comp="item.complete" :key="item.index">
+            <li class="todo_list_item" v-for="(item,key) in todo.items" :comp="item.complete" :key="item.index">
               <div class="select_check" @click="item.select = !item.select"><span class="material-icons">{{item.select ? 'check_box' : 'check_box_outline_blank'}}</span></div>
               <div class="detail">
                 <div class="label">
@@ -59,10 +53,10 @@
                     <template v-else-if="remainingDate(item.limit) &lt; 0"><span class="material-icons">av_timer</span><span>{{ remainingDate(item.limit)*-1 }}日超過</span></template>
                     <template v-else-if="remainingDate(item.limit) &lt;= 3"><span class="material-icons">av_timer</span><span>あと{{ remainingDate(item.limit) }}日</span></template>
                   </div>
-                  <div class="handle">=</div>
                 </div>
               </div>
-              <div class="comp_check" @click="item.complete = !item.complete"><span class="material-icons">check</span></div>
+              <div class="check handle" v-if="editOrder"><span class="material-icons">menu</span></div>
+              <div class="check comp" @click="item.complete = !item.complete" v-else><span class="material-icons">check</span></div>
             </li>
           </transition-group>
         </draggable>
@@ -74,26 +68,12 @@
         <div class="item date" :disabled="!newItem.limitFlg"><span class="material-icons">date_range</span><span class="date">{{newItem.limit}}</span>
           <input class="date_select" type="date" v-model="newItem.limit">
         </div>
-        <div class="item limit_flg"><span class="material-icons">{{newItem.limitFlg ? 'check_box' : 'check_box_outline_blank'}}</span>
-          <input id="limitFlgCheck" type="checkbox" v-model="newItem.limitFlg">
-          <label for="limitFlgCheck">期限を設定する</label>
+        <div class="item limit_flg" @click="newItem.limitFlg = !newItem.limitFlg"><span class="material-icons">{{newItem.limitFlg ? 'check_box' : 'check_box_outline_blank'}}</span>
+          <label>期限を設定する</label>
         </div>
         <div class="flex-spacer"></div>
         <div class="item add_btn" @click="addNewItem"><span class="material-icons add_circle_outline"></span><span>追加</span></div>
       </footer>
-      <section class="tabs_edit" v-show="newTab.dialog">
-        <h1 class="sec_title">タブ編集</h1>
-        <ul class="tabs">
-          <li class="item" v-for="(tab,key) in todo.tabs">
-            <button @click="$delete(todo.tabs, key)">×</button><span>[{{tab.id}}]</span><span class="label">
-              <input type="text" v-model.lazy="tab.label"></span>
-          </li>
-          <li class="item new">
-            <input type="checkbox" disabled><span class="label">
-              <input type="text" v-model="newTab.label" @blur="addNewTab"></span>
-          </li>
-        </ul>
-      </section>
     </div>
     <!--css,js-->
     <script src="./js/app.js"></script>

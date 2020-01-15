@@ -2,9 +2,8 @@
   "name"             : "俺のToDo",
   "short_name"       : "俺のToDo",
   "theme_color"      : "#f1c817",
-  "background_color" : "#a2bcd0",
+  "background_color" : "#ffffff",
   "display"          : "standalone",
-  "Scope"            : "/todo_list/",
   "start_url"        : "./?src=pwa",
   "icons": [
     {

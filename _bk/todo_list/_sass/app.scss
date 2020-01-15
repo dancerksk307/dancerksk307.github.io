@@ -23,11 +23,14 @@ html,body{
   font-size:14px;
   line-height:1;
   color: $cl_black;
-  position:relative;
+  // position:relative;
   word-wrap: break-word;
   -webkit-overflow-scrolling: touch;
   user-select: none;
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 img{vertical-align: bottom;}
@@ -200,9 +203,14 @@ input[type="checkbox"]{
       &.label{
         font-size: 10px;
       }
-      &.note_btn{
+      &.order_btn{
         width: 10vw;
         text-align: center;
+        &[disabled]{
+          opacity: .3;
+          pointer-events: none;
+        }
+        &.active{color: #ff3;}
       }
     }
 
@@ -227,12 +235,12 @@ input[type="checkbox"]{
  main
  ------------------------------ */
 #main{
-  // height: 79vh;
-  // overflow: hidden;
+  height: 79vh;
+  overflow: hidden;
 
   .tabs{
     display: flex;
-    height: 9vh;
+    // height: 9vh;
 
     li{
       padding: 8px;
@@ -245,7 +253,7 @@ input[type="checkbox"]{
 
 
   .todo_list{
-    height: 70vh;
+    height: 79vh;
     // overflow: scroll;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -332,18 +340,20 @@ input[type="checkbox"]{
       }//detail
 
       // 完了チェック
-      .comp_check{
+      .check{
         width: 15vw;
         display: flex;
         align-items: center;
         justify-content: center;
         border-left: 1px solid #ddd;
 
-        &:hover{
-          // background-color: #ff3;
-        }
+        &.comp{
+          &:hover{
+            // background-color: #ff3;
+          }
 
-        span{opacity: .2;}
+          span{opacity: .2;}
+        }
       }
 
       &[comp]{
@@ -351,7 +361,7 @@ input[type="checkbox"]{
           opacity: .2;
           pointer-events: none;
         }
-        .comp_check{
+        .comp.check{
           span{opacity: 1;}
         }
       }//[comp]
@@ -437,60 +447,28 @@ input[type="checkbox"]{
 
 
 
+/*-------------------------------
+ tabs_edit
+ -------------------------------*/
+.tabs_edit{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  background-color: #fff;
+  height: max-content;
 
+  .tabs{
 
-
-
-
-// /*-------------------------------
-//  list
-//  -------------------------------*/
-// .item{
-//   position: relative;
-//   display: flex;
-//   align-items: center;
-//   height: 30px;
-//   border-bottom: 1px solid #ddd;
-
-//   .handle{
-//     padding: 8px;
-//     background-color: #ddd;
-//     display: block;
-//   }
-// }
-
-// .flip-list-move {
-//   transition: transform 0.5s;
-// }
-// .no-move {
-//   transition: transform 0s;
-// }
-// // .flip-list-enter-active, .flip-list-leave-active {
-// //   transition: opacity 1s;
-// // }
-// // .flip-list-enter, .flip-list-leave-to {
-// //   opacity: 0;
-// // }
-// .ghost {
-//   opacity: 0.5;
-//   background: #c8ebfb;
-// }
-
-
-// /*-------------------------------
-//  tabs_edit
-//  -------------------------------*/
-// .tabs_edit{
-//   .tabs{
-//     // li{
-//     //   padding: 8px;
-//     //   border: 1px solid #bbb;
-//     //   &.select{
-//     //     background-color: #DEF8A5;
-//     //   }
-//     // }
-//   }//tabs
-// }
+    li{
+      padding: 8px;
+      border: 1px solid #bbb;
+      &.select{
+        background-color: #DEF8A5;
+      }
+    }
+  }//tabs
+}
 
 
 

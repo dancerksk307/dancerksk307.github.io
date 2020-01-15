@@ -1,4 +1,4 @@
-var CACHE_NAME  = "cache_1.0.1";
+var CACHE_NAME  = "cache_1.0.4";
 
 var urlsToCache = [
     "index.html",
@@ -58,7 +58,7 @@ self.addEventListener('fetch', function(event) {
   }
 
   if(online){
-    console.log("ONLINE");
+    // console.log("ONLINE");
     //このパターンの処理では、Responseだけクローンすれば問題ない
     //cloneEventRequest = event.request.clone();
     event.respondWith(
