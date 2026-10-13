@@ -5,9 +5,9 @@
 .totk-bar { display: flex; align-items: center; height: 40px; padding: 0 8px; background: #2b542b; color: #fff; }
 .totk-bar__menu { width: 36px; height: 32px; padding: 0; border: 0; border-radius: 2px; background: transparent; color: #fff; font-size: 20px; line-height: 32px; cursor: pointer; }
 .totk-bar__menu:active { background: rgba(255, 255, 255, .2); }
-.totk-bar__title { margin-left: 8px; font-size: 15px; font-weight: bold; white-space: nowrap; }
-.totk-bar__status { flex: 1; min-width: 0; margin-left: 12px; overflow: hidden; font-size: 12px; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
-.totk-bar__status.is-warn { color: #ffe08a; }
+.totk-bar__title { flex: 1; min-width: 0; margin-left: 8px; overflow: hidden; font-size: 15px; font-weight: bold; text-overflow: ellipsis; white-space: nowrap; }
+.totk-bar__reset { height: 28px; padding: 0 10px; border: solid 1px rgba(255, 255, 255, .6); border-radius: 2px; background: transparent; color: #fff; font-size: 12px; cursor: pointer; }
+.totk-bar__reset:active { background: rgba(255, 255, 255, .2); }
 
 /* 地図ツールの操作部品（最大で1000台）より手前に出す */
 .totk-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, .4); }
@@ -23,6 +23,7 @@
 .totk-drawer__settings { padding: 16px; font-size: 12px; }
 .totk-drawer__heading { margin-bottom: 4px; font-size: 13px; font-weight: bold; }
 .totk-drawer__dest { color: #888; word-break: break-all; }
+.totk-drawer__status.is-warn { color: #c0392b; }
 .totk-drawer__token { width: 100%; margin: 8px 0; padding: 6px; border: solid 1px #ccc; border-radius: 2px; font-size: 13px; }
 .totk-drawer__buttons { display: flex; gap: 8px; }
 .totk-drawer__buttons button { flex: 1; padding: 8px 0; border: solid 1px #34b792; border-radius: 2px; background: #fff; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }

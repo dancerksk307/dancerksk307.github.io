@@ -19,16 +19,12 @@ li { list-style: none; }
 img { border: 0; vertical-align: bottom; }
 #article-body img { display: block; margin: 0 auto 15px; }
 #article-body { padding: 8px; }
-/* 元ページのインラインCSSから、リセットボタンの見た目だけ持ってきたもの */
-.js-check-reset-all { font-size: 13px; line-height: 13px; font-weight: bold; color: #34b792; border: solid 1px #34b792; text-align: center; border-radius: 2px; cursor: pointer; padding: 10px 0; margin: 10px 0 0; background-color: #fff; }
-.js-check-reset-all:active { color: #fff; background-color: #34b792; }
 </style>
 </head>
 <body>
 <!-- マップツールが #article-body の幅でPC/スマホ表示を切り替え、ピンの表示切替CSSもこのidに依存するため、このidは変えない -->
 <div id="article-body">
   <div id="RenderMap" class="leaflet-render-map"></div>
-  <div class="js-check-reset-all">すべてのチェックをリセットする</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -372,8 +368,8 @@ window._achievementDatas = [...data.filter(d => d.mapId == undefined)];
 </script>
 
 <script>
-// 画面いっぱいに地図を出す。72px は余白とリセットボタンの分、40px は上部バー（common.css の .totk-bar）の分
-var MAP_HEIGHT = 'calc(100vh - 72px - 40px)';
+// 画面いっぱいに地図を出す。31px は上下の余白（8px×2）と地図ツールが地図の下に空ける15px、40px は上部バー（common.css の .totk-bar）の分
+var MAP_HEIGHT = 'calc(100vh - 31px - 40px)';
 // GitHub の保存データを読み終えてから地図ツールを起動する。先に起動すると古いチェック状態で描かれる
 $(function(){TotkSave.ready.then(function(){$.fn.leafletArticleMapToolV3({pinDatas:window._pinDatas,mapDatas:window._mapDatas,typeDatas:window._typeDatas,saveKeyName:'ZeldaTotkMap',baseArticleUrl:"https://gamewith.jp/zelda-totk/article/show/",baseGachaUrl:"https://img.gamewith.jp/article_tools/zelda-totk/gacha/",defaultMapId:"地上",enableChecker:true,filterMaps:["地上","空"],isHideAllButton:true,defaultOffTypes:["hokorachallenge"],noSetViewOnChangeMap:true,noMarkerLastPositionTypes:['hokorachallenge','hokora-cave'],height:MAP_HEIGHT,pcHeight:MAP_HEIGHT,}).KeywordSearchUI().TotkSideMenu([{typeNames:['hokora','tower','hokora-cave','hokorachallenge']},]).CheckerProgress('hokora')})});
 </script>

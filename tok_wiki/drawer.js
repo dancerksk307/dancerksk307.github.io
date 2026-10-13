@@ -7,6 +7,7 @@
   var PAGES = [
     { href: 'hokora.html', title: '祠マップ' },
     { href: 'korogu.html', title: 'コログマップ' },
+    { href: 'doukutsu.html', title: '洞窟マップ' },
   ];
 
   var STATUS_TEXT = {
@@ -38,7 +39,9 @@
     '<header class="totk-bar">' +
       '<button type="button" class="totk-bar__menu" aria-label="メニューを開く">☰</button>' +
       '<span class="totk-bar__title"></span>' +
-      '<span class="totk-bar__status"></span>' +
+      // 地図ツールは起動時に .js-check-reset-all へリセット処理を付けるので、このクラス名は変えない。
+      // 地図の操作中に誤って押さないよう、地図から離れたバーの右端に置いている
+      '<button type="button" class="totk-bar__reset js-check-reset-all" data-confirm="すべてのページのチェックを消します。よろしいですか？">リセット</button>' +
     '</header>' +
     '<div class="totk-overlay"></div>' +
     '<nav class="totk-drawer">' +
@@ -47,6 +50,7 @@
       '<div class="totk-drawer__settings">' +
         '<p class="totk-drawer__heading">保存設定</p>' +
         '<p class="totk-drawer__dest"></p>' +
+        '<p class="totk-drawer__status"></p>' +
         '<p class="totk-drawer__token-state"></p>' +
         '<input type="password" class="totk-drawer__token" placeholder="GitHub のトークンを貼り付け" autocomplete="off">' +
         '<div class="totk-drawer__buttons">' +
@@ -82,9 +86,9 @@
   });
 
   function showStatus(state, httpStatus) {
-    var status = find('.totk-bar__status');
+    var status = find('.totk-drawer__status');
     var isError = state === 'load-error' || state === 'save-error';
-    status.textContent = STATUS_TEXT[state] + (isError ? '（' + errorReason(httpStatus) + '）' : '');
+    status.textContent = '状態: ' + STATUS_TEXT[state] + (isError ? '（' + errorReason(httpStatus) + '）' : '');
     status.classList.toggle('is-warn', WARN_STATES.indexOf(state) !== -1);
   }
 
