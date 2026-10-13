@@ -2161,6 +2161,20 @@ function fitMenuHeight() {
   options.height = (MENU_HIDE_HEIGHT + parseInt(options.showHeight, 10)) + 'px';
 }
 
+// 地図の操作部品を下側に集める（スマホを持った手の指が届くように）。地図ツールは置き場所を選べないので、作られた後で移す。
+// ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置く。
+// どちらでも同じ並びになるよう、角を決め打ちせずに「境界線の上」「進捗の隣」を目印にしている
+function moveControlsToBottom() {
+  // 拡大縮小と全画面は、境界線・地図の切り替えと同じ列の上へ。同じ列に入れるので、境界線が出ない地図（空島・地底）でも間が空かない
+  $('.leaflet-map-border-switch').before($('.leaflet-control-zoom, .leaflet-control-fullscreen'));
+  // 検索欄は、進捗の隣（地図の中央寄り）へ。横に並べる指定は common.css（.totk-bottom-row）
+  var $progress = $('.leaflet-checker-progress');
+  var $search = $('.leaflet-keyword-search-ui').parent().addClass('totk-search');
+  var $corner = $progress.parent().addClass('totk-bottom-row');
+  if ($corner.hasClass('leaflet-right')) $progress.before($search);
+  else $progress.after($search);
+}
+
 function showLimitNotice() {
   showNotice('同時に表示できるのは' + MAX_SHOWN_TYPES + '種類までです');
 }
@@ -2219,6 +2233,7 @@ $(function () {
       .KeywordSearchUI({ targetTypes: SEARCH_TYPES })
       .TotkSideMenu(MENU_GROUPS)
       .CheckerProgress('hokora');
+    moveControlsToBottom();
     limitShownTypes();
     showTypeOnSearch();
   });

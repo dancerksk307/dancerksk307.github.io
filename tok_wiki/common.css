@@ -44,7 +44,35 @@
 #RenderMap ._sidemenu-section .always-show-section ._switch-group,
 #RenderMap ._sidemenu-section .opened-show-section ._subject:first-child + ._switch-group { width: calc(100% - 46px); margin: 0 0 0 46px; }
 
+/* 地図の操作部品を下側に集めたとき（index.html の moveControlsToBottom）の並べ方。
+   ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置くので、
+   左右どちらの角でも効くように書いている。
+   進捗のある角（.totk-bottom-row）を、反対側の「地図の切り替え」の幅（74px）を残して横いっぱいに広げ、検索欄と進捗を横に並べる。
+   検索欄は、狭い画面では残りの幅に合わせて縮む（ツールは幅を220px相当で固定している） */
+#RenderMap .totk-bottom-row { display: flex; align-items: flex-end; }
+#RenderMap .totk-bottom-row.leaflet-right { left: 74px; justify-content: flex-end; }
+#RenderMap .totk-bottom-row.leaflet-left { right: 74px; }
+/* 進捗はツールが幅100%（最大200px）にしているので、横に並べると広がって検索欄を押しつぶす。中身の幅にする */
+#RenderMap .totk-bottom-row > .leaflet-control { flex: none; width: auto; }
+/* 進捗はツールが外側へ5px寄せているので、検索欄との間が空きすぎないよう、進捗側の余白を無くす */
+#RenderMap .totk-bottom-row > .totk-search { flex: 0 1 220px; min-width: 0; }
+#RenderMap .totk-bottom-row.leaflet-right > .totk-search { margin-right: 0; }
+#RenderMap .totk-bottom-row.leaflet-left > .totk-search { margin-left: 0; }
+#RenderMap .totk-search .w-keyword-search-ui-body { width: 100%; }
+#RenderMap .totk-search .select2-container { width: 100% !important; }
+/* 候補の一覧は、検索欄の位置にかかわらず地図の上端に出す。欄の下に出すと地図からはみ出して見えず、
+   欄のすぐ上に出すと、スマホでは文字入力のキーボードに隠れる */
+#RenderMap > .select2-container--open { top: 10px !important; }
+/* 境界線・地図の切り替えの列に入れた拡大縮小・全画面を、同じ列の部品（ツールが外側へ5px寄せている）とそろえる */
+#RenderMap .leaflet-bottom.leaflet-left > .leaflet-control-zoom,
+#RenderMap .leaflet-bottom.leaflet-left > .leaflet-control-fullscreen { left: -5px; }
+#RenderMap .leaflet-bottom.leaflet-right > .leaflet-control-zoom,
+#RenderMap .leaflet-bottom.leaflet-right > .leaflet-control-fullscreen { right: -5px; }
+/* 「境界線」は見出しが枠の上にはみ出している。すぐ上に全画面ボタンが来たので、重ならないよう間を足す。
+   境界線の側に足すと PC幅（右寄せ）で効かなかったので、全画面ボタンの下に足している */
+#RenderMap .leaflet-bottom > .leaflet-control-fullscreen { margin-bottom: 16px; }
+
 /* 地図の上に出す短いお知らせ（表示できる種類の上限など）。地図ツールの操作部品（1000台）より手前に出す。
    下のメニューや地図の操作をじゃましないよう、クリックは素通しにしている */
-.totk-notice { display: none; position: absolute; top: 56px; left: 50%; z-index: 1100; width: max-content; max-width: 90%; padding: 8px 12px; border-radius: 4px; background: rgba(32, 32, 32, .9); color: #fff; font-size: 13px; font-weight: bold; text-align: center; transform: translateX(-50%); pointer-events: none; }
+.totk-notice { display: none; position: absolute; top: 10px; left: 50%; z-index: 1100; width: max-content; max-width: 90%; padding: 8px 12px; border-radius: 4px; background: rgba(32, 32, 32, .9); color: #fff; font-size: 13px; font-weight: bold; text-align: center; transform: translateX(-50%); pointer-events: none; }
 .totk-notice.totk-is-shown { display: block; }
