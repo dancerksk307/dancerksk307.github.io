@@ -60,9 +60,14 @@
 #RenderMap .totk-bottom-row.leaflet-left > .totk-search { margin-left: 0; }
 #RenderMap .totk-search .w-keyword-search-ui-body { width: 100%; }
 #RenderMap .totk-search .select2-container { width: 100% !important; }
-/* 候補の一覧は、検索欄の位置にかかわらず地図の上端に出す。欄の下に出すと地図からはみ出して見えず、
-   欄のすぐ上に出すと、スマホでは文字入力のキーボードに隠れる */
-#RenderMap > .select2-container--open { top: 10px !important; }
+/* 検索欄を押すと出る入力欄と候補の一覧は、検索欄のすぐ上から上方向に出す。
+   ツールは「欄の下に出す」位置を top で直接書き込むが、欄が下端にあるので地図からはみ出して見えない。
+   そこで top を打ち消し、地図の下端からの距離で固定する。一覧が伸びても下の辺は動かず、上へ伸びる。横の位置はツールが検索欄に合わせる。
+   111px = メニューの見えている分（59px）＋部品の下の余白（10px）＋検索欄の高さ（42px） */
+#RenderMap > .select2-container--open { top: auto !important; bottom: 111px; }
+/* 入力欄を下（検索欄のすぐ上）、候補を上に並べる。上に出すと、そのままでは入力欄が検索欄から一番遠い上端に来てしまう。
+   枠線は、ツールが「下に出す」前提で上の辺を消しているので、4辺とも付け直す */
+#RenderMap > .select2-container--open > .select2-dropdown { display: flex; flex-direction: column-reverse; border: 1px solid #aaa; border-radius: 4px; }
 /* 境界線・地図の切り替えの列に入れた拡大縮小・全画面を、同じ列の部品（ツールが外側へ5px寄せている）とそろえる */
 #RenderMap .leaflet-bottom.leaflet-left > .leaflet-control-zoom,
 #RenderMap .leaflet-bottom.leaflet-left > .leaflet-control-fullscreen { left: -5px; }
