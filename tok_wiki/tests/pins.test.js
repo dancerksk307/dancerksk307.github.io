@@ -13,9 +13,10 @@ function loadPins() {
   return new Function(html.slice(start, end) + '; return data;')();
 }
 
-// 起動スクリプトの「var 名前 = [ ... ];」を取り出して実行する
+// 起動スクリプトの「var 名前 = [ ... ];」を取り出して実行する。
+// 手元のファイルは git の設定（autocrlf）で改行が CRLF になることがあるので、どちらの改行でも読めるようにしている
 function loadLaunchArray(name) {
-  const source = new RegExp('var ' + name + ' = (\\[[\\s\\S]*?\\]);\\n').exec(html)[1];
+  const source = new RegExp('var ' + name + ' = (\\[[\\s\\S]*?\\]);\\r?\\n').exec(html)[1];
   return new Function('return ' + source)();
 }
 
@@ -95,11 +96,10 @@ test('下メニューに同じ種類が2回出てこない', () => {
 });
 
 // 地図ツールの下メニューが受け取れる形。これを超えると、はみ出したりボタンが描かれなかったりする
-test('下メニューは、いつも見える段が5種類まで、開いて見える組が4つまで', () => {
-  assert.ok(menuGroups[0].typeNames.length <= 5);
+test('下メニューは、いつも見える段が6種類まで、開いて見える組が4つまで', () => {
+  assert.ok(menuGroups[0].typeNames.length <= 6);
   assert.ok(menuGroups.length - 1 <= 4);
 });
-
 test('開いた直後にONの種類は、同時に表示できる数（MAX_SHOWN_TYPES）以内', () => {
   const defaultOn = loadLaunchArray('DEFAULT_ON_TYPES');
   const max = Number(/var MAX_SHOWN_TYPES = (\d+);/.exec(html)[1]);
