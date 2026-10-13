@@ -2133,6 +2133,10 @@ var MENU_GROUPS = [
   { subject: '施設・地底', typeNames: ['village', 'stables', 'dungeon', 'root', 'hole'] },
   { subject: 'ボス', typeNames: ['hinokkusu', 'iwarokku', 'ierokku', 'iwa_oct', 'block', 'frox', 'gurioku', 'lynel', 'morudora', 'phantom', 'koga', 'boss_temple'] },
 ];
+// メニューを閉じているときに、地図の下へ隠れている分の高さ（px）。開いたメニューの高さは、これに見えている1段分（62px）を足したもの。
+// いまの中身（ボタン4段と見出し2つ）がちょうど収まる値にしている。段を増減したら合わせて変える。
+// 必ず8の倍数にすること。ツールはメニューを8pxずつ動かし、ちょうど0にならないと止まらない
+var MENU_HIDE_HEIGHT = 200;
 // 開いた直後に表示する種類
 var DEFAULT_ON_TYPES = ['hokora', 'tower'];
 // 同時に表示できる種類の数。ピンを出しすぎて動きが重くならないようにしている
@@ -2147,6 +2151,14 @@ function showNotice(text) {
   $notice.text(text).addClass('totk-is-shown');
   clearTimeout(showNotice.timer);
   showNotice.timer = setTimeout(function () { $notice.removeClass('totk-is-shown'); }, 2500);
+}
+
+// 開いたメニューの高さを中身に合わせる。ツールの既定は390pxで、段が少ないと下が空いたまま地図を隠す。
+// 起動オプションでは変えられないので、ツールが下メニューを作る前に、メニュー部品（Leaflet の SlideMenu）の既定値を書き換える
+function fitMenuHeight() {
+  var options = L.Control.SlideMenu.prototype.options;
+  options.hideHeight = MENU_HIDE_HEIGHT + 'px';
+  options.height = (MENU_HIDE_HEIGHT + parseInt(options.showHeight, 10)) + 'px';
 }
 
 function showLimitNotice() {
@@ -2187,6 +2199,7 @@ function showTypeOnSearch() {
 $(function () {
   TotkSave.ready.then(function () {
     var menuTypes = MENU_GROUPS.reduce(function (types, group) { return types.concat(group.typeNames); }, []);
+    fitMenuHeight();
     $.fn.leafletArticleMapToolV3({
       pinDatas: window._pinDatas,
       mapDatas: window._mapDatas,

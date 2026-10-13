@@ -34,6 +34,10 @@
    よく押す「表示設定」を左上に、「全てOFF」を開いたときの2段目の左に移し、空いた右上まで1段目の種類を並べている。
    ボタンはツールのものなので位置だけを上書きする。ツール側の指定（クラス5つ分）に勝つよう #RenderMap を付けている */
 #RenderMap ._sidemenu-section ._toggle-btn { right: auto; left: 10px; }
+/* ツールはメニューを開いている間「表示設定」を薄くする。押せないように見えるので、閉じているときと同じ見た目に戻す */
+#RenderMap ._sidemenu-section ._toggle-btn.is-open { border-color: rgba(255, 255, 255, .5); }
+#RenderMap ._sidemenu-section ._toggle-btn.is-open > img { opacity: 1; }
+#RenderMap ._sidemenu-section ._toggle-btn.is-open > ._label { color: #fff; }
 /* 84px = もとの位置（10px）＋1段目の高さ（48px）＋見出しの高さ（26px）。閉じているときは地図の外にはみ出て見えない */
 #RenderMap ._sidemenu-section ._clear-btn { top: 84px; }
 /* 1段目と2段目は、左のボタンの分（46px）だけ空ける。1段目は、ツールが右側にも空ける「表示設定」の分を詰めることになる */

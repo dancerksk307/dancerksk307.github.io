@@ -100,6 +100,12 @@ test('下メニューは、いつも見える段が6種類まで、開いて見�
   assert.ok(menuGroups[0].typeNames.length <= 6);
   assert.ok(menuGroups.length - 1 <= 4);
 });
+test('メニューの隠れている分の高さ（MENU_HIDE_HEIGHT）は8の倍数（ツールが8pxずつ動かすので、ずれると開閉が止まらない）', () => {
+  const hideHeight = Number(/var MENU_HIDE_HEIGHT = (\d+);/.exec(html)[1]);
+
+  assert.equal(hideHeight % 8, 0);
+});
+
 test('開いた直後にONの種類は、同時に表示できる数（MAX_SHOWN_TYPES）以内', () => {
   const defaultOn = loadLaunchArray('DEFAULT_ON_TYPES');
   const max = Number(/var MAX_SHOWN_TYPES = (\d+);/.exec(html)[1]);
