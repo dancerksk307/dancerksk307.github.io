@@ -1,0 +1,29 @@
+/* 上部バーとドロワーメニュー（全ページ共通）。
+   地図ツールのCSSと名前がぶつからないよう、クラス名はすべて totk- で始める */
+
+/* 高さを変えるときは、各ページの MAP_HEIGHT（地図の高さ計算）も合わせる */
+.totk-bar { display: flex; align-items: center; height: 40px; padding: 0 8px; background: #2b542b; color: #fff; }
+.totk-bar__menu { width: 36px; height: 32px; padding: 0; border: 0; border-radius: 2px; background: transparent; color: #fff; font-size: 20px; line-height: 32px; cursor: pointer; }
+.totk-bar__menu:active { background: rgba(255, 255, 255, .2); }
+.totk-bar__title { margin-left: 8px; font-size: 15px; font-weight: bold; white-space: nowrap; }
+.totk-bar__status { flex: 1; min-width: 0; margin-left: 12px; overflow: hidden; font-size: 12px; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.totk-bar__status.is-warn { color: #ffe08a; }
+
+/* 地図ツールの操作部品（最大で1000台）より手前に出す */
+.totk-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, .4); }
+.totk-drawer { position: fixed; top: 0; bottom: 0; left: 0; z-index: 10001; width: 260px; max-width: 85vw; overflow-y: auto; background: #fff; box-shadow: 2px 0 8px rgba(0, 0, 0, .3); transform: translateX(-105%); transition: transform .2s ease-out; visibility: hidden; }
+.totk-is-open .totk-overlay { display: block; }
+.totk-is-open .totk-drawer { transform: none; visibility: visible; }
+
+.totk-drawer__head { display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 8px 0 16px; background: #2b542b; color: #fff; font-weight: bold; }
+.totk-drawer__close { width: 32px; height: 32px; padding: 0; border: 0; background: transparent; color: #fff; font-size: 16px; cursor: pointer; }
+.totk-drawer__pages a { display: block; padding: 12px 16px; border-bottom: solid 1px #eee; color: #444; }
+.totk-drawer__pages a.is-current { background: #e8f5ee; color: #2b542b; font-weight: bold; }
+
+.totk-drawer__settings { padding: 16px; font-size: 12px; }
+.totk-drawer__heading { margin-bottom: 4px; font-size: 13px; font-weight: bold; }
+.totk-drawer__dest { color: #888; word-break: break-all; }
+.totk-drawer__token { width: 100%; margin: 8px 0; padding: 6px; border: solid 1px #ccc; border-radius: 2px; font-size: 13px; }
+.totk-drawer__buttons { display: flex; gap: 8px; }
+.totk-drawer__buttons button { flex: 1; padding: 8px 0; border: solid 1px #34b792; border-radius: 2px; background: #fff; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
+.totk-drawer__buttons button:active { background: #34b792; color: #fff; }
