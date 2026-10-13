@@ -313,7 +313,7 @@
     serialize: serialize,
     createSync: createSync,
     start: start,
-    // 各ページはこれを待ってから地図ツールを起動する。start() 前は即完了
+    // index.html はこれを待ってから地図ツールを起動する。start() 前は即完了
     ready: Promise.resolve(),
   };
   return api;
