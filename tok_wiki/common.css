@@ -1,0 +1,36 @@
+/* 上部バー・ドロワーメニューと、地図の上に出すお知らせ。
+   地図ツールのCSSと名前がぶつからないよう、クラス名はすべて totk- で始める */
+
+/* 高さを変えるときは、index.html の MAP_HEIGHT（地図の高さ計算）も合わせる */
+.totk-bar { display: flex; align-items: center; height: 40px; padding: 0 8px; background: #2b542b; color: #fff; }
+.totk-bar__menu { width: 36px; height: 32px; padding: 0; border: 0; border-radius: 2px; background: transparent; color: #fff; font-size: 20px; line-height: 32px; cursor: pointer; }
+.totk-bar__menu:active { background: rgba(255, 255, 255, .2); }
+.totk-bar__title { flex: 1; min-width: 0; margin-left: 8px; overflow: hidden; font-size: 15px; font-weight: bold; text-overflow: ellipsis; white-space: nowrap; }
+.totk-bar__reset { height: 28px; padding: 0 10px; border: solid 1px rgba(255, 255, 255, .6); border-radius: 2px; background: transparent; color: #fff; font-size: 12px; cursor: pointer; }
+.totk-bar__reset:active { background: rgba(255, 255, 255, .2); }
+
+/* 地図ツールの操作部品（最大で1000台）より手前に出す */
+.totk-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, .4); }
+.totk-drawer { position: fixed; top: 0; bottom: 0; left: 0; z-index: 10001; width: 260px; max-width: 85vw; overflow-y: auto; background: #fff; box-shadow: 2px 0 8px rgba(0, 0, 0, .3); transform: translateX(-105%); transition: transform .2s ease-out; visibility: hidden; }
+.totk-is-open .totk-overlay { display: block; }
+.totk-is-open .totk-drawer { transform: none; visibility: visible; }
+
+.totk-drawer__head { display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 8px 0 16px; background: #2b542b; color: #fff; font-weight: bold; }
+.totk-drawer__close { width: 32px; height: 32px; padding: 0; border: 0; background: transparent; color: #fff; font-size: 16px; cursor: pointer; }
+.totk-drawer__progress { padding: 16px 16px 0; }
+.totk-drawer__progress ul { margin-bottom: 12px; }
+.totk-drawer__progress li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: solid 1px #eee; }
+
+.totk-drawer__settings { padding: 16px; font-size: 12px; }
+.totk-drawer__heading { margin-bottom: 4px; font-size: 13px; font-weight: bold; }
+.totk-drawer__dest { color: #888; word-break: break-all; }
+.totk-drawer__status.is-warn { color: #c0392b; }
+.totk-drawer__token { width: 100%; margin: 8px 0; padding: 6px; border: solid 1px #ccc; border-radius: 2px; font-size: 13px; }
+.totk-drawer__buttons { display: flex; gap: 8px; }
+.totk-drawer__buttons button { flex: 1; padding: 8px 0; border: solid 1px #34b792; border-radius: 2px; background: #fff; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
+.totk-drawer__buttons button:active { background: #34b792; color: #fff; }
+
+/* 地図の上に出す短いお知らせ（表示できる種類の上限など）。地図ツールの操作部品（1000台）より手前に出す。
+   下のメニューや地図の操作をじゃましないよう、クリックは素通しにしている */
+.totk-notice { display: none; position: absolute; top: 56px; left: 50%; z-index: 1100; width: max-content; max-width: 90%; padding: 8px 12px; border-radius: 4px; background: rgba(32, 32, 32, .9); color: #fff; font-size: 13px; font-weight: bold; text-align: center; transform: translateX(-50%); pointer-events: none; }
+.totk-notice.totk-is-shown { display: block; }
