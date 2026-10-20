@@ -93,6 +93,9 @@
 #RenderMap .leaflet-map-border-switch > ._inner-table > input[type=radio] + label { padding: 6px 0; font-size: 16px; line-height: 16px; }
 /* 枠の上にはみ出している「境界線」の見出しも、同じだけ大きくして上へずらす */
 #RenderMap .leaflet-map-border-switch > ._head { top: -20px; width: 96px; font-size: 16px; line-height: 16px; }
+/* ツールは地上以外（空島・地底）で境界線を消すが、消えるとその上の拡大縮小と ☰ の位置がずれるので、常に出しておく。
+   空島・地底で押しても何も変わらない（境界線は地上の地図にしか無い） */
+#RenderMap .leaflet-map-border-switch { display: block !important; }
 /* 境界線・地図の切り替えの列に入れた拡大縮小・メニューボタンを、同じ列の部品（ツールが外側へ5px寄せている）とそろえる */
 #RenderMap .leaflet-bottom.leaflet-left > .leaflet-control-zoom,
 #RenderMap .leaflet-bottom.leaflet-left > .totk-menu-control { left: -5px; }

@@ -2183,7 +2183,7 @@ function fitMenuHeight() {
 // どちらでも同じ並びになるよう、角を決め打ちせずに「境界線の上」「進捗の隣」を目印にしている
 function moveControlsToBottom() {
   // 拡大縮小と、ドロワーを開くボタン（drawer.js が作る）は、境界線・地図の切り替えと同じ列の上へ。
-  // 同じ列に入れるので、境界線が出ない地図（空島・地底）でも間が空かない。
+  // 境界線は common.css で常に出しているので、地図を切り替えてもこの2つの位置は動かない。
   // メニューボタンは地図ツールの部品ではないので、部品の並べ方（leaflet-control）に乗る入れ物に入れ、
   // 押したり触ったりしても地図が動かないようにする
   var menuControl = $('<div class="leaflet-control totk-menu-control"></div>').append($('.totk-menu-button'))[0];
