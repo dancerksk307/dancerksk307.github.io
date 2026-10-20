@@ -8,8 +8,8 @@
 
 /* ドロワーを開くボタン。地図の中（拡大縮小ボタンの下）へ移すまでは出さない。移す前に出すと、地図の上に一瞬はみ出す */
 .totk-menu-button { display: none; }
-/* 見た目は、同じ列の拡大縮小ボタンに合わせている */
-#RenderMap .totk-menu-button { display: block; width: 32px; height: 32px; padding: 0; border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; background: rgba(32, 32, 32, .8); color: #fff; font-size: 18px; line-height: 1; cursor: pointer; }
+/* 見た目は、同じ列の拡大縮小ボタンに合わせている（大きさも、拡大縮小ボタンと同じくツールの標準の1.5倍） */
+#RenderMap .totk-menu-button { display: block; width: 48px; height: 48px; padding: 0; border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; background: rgba(32, 32, 32, .8); color: #fff; font-size: 27px; line-height: 1; cursor: pointer; }
 #RenderMap .totk-menu-button:active { background: rgba(80, 80, 80, .9); }
 
 /* 地図ツールの操作部品（最大で1000台）より手前に出す */
@@ -63,11 +63,11 @@
 /* 地図の操作部品を下側に集めたとき（index.html の moveControlsToBottom）の並べ方。
    ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置くので、
    左右どちらの角でも効くように書いている。
-   進捗のある角（.totk-bottom-row）を、反対側の「地図の切り替え」の幅（74px）を残して横いっぱいに広げ、検索欄と進捗を横に並べる。
+   進捗のある角（.totk-bottom-row）を、反対側の「地図の切り替え」の幅（106px = 幅96px＋余白10px）を残して横いっぱいに広げ、検索欄と進捗を横に並べる。
    検索欄は、狭い画面では残りの幅に合わせて縮む（ツールは幅を220px相当で固定している） */
 #RenderMap .totk-bottom-row { display: flex; align-items: flex-end; }
-#RenderMap .totk-bottom-row.leaflet-right { left: 74px; justify-content: flex-end; }
-#RenderMap .totk-bottom-row.leaflet-left { right: 74px; }
+#RenderMap .totk-bottom-row.leaflet-right { left: 106px; justify-content: flex-end; }
+#RenderMap .totk-bottom-row.leaflet-left { right: 106px; }
 /* 進捗はツールが幅100%（最大200px）にしているので、横に並べると広がって検索欄を押しつぶす。中身の幅にする */
 #RenderMap .totk-bottom-row > .leaflet-control { flex: none; width: auto; }
 /* 進捗はツールが外側へ5px寄せているので、検索欄との間が空きすぎないよう、進捗側の余白を無くす */
@@ -84,6 +84,15 @@
 /* 入力欄を下（検索欄のすぐ上）、候補を上に並べる。上に出すと、そのままでは入力欄が検索欄から一番遠い上端に来てしまう。
    枠線は、ツールが「下に出す」前提で上の辺を消しているので、4辺とも付け直す */
 #RenderMap > .select2-container--open > .select2-dropdown { display: flex; flex-direction: column-reverse; border: 1px solid #aaa; border-radius: 4px; }
+/* 拡大縮小・境界線（有／無）・地図の切り替え（空島・地上・地底）は、スマホで押しやすいよう、ツールの標準の1.5倍にする。
+   地図の切り替えの幅（96px）を変えたら、上の .totk-bottom-row の 106px も合わせる */
+#RenderMap .leaflet-control-zoom a { width: 45px; height: 45px; line-height: 45px; font-size: 33px; }
+#RenderMap .leaflet-map-select-tab { width: 96px; padding: 6px; }
+#RenderMap .leaflet-map-select-tab > input[type=radio] + label { padding: 6px; font-size: 16px; line-height: 16px; }
+#RenderMap .leaflet-map-border-switch { width: 96px; padding: 6px; }
+#RenderMap .leaflet-map-border-switch > ._inner-table > input[type=radio] + label { padding: 6px 0; font-size: 16px; line-height: 16px; }
+/* 枠の上にはみ出している「境界線」の見出しも、同じだけ大きくして上へずらす */
+#RenderMap .leaflet-map-border-switch > ._head { top: -20px; width: 96px; font-size: 16px; line-height: 16px; }
 /* 境界線・地図の切り替えの列に入れた拡大縮小・メニューボタンを、同じ列の部品（ツールが外側へ5px寄せている）とそろえる */
 #RenderMap .leaflet-bottom.leaflet-left > .leaflet-control-zoom,
 #RenderMap .leaflet-bottom.leaflet-left > .totk-menu-control { left: -5px; }
@@ -91,7 +100,7 @@
 #RenderMap .leaflet-bottom.leaflet-right > .totk-menu-control { right: -5px; }
 /* 「境界線」は見出しが枠の上にはみ出している。すぐ上にメニューボタンが来るので、重ならないよう間を足す。
    境界線の側に足すと PC幅（右寄せ）で効かなかったので、メニューボタンの下に足している */
-#RenderMap .leaflet-bottom > .totk-menu-control { margin-bottom: 16px; }
+#RenderMap .leaflet-bottom > .totk-menu-control { margin-bottom: 24px; }
 
 /* 地図の上に出す短いお知らせ（表示できる種類の上限など）。地図ツールの操作部品（1000台）より手前に出す。
    下のメニューや地図の操作をじゃましないよう、クリックは素通しにしている */
