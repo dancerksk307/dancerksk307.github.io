@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ティアキン 攻略マップ</title>
+<!-- ホーム画面に追加（PWA）したときの名前・アイコン・色。iPhone はアイコンと名前を manifest ではなく下の apple- の指定から取る -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b542b">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="ティアキンMAP">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <!-- 元ページの地図部分のみ。画像・JS・CSSは元サイトを直接参照
      祠・祠チャレ・鳥望台: https://gamewith.jp/zelda-totk/article/show/397434
      コログ・施設・馬宿・神殿: https://gamewith.jp/zelda-totk/article/show/397662
@@ -42,6 +49,11 @@ img { border: 0; vertical-align: bottom; }
 <script src="config.js"></script>
 <script src="save.js"></script>
 <script src="drawer.js"></script>
+
+<!-- PWA 用のサービスワーカー（sw.js）を登録する。file:// で開いたときは使えないので登録しない -->
+<script>
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js');
+</script>
 
 <!-- 地図・ピン種類の設定（元ページから抜き出し） -->
 <script>

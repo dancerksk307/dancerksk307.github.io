@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "ティアキン 攻略マップ",
+  "short_name": "ティアキンMAP",
+  "description": "祠・洞窟・コログ・ボスなどの場所を1つの地図で確かめ、チェックを付けられる攻略マップ",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2b542b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

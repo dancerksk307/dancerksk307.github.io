@@ -14,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 node --test tests/                                   # 全テスト
 node --test --test-name-pattern="衝突" tests/        # 名前で絞って1件だけ
 node --test tests/pins.test.js                       # ピンデータの検査だけ（件数・id の重なり・洞窟と同名のピン）
+node --test tests/pwa.test.js                        # ホーム画面に追加する仕組みだけ（サービスワーカーが保存の通信に関わらないこと等）
 ```
 
 ビルド・lint・package.json は無い（依存ゼロ、Node 標準の `node:test` のみ）。
@@ -114,6 +115,23 @@ GitHub のトークンはコードに書かない。メニューから入力し�
 `drawer.js` が上部バー（☰・タイトル・リセット）、ドロワー（進捗・保存設定・保存状態）を body 先頭に差し込み、
 `TotkSave.start()` を呼ぶ。読み込み順は `config.js` → `save.js` → `drawer.js` → `index.html` の起動スクリプト。
 クラス名はツールの CSS とぶつからないよう `totk-` で始める。
+
+### ホーム画面に追加（PWA: manifest.webmanifest / sw.js / icons/）
+
+- `manifest.webmanifest` がアプリ名・アイコン・色、`display: standalone`（アドレスバー無し）を決める。
+  iPhone はアイコンと名前を manifest ではなく `index.html` の `apple-touch-icon` / `apple-mobile-web-app-title` から取る。
+- `sw.js`（サービスワーカー）は、**このフォルダ（`tok_wiki/`）のファイルだけ**を扱う。いつもはネットから取り、取れないときだけ前回の控えを返す。
+  **GitHub API（保存データ）・地図画像・地図ツールなど外のサイトの通信には関わらない**。保存データを控えから返すとチェックが巻き戻るため。
+  この決まりは `tests/pwa.test.js` で確かめている。sw.js を直したら必ず通す。
+- 控えの名前は `totk-map-` で始める。入れ替えのときに消すのはこの名前の古い控えだけ
+  （同じドメイン `dancerksk307.github.io` の他のページの控えを消さないため）。
+- いつもネットから取る作りなので、ファイルを更新しても控えの名前（`CACHE_NAME`）を変える必要はない。
+  sw.js 自体を変えたときは、ブラウザが次に開いたときに入れ替わる。
+- サービスワーカーは `file://` では動かない（`index.html` で http/https のときだけ登録している）。
+  画面で確かめるときは、ローカルに配信サーバーを立てて `/tok_wiki/` の下で開く。
+  なお、確認用のヘッドレス Chrome では Cache Storage が内部エラーで使えなかった（控えの動きはテストで確かめている）。
+- アイコン（`icons/`）は、緑の背景に白い地図ピンの自作の図柄。Android が丸や角丸に切り抜いても欠けないよう、図柄を中心から半径40%の内側に収めている。
+  作り直すときは、SVG を Chrome の canvas で描いて PNG に書き出す（このPCには画像ツールが無い）。
 
 ## ピンの種類を追加するとき
 
