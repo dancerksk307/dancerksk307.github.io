@@ -30,7 +30,9 @@ dl, h1, h2, h3, h4, h5, ol, p, ul { margin: 0; padding: 0; }
 li { list-style: none; }
 img { border: 0; vertical-align: bottom; }
 #article-body img { display: block; margin: 0 auto 15px; }
-#article-body { padding: 8px; }
+/* 地図を画面いっぱいに出すので、余白は付けず、ページ自体は動かない（地図の中だけを動かす）ようにする */
+#article-body { padding: 0; }
+body { overflow: hidden; }
 </style>
 </head>
 <body>
@@ -45,7 +47,7 @@ img { border: 0; vertical-align: bottom; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <script src="https://gamewith-tool.s3.ap-northeast-1.amazonaws.com/assets/js/article_maptool-3.0.0.zelda.min.js?52"></script>
 
-<!-- 上部バー・ドロワーメニューと、チェックデータの GitHub 保存 -->
+<!-- ドロワーメニュー（進捗・保存設定・リセット）と、チェックデータの GitHub 保存 -->
 <script src="config.js"></script>
 <script src="save.js"></script>
 <script src="drawer.js"></script>
@@ -2135,8 +2137,8 @@ window._achievementDatas = [...data.filter(d => d.mapId == undefined)];
 </script>
 
 <script>
-// 画面いっぱいに地図を出す。31px は上下の余白（8px×2）と地図ツールが地図の下に空ける15px、40px は上部バー（common.css の .totk-bar）の分
-var MAP_HEIGHT = 'calc(100vh - 31px - 40px)';
+// 地図は画面いっぱいに出す。スマホのアドレスバーの出入りに合わせた高さ（100dvh）は common.css で上書きしていて、これは使えないブラウザ向けの高さ
+var MAP_HEIGHT = '100vh';
 // 下メニューの並び。1つ目はいつも見えている段、2つ目以降は左端の「表示設定」で上に開いたときに出る段（地図ツールの決まりで4つまで）。
 // スマホ幅で1段に並ぶのは6種類まで。7種類以上の組は、ツールが半分ずつの2段に分ける（1つ目の組は分けると2段目が隠れるので6種類まで）。
 // 1つ目と2つ目の段は、左端にボタン（表示設定・全てOFF）を置く分だけ common.css で左を空けている
@@ -2145,7 +2147,8 @@ var MENU_GROUPS = [
   { subject: '施設・地底', typeNames: ['village', 'stables', 'dungeon', 'root', 'hole'] },
   { subject: 'ボス', typeNames: ['hinokkusu', 'iwarokku', 'ierokku', 'iwa_oct', 'block', 'frox', 'gurioku', 'lynel', 'morudora', 'phantom', 'koga', 'boss_temple'] },
 ];
-// メニューを閉じているときに、地図の下へ隠れている分の高さ（px）。開いたメニューの高さは、これに見えている1段分（62px）を足したもの。
+// メニューを閉じているときに、地図の下へ隠れている分の高さ（px）。開いたメニューの高さは、これに見えている1段分（62px）と、
+// その下の余白（common.css の --totk-menu-space）を足したもの。
 // いまの中身（ボタン4段と見出し2つ）がちょうど収まる値にしている。段を増減したら合わせて変える。
 // 必ず8の倍数にすること。ツールはメニューを8pxずつ動かし、ちょうど0にならないと止まらない
 var MENU_HIDE_HEIGHT = 200;
@@ -2156,7 +2159,7 @@ var MAX_SHOWN_TYPES = 5;
 // 検索の一覧に出す種類。名前が1つずつ違う種類だけにしている（コログは名前が無く、ボスや深穴は同じ名前がいくつも並ぶ）
 var SEARCH_TYPES = ['hokora', 'hokorachallenge', 'tower', 'cave', 'well', 'village', 'stables', 'dungeon', 'root'];
 
-// 地図の上に短いお知らせを出す。全画面表示でも見えるよう、地図（#RenderMap）の中に置く
+// 地図の上に短いお知らせを出す。地図の部品より手前に重ねるため、地図（#RenderMap）の中に置く
 function showNotice(text) {
   var $notice = $('.totk-notice');
   if (!$notice.length) $notice = $('<div class="totk-notice"></div>').appendTo('#RenderMap');
@@ -2167,18 +2170,25 @@ function showNotice(text) {
 
 // 開いたメニューの高さを中身に合わせる。ツールの既定は390pxで、段が少ないと下が空いたまま地図を隠す。
 // 起動オプションでは変えられないので、ツールが下メニューを作る前に、メニュー部品（Leaflet の SlideMenu）の既定値を書き換える
+// 閉じたときに見えている高さも、1段目のボタンの下に足した余白の分だけ高くする（ボタンを画面の下端から持ち上げるため）
 function fitMenuHeight() {
   var options = L.Control.SlideMenu.prototype.options;
+  var space = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--totk-menu-space'), 10) || 0;
   options.hideHeight = MENU_HIDE_HEIGHT + 'px';
-  options.height = (MENU_HIDE_HEIGHT + parseInt(options.showHeight, 10)) + 'px';
+  options.height = (MENU_HIDE_HEIGHT + parseInt(options.showHeight, 10) + space) + 'px';
 }
 
 // 地図の操作部品を下側に集める（スマホを持った手の指が届くように）。地図ツールは置き場所を選べないので、作られた後で移す。
 // ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置く。
 // どちらでも同じ並びになるよう、角を決め打ちせずに「境界線の上」「進捗の隣」を目印にしている
 function moveControlsToBottom() {
-  // 拡大縮小と全画面は、境界線・地図の切り替えと同じ列の上へ。同じ列に入れるので、境界線が出ない地図（空島・地底）でも間が空かない
-  $('.leaflet-map-border-switch').before($('.leaflet-control-zoom, .leaflet-control-fullscreen'));
+  // 拡大縮小と、ドロワーを開くボタン（drawer.js が作る）は、境界線・地図の切り替えと同じ列の上へ。
+  // 同じ列に入れるので、境界線が出ない地図（空島・地底）でも間が空かない。
+  // メニューボタンは地図ツールの部品ではないので、部品の並べ方（leaflet-control）に乗る入れ物に入れ、
+  // 押したり触ったりしても地図が動かないようにする
+  var menuControl = $('<div class="leaflet-control totk-menu-control"></div>').append($('.totk-menu-button'))[0];
+  L.DomEvent.disableClickPropagation(menuControl);
+  $('.leaflet-map-border-switch').before($('.leaflet-control-zoom'), menuControl);
   // 検索欄は、進捗の隣（地図の中央寄り）へ。横に並べる指定は common.css（.totk-bottom-row）
   var $progress = $('.leaflet-checker-progress');
   var $search = $('.leaflet-keyword-search-ui').parent().addClass('totk-search');
@@ -2235,6 +2245,8 @@ $(function () {
       baseGachaUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/',
       defaultMapId: '地上',
       enableChecker: true,
+      // 地図は最初から画面いっぱいなので、ツールの「全画面 ON/OFF」ボタンは出さない
+      enableFullScreen: false,
       isHideAllButton: true,
       defaultOffTypes: menuTypes.filter(function (type) { return DEFAULT_ON_TYPES.indexOf(type) === -1; }),
       noSetViewOnChangeMap: true,

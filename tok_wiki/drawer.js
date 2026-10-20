@@ -1,5 +1,6 @@
-// 上部バー・ドロワーメニュー（進捗・保存設定）を画面に差し込む。
+// ドロワーメニュー（進捗・保存設定・リセット）と、それを開くボタンを画面に差し込む。
 // save.js と config.js を先に読み込んでおくこと。
+// 開くボタン（.totk-menu-button）は、地図ツールの起動後に index.html が地図の中へ移す。移すまでは見えない（common.css）
 (function () {
   'use strict';
 
@@ -66,13 +67,7 @@
 
   var root = document.createElement('div');
   root.innerHTML =
-    '<header class="totk-bar">' +
-      '<button type="button" class="totk-bar__menu" aria-label="メニューを開く">☰</button>' +
-      '<span class="totk-bar__title"></span>' +
-      // 地図ツールは起動時に .js-check-reset-all へリセット処理を付けるので、このクラス名は変えない。
-      // 地図の操作中に誤って押さないよう、地図から離れたバーの右端に置いている
-      '<button type="button" class="totk-bar__reset js-check-reset-all" data-confirm="すべてのチェックを消します。よろしいですか？">リセット</button>' +
-    '</header>' +
+    '<button type="button" class="totk-menu-button" aria-label="メニューを開く">☰</button>' +
     '<div class="totk-overlay"></div>' +
     '<nav class="totk-drawer">' +
       '<div class="totk-drawer__head">メニュー<button type="button" class="totk-drawer__close" aria-label="メニューを閉じる">✕</button></div>' +
@@ -88,11 +83,16 @@
           '<button type="button" class="totk-drawer__clear">削除</button>' +
         '</div>' +
       '</div>' +
+      '<div class="totk-drawer__reset">' +
+        '<p class="totk-drawer__heading">チェックのリセット</p>' +
+        // 地図ツールは起動時に .js-check-reset-all へリセット処理（確認つき）を付けるので、このクラス名は変えない。
+        // 地図ツールより先に画面にある必要があるので、ここで作っている。誤って押さないよう、メニューの一番下に置いている
+        '<button type="button" class="totk-drawer__reset-button js-check-reset-all" data-confirm="すべてのチェックを消します。よろしいですか？">すべてのチェックを消す</button>' +
+      '</div>' +
     '</nav>';
 
   function find(selector) { return root.querySelector(selector); }
 
-  find('.totk-bar__title').textContent = document.title;
   find('.totk-drawer__dest').textContent = config.owner && config.repo
     ? '保存先: ' + config.owner + '/' + config.repo + '（' + config.branch + ' ブランチ）'
     : '保存先: 未設定（config.js）';
@@ -119,7 +119,7 @@
   });
 
   function setOpen(open) { root.classList.toggle('totk-is-open', open); }
-  find('.totk-bar__menu').addEventListener('click', function () { setOpen(true); });
+  find('.totk-menu-button').addEventListener('click', function () { setOpen(true); });
   find('.totk-drawer__close').addEventListener('click', function () { setOpen(false); });
   find('.totk-overlay').addEventListener('click', function () { setOpen(false); });
   document.addEventListener('keydown', function (event) {
