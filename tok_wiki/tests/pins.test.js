@@ -67,6 +67,20 @@ test('ピンの id が重ならない（チェックの保存データは id だ
   assert.deepEqual(duplicated.map((pin) => pin.id), []);
 });
 
+// チェックの保存データは id で記録しているので、id が変わると今までのチェックが外れる。
+// 洞窟は名前でチェックをまとめる（下のテスト参照）ので、名前が変わってもチェックがずれる。
+// fixtures/pins-v1.json は、完璧版を取り込む前（1,961ピン）の index.html から書き出したもの
+test('取り込み前のピンが、同じ id・種類・名前のまま全部残っている（今までのチェックが外れない）', () => {
+  const before = require('./fixtures/pins-v1.json');
+  const byId = new Map(pins.map((pin) => [pin.id, pin]));
+  const changed = before.filter((old) => {
+    const pin = byId.get(old.id);
+    return !pin || pin.type !== old.type || pin.name !== old.name;
+  });
+
+  assert.deepEqual(changed.map((old) => old.id), []);
+});
+
 // 地図ツールは「種類 cave のピンと同じ名前のピン」の id を、種類を問わず cave 側の id に書き換える。
 // 同じ名前が2つあると、別々のピンが1つのチェックを共有してしまう
 test('洞窟（cave）と同じ名前のピンが他に無い', () => {
