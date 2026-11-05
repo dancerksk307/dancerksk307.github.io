@@ -2757,20 +2757,21 @@ window._locationPinDatas = [
 // 地図は画面いっぱいに出す。スマホのアドレスバーの出入りに合わせた高さ（100dvh）は common.css で上書きしていて、これは使えないブラウザ向けの高さ
 var MAP_HEIGHT = '100vh';
 // 下メニューの初期配置（横7マス。データの形は menu-layout.js の冒頭）。1段目はいつも見えている段で、左端は「表示設定」の固定マス（_toggle）。
+// 2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わる（左端は表示設定が重なるので、何も置けない固定マス）。
 // 2段目以降は「表示設定」で上に開いたときに出る段。_clear は「全てOFF」。lines の番号の段の上に、区切りの線を引く。
 // 下メニューに出す項目（種類と全てOFF）は、この初期配置に置いたものがすべて。種類を足すときはここに足す
 var DEFAULT_MENU_LAYOUT = {
   version: 1,
   rows: [
     ['_toggle', 'hokora', 'hokorachallenge', 'tower', 'cave', 'well', 'korok'],
+    ['_toggle', 'root', 'hole', 'grove', 'mine', 'seiren', 'blueprint'],
     ['_clear', 'area', 'village', 'stables', 'dungeon', 'fairy', 'god_statue'],
-    ['root', 'hole', 'grove', 'mine', 'seiren', 'blacksmith', 'battery'],
-    ['zonai', 'demon_statue', 'ancienttablet', 'tears', 'sage', 'map', 'blueprint'],
-    ['kanban', 'shadow-sword', 'shadow-large', 'shadow-lance', null, null, null],
+    ['zonai', 'demon_statue', 'ancienttablet', 'tears', 'sage', 'map', 'blacksmith'],
+    ['kanban', 'battery', 'shadow-sword', 'shadow-large', 'shadow-lance', null, null],
     ['hinokkusu', 'iwarokku', 'ierokku', 'iwa_oct', 'block', 'frox', 'gurioku'],
     ['lynel', 'morudora', 'phantom', 'koga', 'boss_temple', null, null],
   ],
-  lines: [1, 3, 5],
+  lines: [1, 2, 5],
 };
 // 下メニューに出す項目すべて（並びを保存した後で種類を増減しても、これに合わせて直す）
 var MENU_ITEMS = DEFAULT_MENU_LAYOUT.rows

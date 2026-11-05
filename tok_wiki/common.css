@@ -143,6 +143,8 @@
 .totk-layout-editor__row { display: grid; grid-template-columns: repeat(7, 1fr); }
 /* いつも見える段（1段目）は、少し明るい背景で分かるようにする */
 .totk-layout-editor__row.is-always { border-radius: 4px; background: rgba(255, 255, 255, .08); }
+/* 地底用の段（2段目）。地底では閉じていても見える段になるので、紫がかった背景で区別する */
+.totk-layout-editor__row.is-underground { border-radius: 4px; background: rgba(170, 110, 255, .14); }
 .totk-layout-editor__cell { display: flex; justify-content: center; min-width: 0; height: 56px; padding-top: 4px; border-radius: 4px; }
 .totk-layout-editor__cell.is-target { background: rgba(52, 183, 146, .45); }
 /* 指で動かしている間、画面がスクロールしないよう touch-action を止める */

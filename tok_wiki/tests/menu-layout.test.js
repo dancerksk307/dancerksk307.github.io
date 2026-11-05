@@ -5,12 +5,13 @@ const { normalize, moveItem, toggleLine, menuHideHeight, toolGroups, FIXED, CLEA
 
 const _ = null;
 const ITEMS = [CLEAR, 'hokora', 'tower', 'korok', 'cave', 'lynel'];
+// 1段目と2段目（地底用の段）の左端は、どちらも固定マス
 const DEFAULT = {
   version: 1,
   rows: [
     [FIXED, 'hokora', 'tower', _, _, _, _],
-    [CLEAR, 'korok', 'cave', _, _, _, _],
-    ['lynel', _, _, _, _, _, _],
+    [FIXED, 'korok', 'cave', _, _, _, _],
+    ['lynel', CLEAR, _, _, _, _, _],
   ],
   lines: [1, 2],
 };
@@ -30,7 +31,7 @@ test('保存した並びは、そのまま使う', () => {
     version: 1,
     rows: [
       [FIXED, 'lynel', _, _, _, _, 'hokora'],
-      ['tower', _, CLEAR, _, _, _, _],
+      [FIXED, _, CLEAR, _, _, _, 'tower'],
       [_, 'korok', 'cave', _, _, _, _],
     ],
     lines: [2],
@@ -40,24 +41,34 @@ test('保存した並びは、そのまま使う', () => {
 });
 
 test('左上は、何が保存されていても「表示設定」の固定マスになる（置かれていた項目は空いたマスへ移る）', () => {
-  const saved = { version: 1, rows: [['hokora', 'tower', _, _, _, _, _], [CLEAR, 'korok', 'cave', 'lynel', _, _, _]], lines: [] };
+  const saved = { version: 1, rows: [['hokora', 'tower', _, _, _, _, _], [FIXED, 'korok', 'cave', 'lynel', CLEAR, _, _]], lines: [] };
   const result = normalize(saved, ITEMS, DEFAULT);
 
   assert.equal(result.rows[0][0], FIXED);
-  assert.deepEqual(result.rows[1], [CLEAR, 'korok', 'cave', 'lynel', 'hokora', _, _]);
+  assert.deepEqual(result.rows[1], [FIXED, 'korok', 'cave', 'lynel', CLEAR, 'hokora', _]);
 });
 
-test('種類が増えたら、2段目以降の空いたマスに足す（置き場所の無い項目が出ない）', () => {
+// 地底では2段目が閉じていても見える段になり、左端に「表示設定」が重なる。
+// 固定マスを2段目にも作る前に保存した並び（2段目の左端に全てOFF）も、全てOFF を空いたマスへ移して使う
+test('2段目（地底用の段）の左端も固定マスになる（置かれていた項目は空いたマスへ移る）', () => {
   const saved = { version: 1, rows: [[FIXED, 'hokora', _, _, _, _, _], [CLEAR, 'korok', 'cave', 'lynel', _, _, _]], lines: [] };
   const result = normalize(saved, ITEMS, DEFAULT);
 
-  assert.deepEqual(result.rows[1], [CLEAR, 'korok', 'cave', 'lynel', 'tower', _, _]);
+  assert.deepEqual(result.rows[1], [FIXED, 'korok', 'cave', 'lynel', CLEAR, 'tower', _]);
+  assert.deepEqual(allItems(result).sort(), [...ITEMS].sort());
+});
+
+test('種類が増えたら、2段目以降の空いたマスに足す（置き場所の無い項目が出ない）', () => {
+  const saved = { version: 1, rows: [[FIXED, 'hokora', _, _, _, _, _], [FIXED, 'korok', 'cave', 'lynel', CLEAR, _, _]], lines: [] };
+  const result = normalize(saved, ITEMS, DEFAULT);
+
+  assert.deepEqual(result.rows[1], [FIXED, 'korok', 'cave', 'lynel', CLEAR, 'tower', _]);
   assert.deepEqual(allItems(result).sort(), [...ITEMS].sort());
 });
 
 test('空いたマスが無ければ、段を足して置く', () => {
-  const full = [CLEAR, 'a', 'b', 'c', 'd', 'e', 'f'];
-  const items = [...full, 'hokora', 'new'];
+  const full = [FIXED, 'a', 'b', 'c', 'd', 'e', 'f'];
+  const items = ['a', 'b', 'c', 'd', 'e', 'f', 'hokora', 'new'];
   const saved = { version: 1, rows: [[FIXED, 'hokora', _, _, _, _, _], full], lines: [] };
   const result = normalize(saved, items, DEFAULT);
 
@@ -68,13 +79,13 @@ test('空いたマスが無ければ、段を足して置く', () => {
 test('知らない項目（種類を減らしたとき）と、2回目以降に出てくる項目は消す', () => {
   const saved = {
     version: 1,
-    rows: [[FIXED, 'hokora', 'gone', _, _, _, _], [CLEAR, 'hokora', 'tower', 'korok', 'cave', 'lynel', _]],
+    rows: [[FIXED, 'hokora', 'gone', _, _, _, _], [FIXED, 'hokora', 'tower', 'korok', 'cave', 'lynel', CLEAR]],
     lines: [],
   };
   const result = normalize(saved, ITEMS, DEFAULT);
 
   assert.deepEqual(result.rows[0], [FIXED, 'hokora', _, _, _, _, _]);
-  assert.deepEqual(result.rows[1], [CLEAR, _, 'tower', 'korok', 'cave', 'lynel', _]);
+  assert.deepEqual(result.rows[1], [FIXED, _, 'tower', 'korok', 'cave', 'lynel', CLEAR]);
 });
 
 test('何も無い段は詰め、その段の上の線は次の段の上へ移す', () => {
@@ -82,15 +93,24 @@ test('何も無い段は詰め、その段の上の線は次の段の上へ移�
     version: 1,
     rows: [
       [FIXED, 'hokora', 'tower', _, _, _, _],
+      [FIXED, 'korok', _, _, _, _, _],
       [_, _, _, _, _, _, _],
-      [CLEAR, 'korok', 'cave', 'lynel', _, _, _],
+      ['lynel', CLEAR, 'cave', _, _, _, _],
     ],
-    lines: [1, 2],
+    lines: [2, 3],
   };
   const result = normalize(saved, ITEMS, DEFAULT);
 
-  assert.equal(result.rows.length, 2);
-  assert.deepEqual(result.lines, [1]);
+  assert.equal(result.rows.length, 3);
+  assert.deepEqual(result.lines, [2]);
+});
+
+test('2段目（地底用の段）は、固定マスのほかに何も無くても消さない。1段しか無い並びには足す', () => {
+  const emptySecond = { version: 1, rows: [[FIXED, 'hokora', _, _, _, _, _], [FIXED, _, _, _, _, _, _], ['korok', 'cave', 'lynel', CLEAR, 'tower', _, _]], lines: [] };
+  const oneRow = { version: 1, rows: [[FIXED, 'hokora', 'tower', 'korok', 'cave', 'lynel', CLEAR]], lines: [] };
+
+  assert.deepEqual(normalize(emptySecond, ITEMS, DEFAULT).rows[1], [FIXED, _, _, _, _, _, _]);
+  assert.deepEqual(normalize(oneRow, ITEMS, DEFAULT).rows, [oneRow.rows[0], [FIXED, _, _, _, _, _, _]]);
 });
 
 test('おかしな線の番号（0・段の数以上・小数・重なり）は消す', () => {
@@ -100,7 +120,7 @@ test('おかしな線の番号（0・段の数以上・小数・重なり）は�
 });
 
 test('どの段も横7マスにそろえる', () => {
-  const saved = { version: 1, rows: [[FIXED, 'hokora'], [CLEAR, 'tower', 'korok', 'cave', 'lynel', _, _, 'extra']], lines: [] };
+  const saved = { version: 1, rows: [[FIXED, 'hokora'], [FIXED, 'tower', 'korok', 'cave', 'lynel', CLEAR, _, 'extra']], lines: [] };
 
   normalize(saved, ITEMS, DEFAULT).rows.forEach((row) => assert.equal(row.length, COLUMNS));
 });
@@ -140,9 +160,11 @@ test('並べ替え: 一番下の空の段に置くと、段が増える', () => 
   assert.equal(result.rows[3][3], 'lynel');
 });
 
-test('並べ替え: 表示設定（左上の固定マス）は動かせず、そこへも置けない', () => {
+test('並べ替え: 固定マス（1段目と2段目の左端）は動かせず、そこへも置けない', () => {
   assert.deepEqual(moveItem(DEFAULT, { row: 0, col: 0 }, { row: 1, col: 5 }), DEFAULT);
   assert.deepEqual(moveItem(DEFAULT, { row: 0, col: 1 }, { row: 0, col: 0 }), DEFAULT);
+  assert.deepEqual(moveItem(DEFAULT, { row: 1, col: 0 }, { row: 2, col: 5 }), DEFAULT);
+  assert.deepEqual(moveItem(DEFAULT, { row: 2, col: 1 }, { row: 1, col: 0 }), DEFAULT);
 });
 
 test('並べ替え: 元の並び（保存前のもの）は書き換えない', () => {

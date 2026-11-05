@@ -3,6 +3,8 @@
 // ツールにボタンを作らせた後で、ボタンをこのマス目へ移している。
 // 並びのデータ: { version: 1, rows: [[7マス分の項目名か null], ...], lines: [線を入れる行の番号] }
 //   rows[0] は閉じていても見える段で、左端（rows[0][0]）は「表示設定」の固定マス（FIXED）。
+//   rows[1] は地底用の段。地図で地底を選んでいる間は rows[0] と入れ替わり、閉じていても見える段になる。
+//   そのとき左端に「表示設定」が重なるので、rows[1][0] も何も置けない固定マス（FIXED）にしている。
 //   項目名は種類名（hokora など）と CLEAR（全てOFF）。lines の n は「n 行目の上に線を引く」（1 以上）。
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -18,6 +20,10 @@
   // 並べ替え画面で作れる段の数。開いたメニューが地図をほとんど隠してしまわない程度にしている
   var MAX_ROWS = 8;
   var LOCAL_KEY = 'TotkMenuLayout'; // ブラウザ内の控え（GitHub から読めないときに使う）
+  var UNDERGROUND_MAP = '地底';    // この地図を選んでいる間は、地底用の段（rows[1]）を閉じていても見える段にする
+
+  // 1段目と2段目（地底用の段）の左端は固定マス。どちらも閉じたときに「表示設定」が重なる場所
+  function isFixedCell(row, col) { return row <= 1 && col === 0; }
 
   function emptyRow() {
     var row = [];
@@ -33,16 +39,18 @@
 
   // 保存された並びを、今ある項目（items）に合わせて直す。壊れていれば fallback（初期配置）を使う。
   // - 知らない項目（種類を減らしたとき）と、2回目以降に出てくる項目は消す
+  // - 固定マス（1・2段目の左端）に置かれていた項目（固定マスを2段目にも作る前に保存した並びなど）は、空いたマスへ移す
   // - 置かれていない項目（種類を増やしたとき）は、2段目以降の空いたマスに足す。空きが無ければ段を足す
-  // - 何も無い段は詰める（線はその下の段の上へ移す）
+  // - 何も無い段は詰める（線はその下の段の上へ移す）。1・2段目は固定マスがあるので詰めない
   function normalize(saved, items, fallback) {
     var source = isLayout(saved) ? saved : fallback;
     var placed = {};
-    var rows = source.rows.map(function (row, r) {
+    var sourceRows = source.rows.length >= 2 ? source.rows : source.rows.concat([emptyRow()]);
+    var rows = sourceRows.map(function (row, r) {
       var cells = emptyRow();
       for (var c = 0; c < COLUMNS; c++) {
         var item = row[c];
-        if (r === 0 && c === 0) cells[c] = FIXED;
+        if (isFixedCell(r, c)) cells[c] = FIXED;
         else if (items.indexOf(item) !== -1 && !placed[item]) { cells[c] = item; placed[item] = true; }
       }
       return cells;
@@ -79,10 +87,10 @@
   }
 
   // 並べ替え画面の操作。from のマスの項目を to のマスへ動かす。to に項目があれば入れ替える。
-  // to の行が今の段の数と同じなら、一番下に段を足して置く。固定マス（表示設定）は動かせず、そこへも置けない
+  // to の行が今の段の数と同じなら、一番下に段を足して置く。固定マス（1・2段目の左端）は動かせず、そこへも置けない
   function moveItem(layout, from, to) {
     var result = copy(layout);
-    var isFixed = function (cell) { return cell.row === 0 && cell.col === 0; };
+    var isFixed = function (cell) { return isFixedCell(cell.row, cell.col); };
     if (isFixed(from) || isFixed(to) || to.row > result.rows.length || to.row >= MAX_ROWS) return result;
     if (to.row === result.rows.length) result.rows.push(emptyRow());
     var item = result.rows[from.row][from.col];
@@ -142,12 +150,27 @@
       return $row;
     }
 
-    $always.empty().append(rowElement(layout.rows[0]));
+    var $rows = layout.rows.map(rowElement);
+    // 開いたときの最初の段（ふだんは2段目の地底用の段、地底では1段目）の置き場所
+    var $second = $('<div class="totk-menu-second"></div>');
+    $always.empty();
     $opened.empty();
-    layout.rows.slice(1).forEach(function (row, i) {
-      if (layout.lines.indexOf(i + 1) !== -1) $opened.append('<div class="totk-menu-line"></div>');
-      $opened.append(rowElement(row));
+    $rows.forEach(function ($row, r) {
+      if (r === 0) return;
+      if (layout.lines.indexOf(r) !== -1) $opened.append('<div class="totk-menu-line"></div>');
+      $opened.append(r === 1 ? $second : $row);
     });
+
+    // 地底を選んでいる間は、1段目と2段目を入れ替える（閉じたメニューに地底用の段が見えるように）。
+    // 段は作り直さずに移すだけなので、ボタンの ON/OFF の状態はそのまま残る
+    var map = document.getElementById('RenderMap');
+    function placeRows() {
+      var underground = map.getAttribute('d-map') === UNDERGROUND_MAP;
+      $always.append(underground ? $rows[1] : $rows[0]);
+      $second.append(underground ? $rows[0] : $rows[1]);
+    }
+    new MutationObserver(placeRows).observe(map, { attributes: true, attributeFilter: ['d-map'] });
+    placeRows();
   }
 
   // ---- ここから下はブラウザ用（保存した並びの読み込みと、並べ替え画面） ----
@@ -177,8 +200,9 @@
   function setup(options) { editor = options; }
 
   // 並べ替え画面のマスに出すアイコンと名前。種類は地図ツールの種類データ（下メニューのボタンと同じ画像）から取る
-  function itemView(item) {
-    if (item === FIXED) return { name: '表示設定', icon: TOOL_IMG + 'cog_off.png' };
+  function itemView(item, row) {
+    // 2段目の左端は、地底で1段目と入れ替わったときに「表示設定」が来る場所なので、何も置けない空きとして見せる
+    if (item === FIXED) return row === 0 ? { name: '表示設定', icon: TOOL_IMG + 'cog_off.png' } : { name: '空き(固定)', icon: '' };
     if (item === CLEAR) return { name: '全てOFF', icon: TOOL_IMG + 'remove-icon.png' };
     var type = editor.typeDatas.filter(function (t) { return t.name === item; })[0] || {};
     return { name: String(type.text || item).replace(/<br>/g, ''), icon: type.buttonUrl };
@@ -194,7 +218,8 @@
           '<button type="button" class="totk-layout-editor__close" aria-label="閉じる">✕</button></div>' +
         '<div class="totk-layout-editor__body">' +
           '<p class="totk-layout-editor__help">アイコンを指で動かして並べ替えます。空いたマスに置くと移動、ほかのアイコンの上に置くと入れ替えます。' +
-            '段と段の間を押すと、区切りの線を付けたり外したりできます。いちばん上の段は、メニューを閉じていても見える段です。</p>' +
+            '段と段の間を押すと、区切りの線を付けたり外したりできます。いちばん上の段は、メニューを閉じていても見える段です。' +
+            '2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わって、閉じていても見えます（左端は表示設定が来るので空けてあります）。</p>' +
           '<div class="totk-layout-editor__grid"></div>' +
           '<p class="totk-layout-editor__message"></p>' +
         '</div>' +
@@ -221,14 +246,17 @@
             .toggleClass('is-line', draft.lines.indexOf(r) !== -1)
             .appendTo($grid);
         }
-        var $row = $('<div class="totk-layout-editor__row"></div>').toggleClass('is-always', r === 0).appendTo($grid);
+        var $row = $('<div class="totk-layout-editor__row"></div>')
+          .toggleClass('is-always', r === 0)
+          .toggleClass('is-underground', r === 1)
+          .appendTo($grid);
         (draft.rows[r] || emptyRow()).forEach(function (item, c) {
           var $cell = $('<div class="totk-layout-editor__cell"></div>').attr({ 'data-row': r, 'data-col': c }).appendTo($row);
           if (!item) return;
-          var view = itemView(item);
+          var view = itemView(item, r);
           $('<div class="totk-layout-editor__item"></div>')
             .toggleClass('is-fixed', item === FIXED)
-            .append($('<span class="totk-layout-editor__icon"></span>').css('background-image', 'url("' + view.icon + '")'))
+            .append($('<span class="totk-layout-editor__icon"></span>').css('background-image', view.icon ? 'url("' + view.icon + '")' : 'none'))
             .append($('<span class="totk-layout-editor__name"></span>').text(view.name))
             .appendTo($cell);
         });
