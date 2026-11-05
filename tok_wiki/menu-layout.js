@@ -4,8 +4,8 @@
 // 並びのデータ: { version: 1, rows: [[7マス分の項目名か null], ...], lines: [線を入れる行の番号] }
 //   rows[0] は閉じていても見える段で、左端（rows[0][0]）は「表示設定」の固定マス（FIXED）。
 //   rows[1] は地底用の段。地図で地底を選んでいる間は rows[0] と入れ替わり、閉じていても見える段になる。
-//   そのとき左端に「表示設定」が重なるので、rows[1][0] も何も置けない固定マス（FIXED）にしている。
-//   項目名は種類名（hokora など）と CLEAR（全てOFF）。lines の n は「n 行目の上に線を引く」（1 以上）。
+//   rows[1][0] は「全てOFF」（CLEAR）の固定マス。左端の2マス（表示設定・全てOFF）は、地底で段が入れ替わっても動かない。
+//   項目名は種類名（hokora など）と FIXED・CLEAR。lines の n は「n 行目の上に線を引く」（1 以上）。
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.TotkMenuLayout = factory();
@@ -22,8 +22,9 @@
   var LOCAL_KEY = 'TotkMenuLayout'; // ブラウザ内の控え（GitHub から読めないときに使う）
   var UNDERGROUND_MAP = '地底';    // この地図を選んでいる間は、地底用の段（rows[1]）を閉じていても見える段にする
 
-  // 1段目と2段目（地底用の段）の左端は固定マス。どちらも閉じたときに「表示設定」が重なる場所
+  // 1段目と2段目の左端は固定マス（表示設定と全てOFF）。並べ替えの対象外で、地底で段が入れ替わっても動かない
   function isFixedCell(row, col) { return row <= 1 && col === 0; }
+  function fixedItem(row) { return row === 0 ? FIXED : CLEAR; }
 
   function emptyRow() {
     var row = [];
@@ -39,18 +40,20 @@
 
   // 保存された並びを、今ある項目（items）に合わせて直す。壊れていれば fallback（初期配置）を使う。
   // - 知らない項目（種類を減らしたとき）と、2回目以降に出てくる項目は消す
-  // - 固定マス（1・2段目の左端）に置かれていた項目（固定マスを2段目にも作る前に保存した並びなど）は、空いたマスへ移す
+  // - 固定マス（1段目の左端は表示設定、2段目の左端は全てOFF）は、何が保存されていてもその項目にする。
+  //   そこに置かれていた項目（固定マスを決める前に保存した並びなど）は空いたマスへ移し、ほかの場所にある全てOFF は消す
   // - 置かれていない項目（種類を増やしたとき）は、2段目以降の空いたマスに足す。空きが無ければ段を足す
   // - 何も無い段は詰める（線はその下の段の上へ移す）。1・2段目は固定マスがあるので詰めない
   function normalize(saved, items, fallback) {
     var source = isLayout(saved) ? saved : fallback;
     var placed = {};
+    placed[CLEAR] = true;
     var sourceRows = source.rows.length >= 2 ? source.rows : source.rows.concat([emptyRow()]);
     var rows = sourceRows.map(function (row, r) {
       var cells = emptyRow();
       for (var c = 0; c < COLUMNS; c++) {
         var item = row[c];
-        if (isFixedCell(r, c)) cells[c] = FIXED;
+        if (isFixedCell(r, c)) cells[c] = fixedItem(r);
         else if (items.indexOf(item) !== -1 && !placed[item]) { cells[c] = item; placed[item] = true; }
       }
       return cells;
@@ -162,12 +165,14 @@
     });
 
     // 地底を選んでいる間は、1段目と2段目を入れ替える（閉じたメニューに地底用の段が見えるように）。
-    // 段は作り直さずに移すだけなので、ボタンの ON/OFF の状態はそのまま残る
+    // 段は作り直さずに移すだけなので、ボタンの ON/OFF の状態はそのまま残る。
+    // 左端の固定マスは入れ替えない。表示設定はツールが段の外に置いているので動かず、全てOFF は2段目の左端へ戻す
     var map = document.getElementById('RenderMap');
     function placeRows() {
       var underground = map.getAttribute('d-map') === UNDERGROUND_MAP;
       $always.append(underground ? $rows[1] : $rows[0]);
       $second.append(underground ? $rows[0] : $rows[1]);
+      $second.find('.totk-menu-cell').first().append(buttons[CLEAR]);
     }
     new MutationObserver(placeRows).observe(map, { attributes: true, attributeFilter: ['d-map'] });
     placeRows();
@@ -200,9 +205,8 @@
   function setup(options) { editor = options; }
 
   // 並べ替え画面のマスに出すアイコンと名前。種類は地図ツールの種類データ（下メニューのボタンと同じ画像）から取る
-  function itemView(item, row) {
-    // 2段目の左端は、地底で1段目と入れ替わったときに「表示設定」が来る場所なので、何も置けない空きとして見せる
-    if (item === FIXED) return row === 0 ? { name: '表示設定', icon: TOOL_IMG + 'cog_off.png' } : { name: '空き(固定)', icon: '' };
+  function itemView(item) {
+    if (item === FIXED) return { name: '表示設定', icon: TOOL_IMG + 'cog_off.png' };
     if (item === CLEAR) return { name: '全てOFF', icon: TOOL_IMG + 'remove-icon.png' };
     var type = editor.typeDatas.filter(function (t) { return t.name === item; })[0] || {};
     return { name: String(type.text || item).replace(/<br>/g, ''), icon: type.buttonUrl };
@@ -219,7 +223,8 @@
         '<div class="totk-layout-editor__body">' +
           '<p class="totk-layout-editor__help">アイコンを指で動かして並べ替えます。空いたマスに置くと移動、ほかのアイコンの上に置くと入れ替えます。' +
             '段と段の間を押すと、区切りの線を付けたり外したりできます。いちばん上の段は、メニューを閉じていても見える段です。' +
-            '2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わって、閉じていても見えます（左端は表示設定が来るので空けてあります）。</p>' +
+            '2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わって、閉じていても見えます。' +
+            '左端の表示設定と全てOFF（鍵の印）は動かせず、地底でも入れ替わりません。</p>' +
           '<div class="totk-layout-editor__grid"></div>' +
           '<p class="totk-layout-editor__message"></p>' +
         '</div>' +
@@ -253,10 +258,10 @@
         (draft.rows[r] || emptyRow()).forEach(function (item, c) {
           var $cell = $('<div class="totk-layout-editor__cell"></div>').attr({ 'data-row': r, 'data-col': c }).appendTo($row);
           if (!item) return;
-          var view = itemView(item, r);
+          var view = itemView(item);
           $('<div class="totk-layout-editor__item"></div>')
-            .toggleClass('is-fixed', item === FIXED)
-            .append($('<span class="totk-layout-editor__icon"></span>').css('background-image', view.icon ? 'url("' + view.icon + '")' : 'none'))
+            .toggleClass('is-fixed', isFixedCell(r, c))
+            .append($('<span class="totk-layout-editor__icon"></span>').css('background-image', 'url("' + view.icon + '")'))
             .append($('<span class="totk-layout-editor__name"></span>').text(view.name))
             .appendTo($cell);
         });

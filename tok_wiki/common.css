@@ -62,7 +62,8 @@
    段や線を増やしても中身が切れないよう、ツールが400pxで固定している背景の高さを中身に合わせて伸ばす */
 #RenderMap ._sidemenu-section { height: auto; min-height: 400px; }
 #RenderMap ._sidemenu-section .totk-menu-row { display: grid; grid-template-columns: repeat(7, 1fr); height: 48px; }
-#RenderMap ._sidemenu-section .totk-menu-cell { display: flex; justify-content: center; min-width: 0; }
+/* align-items: flex-start … 中身をマスの高さいっぱいに伸ばさない（伸ばすと「全てOFF」の丸いボタンが縦長に崩れる） */
+#RenderMap ._sidemenu-section .totk-menu-cell { display: flex; align-items: flex-start; justify-content: center; min-width: 0; }
 /* ツールはボタンの左右に5pxずつ余白を付けるが、スマホ幅の1マス（約48px）からはみ出すので、マスの中央に置くだけにする */
 #RenderMap ._sidemenu-section .totk-menu-cell > .leaflet-side-marker-switch-ui { margin: 0 0 5px; }
 /* 「全てOFF」もマスの中に置く。ツールのスワイプ処理は「押した場所の親が _clear-btn か」を見て押せるかを決めるので、
@@ -127,7 +128,7 @@
 #RenderMap.totk-show-area[d-map="地上"] .location-pin.leaflet-marker-map-地上,
 #RenderMap.totk-show-area[d-map="地底"] .location-pin.leaflet-marker-map-地底 { display: block; }
 
-/* 地図の上に出す短いお知らせ（表示できる種類の上限など）。地図ツールの操作部品（1000台）より手前に出す。
+/* 地図の上に出す短いお知らせ（地名の印を出すには拡大が要る、など）。地図ツールの操作部品（1000台）より手前に出す。
    下のメニューや地図の操作をじゃましないよう、クリックは素通しにしている */
 .totk-notice { display: none; position: absolute; top: 10px; left: 50%; z-index: 1100; width: max-content; max-width: 90%; padding: 8px 12px; border-radius: 4px; background: rgba(32, 32, 32, .9); color: #fff; font-size: 13px; font-weight: bold; text-align: center; transform: translateX(-50%); pointer-events: none; }
 .totk-notice.totk-is-shown { display: block; }

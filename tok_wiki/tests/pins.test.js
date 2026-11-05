@@ -168,11 +168,9 @@ test('下メニューの初期配置は、そのままで正しい並び（横7�
   assert.ok(menuItems.includes(TotkMenuLayout.CLEAR));
 });
 
-test('開いた直後にONの種類は、同時に表示できる数（MAX_SHOWN_TYPES）以内', () => {
+test('開いた直後にONの種類は、下メニューにある種類', () => {
   const defaultOn = loadLaunchArray('DEFAULT_ON_TYPES');
-  const max = Number(/var MAX_SHOWN_TYPES = (\d+);/.exec(html)[1]);
 
-  assert.ok(defaultOn.length <= max);
   defaultOn.forEach((type) => assert.ok(menuTypes.includes(type), type));
 });
 

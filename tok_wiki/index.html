@@ -2757,17 +2757,18 @@ window._locationPinDatas = [
 // 地図は画面いっぱいに出す。スマホのアドレスバーの出入りに合わせた高さ（100dvh）は common.css で上書きしていて、これは使えないブラウザ向けの高さ
 var MAP_HEIGHT = '100vh';
 // 下メニューの初期配置（横7マス。データの形は menu-layout.js の冒頭）。1段目はいつも見えている段で、左端は「表示設定」の固定マス（_toggle）。
-// 2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わる（左端は表示設定が重なるので、何も置けない固定マス）。
-// 2段目以降は「表示設定」で上に開いたときに出る段。_clear は「全てOFF」。lines の番号の段の上に、区切りの線を引く。
+// 2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わる。左端は「全てOFF」の固定マス（_clear）。
+// 左端の2マス（表示設定・全てOFF）は並べ替えの対象外で、地底で段が入れ替わっても動かない。
+// 2段目以降は「表示設定」で上に開いたときに出る段。lines の番号の段の上に、区切りの線を引く。
 // 下メニューに出す項目（種類と全てOFF）は、この初期配置に置いたものがすべて。種類を足すときはここに足す
 var DEFAULT_MENU_LAYOUT = {
   version: 1,
   rows: [
     ['_toggle', 'hokora', 'hokorachallenge', 'tower', 'cave', 'well', 'korok'],
-    ['_toggle', 'root', 'hole', 'grove', 'mine', 'seiren', 'blueprint'],
-    ['_clear', 'area', 'village', 'stables', 'dungeon', 'fairy', 'god_statue'],
+    ['_clear', 'root', 'hole', 'grove', 'mine', 'seiren', 'blueprint'],
+    ['area', 'village', 'stables', 'dungeon', 'fairy', 'god_statue', 'kanban'],
     ['zonai', 'demon_statue', 'ancienttablet', 'tears', 'sage', 'map', 'blacksmith'],
-    ['kanban', 'battery', 'shadow-sword', 'shadow-large', 'shadow-lance', null, null],
+    ['battery', 'shadow-sword', 'shadow-large', 'shadow-lance', null, null, null],
     ['hinokkusu', 'iwarokku', 'ierokku', 'iwa_oct', 'block', 'frox', 'gurioku'],
     ['lynel', 'morudora', 'phantom', 'koga', 'boss_temple', null, null],
   ],
@@ -2779,8 +2780,6 @@ var MENU_ITEMS = DEFAULT_MENU_LAYOUT.rows
   .filter(function (item) { return item && item !== TotkMenuLayout.FIXED; });
 // 開いた直後に表示する種類
 var DEFAULT_ON_TYPES = ['hokora', 'tower'];
-// 同時に表示できる種類の数。ピンを出しすぎて動きが重くならないようにしている
-var MAX_SHOWN_TYPES = 5;
 // 検索の一覧に出す種類。名前が1つずつ違う種類だけにしている（コログは名前が無く、ボスや深穴は同じ名前がいくつも並ぶ）。
 // 一覧の文字は name（無ければ label）。ゾナウは name が出るゾナウギアの一覧なので、ギアの名前で探せる
 var SEARCH_TYPES = ['hokora', 'hokorachallenge', 'tower', 'cave', 'well', 'village', 'stables', 'dungeon', 'root',
@@ -2828,28 +2827,8 @@ function moveControlsToBottom() {
   else $progress.after($search);
 }
 
-function showLimitNotice() {
-  showNotice('同時に表示できるのは' + MAX_SHOWN_TYPES + '種類までです');
-}
-
-function shownTypeCount() {
-  return $('.leaflet-side-marker-switch-ui input:checked').length;
-}
-
-// 上限を超えてONにしようとしたら取り消す。click を取り消すとチェックが元に戻り、地図ツールの処理（change）も走らない。
-// メニューの中のクリックは外へ伝わらない（Leaflet が止めている）ので、document ではなくボタン1つずつに付ける
-function limitShownTypes() {
-  $('.leaflet-side-marker-switch-ui input').on('click', function (event) {
-    // この時点で、押したボタン自身はもうON（checked）として数えられている
-    if (this.checked && shownTypeCount() > MAX_SHOWN_TYPES) {
-      event.preventDefault();
-      showLimitNotice();
-    }
-  });
-}
-
 // 地図ツールの検索は、選んだピンへ地図を動かすだけで種類のON/OFFは変えない。OFFの種類だとピンが見えないままなので、
-// 選んだピンの種類をONにする（上限に達しているときはONにせず、お知らせを出す）
+// 選んだピンの種類をONにする
 function showTypeOnSearch() {
   $(document).on('change', '#JsWKSUPinSelect', function () {
     var id = this.value;
@@ -2857,7 +2836,6 @@ function showTypeOnSearch() {
     if (!pin) return;
     var $switch = $('#leaflet-side-switch-button-' + pin.type);
     if ($switch.prop('checked')) return;
-    if (shownTypeCount() >= MAX_SHOWN_TYPES) return showLimitNotice();
     $switch.prop('checked', true).trigger('change');
   });
 }
@@ -2949,7 +2927,6 @@ $(function () {
     locationPins.draw();
     moveControlsToBottom();
     setupWeaponFilter();
-    limitShownTypes();
     showTypeOnSearch();
     noticeAreaZoom();
   });
