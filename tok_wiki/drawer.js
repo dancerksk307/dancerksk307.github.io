@@ -72,14 +72,6 @@
   };
   var WARN_STATES = ['no-config', 'no-token', 'load-error', 'save-error'];
 
-  function errorReason(httpStatus) {
-    if (!httpStatus) return '通信エラー';
-    if (httpStatus === 401) return 'トークンが無効';
-    if (httpStatus === 403) return '権限不足か回数制限';
-    if (httpStatus === 404) return '保存先が見つからない';
-    return 'HTTP ' + httpStatus;
-  }
-
   var config = window.TOTK_SAVE_CONFIG || {};
 
   var root = document.createElement('div');
@@ -89,6 +81,11 @@
     '<nav class="totk-drawer">' +
       '<div class="totk-drawer__head">メニュー<button type="button" class="totk-drawer__close" aria-label="メニューを閉じる">✕</button></div>' +
       '<div class="totk-drawer__progress"></div>' +
+      '<div class="totk-drawer__layout">' +
+        '<p class="totk-drawer__heading">設定</p>' +
+        // 押すと menu-layout.js の並べ替え画面を開く（地図ツールの起動の後でないと開かない）
+        '<button type="button" class="totk-drawer__layout-button">下メニューの並べ替え</button>' +
+      '</div>' +
       '<div class="totk-drawer__settings">' +
         '<p class="totk-drawer__heading">保存設定</p>' +
         '<p class="totk-drawer__dest"></p>' +
@@ -138,6 +135,10 @@
   find('.totk-menu-button').addEventListener('click', function () { setOpen(true); });
   find('.totk-drawer__close').addEventListener('click', function () { setOpen(false); });
   find('.totk-overlay').addEventListener('click', function () { setOpen(false); });
+  find('.totk-drawer__layout-button').addEventListener('click', function () {
+    setOpen(false);
+    window.TotkMenuLayout.openEditor();
+  });
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') setOpen(false);
   });
@@ -145,7 +146,7 @@
   function showStatus(state, httpStatus) {
     var status = find('.totk-drawer__status');
     var isError = state === 'load-error' || state === 'save-error';
-    status.textContent = '状態: ' + STATUS_TEXT[state] + (isError ? '（' + errorReason(httpStatus) + '）' : '');
+    status.textContent = '状態: ' + STATUS_TEXT[state] + (isError ? '（' + window.TotkSave.errorReason(httpStatus) + '）' : '');
     status.classList.toggle('is-warn', WARN_STATES.indexOf(state) !== -1);
   }
 

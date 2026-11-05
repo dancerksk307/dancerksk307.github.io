@@ -1,7 +1,7 @@
 // 実行: node --test tests/
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { normalize, menuHideHeight, toolGroups, FIXED, CLEAR, COLUMNS } = require('../menu-layout.js');
+const { normalize, moveItem, toggleLine, menuHideHeight, toolGroups, FIXED, CLEAR, COLUMNS } = require('../menu-layout.js');
 
 const _ = null;
 const ITEMS = [CLEAR, 'hokora', 'tower', 'korok', 'cave', 'lynel'];
@@ -116,4 +116,44 @@ test('地図ツールに渡す組は、1組目が閉じていても見える段�
     { typeNames: ['hokora', 'tower'] },
     { typeNames: ['korok', 'cave', 'lynel'] },
   ]);
+});
+
+// ---- 並べ替え画面の操作 ----
+
+test('並べ替え: 空いたマスに置くと、項目がそこへ移る', () => {
+  const result = moveItem(DEFAULT, { row: 0, col: 1 }, { row: 0, col: 6 });
+
+  assert.deepEqual(result.rows[0], [FIXED, _, 'tower', _, _, _, 'hokora']);
+});
+
+test('並べ替え: 他の項目の上に置くと、入れ替わる', () => {
+  const result = moveItem(DEFAULT, { row: 0, col: 1 }, { row: 2, col: 0 });
+
+  assert.equal(result.rows[0][1], 'lynel');
+  assert.equal(result.rows[2][0], 'hokora');
+});
+
+test('並べ替え: 一番下の空の段に置くと、段が増える', () => {
+  const result = moveItem(DEFAULT, { row: 2, col: 0 }, { row: 3, col: 3 });
+
+  assert.equal(result.rows.length, 4);
+  assert.equal(result.rows[3][3], 'lynel');
+});
+
+test('並べ替え: 表示設定（左上の固定マス）は動かせず、そこへも置けない', () => {
+  assert.deepEqual(moveItem(DEFAULT, { row: 0, col: 0 }, { row: 1, col: 5 }), DEFAULT);
+  assert.deepEqual(moveItem(DEFAULT, { row: 0, col: 1 }, { row: 0, col: 0 }), DEFAULT);
+});
+
+test('並べ替え: 元の並び（保存前のもの）は書き換えない', () => {
+  const before = JSON.stringify(DEFAULT);
+  moveItem(DEFAULT, { row: 0, col: 1 }, { row: 2, col: 0 });
+  toggleLine(DEFAULT, 1);
+
+  assert.equal(JSON.stringify(DEFAULT), before);
+});
+
+test('区切り線: 段の間を押すと、線が付いたり外れたりする', () => {
+  assert.deepEqual(toggleLine(DEFAULT, 2).lines, [1]);
+  assert.deepEqual(toggleLine({ ...DEFAULT, lines: [2] }, 1).lines, [1, 2]);
 });

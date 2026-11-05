@@ -258,6 +258,81 @@
     return { load: load, flush: flush, notifyChanged: notifyChanged };
   }
 
+  // 下メニューの並びなど、チェックとは別の json を GitHub に読み書きする（チェックのファイルには触れない）。
+  // 設定画面で「保存」を押したときだけ変わるものなので、チェックのような差分の重ね合わせはせず、保存したもので丸ごと置き換える。
+  // options: { config, path, fetch, getToken }
+  //   load(): ファイルの中身（無ければ null）
+  //   save(data): 'saved' / 'no-token' / 'no-config'。送れなかったときは status 付きのエラーで失敗する
+  function createFileStore(options) {
+    var config = options.config || {};
+    var getToken = options.getToken || function () { return ''; };
+    var configured = !!(config.owner && config.repo && config.branch && options.path);
+    var fileUrl = API + '/repos/' + config.owner + '/' + config.repo + '/contents/' + options.path;
+
+    function request(url, init) {
+      init = init || {};
+      var headers = { Accept: 'application/vnd.github+json' };
+      var token = getToken();
+      if (token) headers.Authorization = 'Bearer ' + token;
+      if (init.body) headers['Content-Type'] = 'application/json';
+      init.headers = headers;
+      // GitHub API は応答を60秒キャッシュさせるため、無効にしないと他端末の保存が見えない
+      init.cache = 'no-store';
+      return options.fetch(url, init);
+    }
+
+    function fetchFile() {
+      return request(fileUrl + '?ref=' + encodeURIComponent(config.branch)).then(function (res) {
+        if (res.status === 404) return { data: null, sha: null };
+        if (!res.ok) throw httpError(res.status);
+        return res.json().then(function (json) {
+          var data;
+          try { data = JSON.parse(fromBase64(json.content || '')); } catch (e) { data = null; }
+          return { data: data, sha: json.sha };
+        });
+      });
+    }
+
+    function load() {
+      if (!configured) return Promise.resolve(null);
+      return fetchFile().then(function (file) { return file.data; });
+    }
+
+    function save(data) {
+      if (!configured) return Promise.resolve('no-config');
+      if (!getToken()) return Promise.resolve('no-token');
+      var conflicts = 0;
+      function attempt() {
+        // 置き換えるには今の版（sha）が要るので、毎回取り直す
+        return fetchFile().then(function (file) {
+          var body = { message: 'chore(save): update menu layout', content: toBase64(JSON.stringify(data, null, 2) + '\n'), branch: config.branch };
+          if (file.sha) body.sha = file.sha;
+          return request(fileUrl, { method: 'PUT', body: JSON.stringify(body) });
+        }).then(function (res) {
+          if (res.ok) return 'saved';
+          // 409: 取り直してから送るまでの間に他の端末が保存した / 422: 版の食い違い。取り直して送り直す
+          if ((res.status === 409 || res.status === 422) && conflicts < MAX_CONFLICT_RETRY) {
+            conflicts++;
+            return attempt();
+          }
+          throw httpError(res.status);
+        });
+      }
+      return attempt();
+    }
+
+    return { load: load, save: save };
+  }
+
+  // 通信エラーを、画面に出す短い言葉にする
+  function errorReason(httpStatus) {
+    if (!httpStatus) return '通信エラー';
+    if (httpStatus === 401) return 'トークンが無効';
+    if (httpStatus === 403) return '権限不足か回数制限';
+    if (httpStatus === 404) return '保存先が見つからない';
+    return 'HTTP ' + httpStatus;
+  }
+
   // ブラウザ用の組み立て。localStorage への書き込みを見張り、同期を開始する
   function start(options) {
     var ls = window.localStorage;
@@ -297,6 +372,15 @@
     });
 
     api.ready = sync.load();
+    // チェックと同じ保存先・トークンで、別のファイルを読み書きする部品を作る（下メニューの並びに使う）
+    api.openFile = function (path) {
+      return createFileStore({
+        config: options.config,
+        path: path,
+        fetch: window.fetch.bind(window),
+        getToken: function () { return rawStorage.getItem(TOKEN_KEY) || ''; },
+      });
+    };
     return {
       reload: sync.load,
       hasToken: function () { return !!rawStorage.getItem(TOKEN_KEY); },
@@ -312,6 +396,8 @@
     applyDiff: applyDiff,
     serialize: serialize,
     createSync: createSync,
+    createFileStore: createFileStore,
+    errorReason: errorReason,
     start: start,
     // index.html はこれを待ってから地図ツールを起動する。start() 前は即完了
     ready: Promise.resolve(),

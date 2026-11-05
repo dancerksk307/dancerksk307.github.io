@@ -2905,10 +2905,12 @@ function noticeAreaZoom() {
   });
 }
 
-// GitHub の保存データを読み終えてから地図ツールを起動する。先に起動すると古いチェック状態で描かれる
+// GitHub の保存データ（チェックと、下メニューの並び）を読み終えてから地図ツールを起動する。先に起動すると古いチェック状態で描かれる
 $(function () {
-  TotkSave.ready.then(function () {
-    var menuLayout = TotkMenuLayout.normalize(null, MENU_ITEMS, DEFAULT_MENU_LAYOUT);
+  var layoutStore = TotkSave.openFile((window.TOTK_SAVE_CONFIG || {}).layoutPath);
+  Promise.all([TotkSave.ready, TotkMenuLayout.loadSaved(layoutStore)]).then(function (loaded) {
+    // 保存した並びは、その後で種類が増減していても使えるよう直してから使う（無ければ初期配置）
+    var menuLayout = TotkMenuLayout.normalize(loaded[1], MENU_ITEMS, DEFAULT_MENU_LAYOUT);
     var menuTypes = MENU_ITEMS.filter(function (item) { return item !== TotkMenuLayout.CLEAR; });
     // 地図ツールが作る地図をつかまえるため、起動より前に用意する
     var locationPins = TotkLocationPins.create(window._locationPinDatas);
@@ -2939,6 +2941,10 @@ $(function () {
       // 大きく拡大したとき（4段階目から）、ボスなどの名前（ピンの label）を地図に文字で出す。切り替えボタンは出さない
       .LabelIcon({ enableDisplaySwitchButton: false, zoomLevelLabelVisibility: 4 });
     TotkMenuLayout.apply(menuLayout);
+    // サイドメニューの「下メニューの並べ替え」で開く画面に、今の並びと保存先を渡す
+    TotkMenuLayout.setup({
+      layout: menuLayout, items: MENU_ITEMS, fallback: DEFAULT_MENU_LAYOUT, typeDatas: window._typeDatas, store: layoutStore,
+    });
     locationPins.draw();
     moveControlsToBottom();
     setupWeaponFilter();

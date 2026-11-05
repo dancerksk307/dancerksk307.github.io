@@ -5,4 +5,6 @@ window.TOTK_SAVE_CONFIG = {
   // 公開用ブランチ（master）に保存すると、チェックのたびに GitHub Pages の再公開が走り履歴も埋まるため、保存専用ブランチに分けている
   branch: 'save-data',
   path: 'tok_wiki/data/save.json',
+  // 下メニューの並び。チェックとはファイルを分け、並びの保存がチェックのデータに触れないようにしている
+  layoutPath: 'tok_wiki/data/menu-layout.json',
 };

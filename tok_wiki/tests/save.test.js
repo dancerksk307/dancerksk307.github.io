@@ -315,3 +315,82 @@ test('設定が空なら何も通信しない', async () => {
   assert.deepEqual(statuses, ['no-config']);
   assert.equal(github.requests.length, 0);
 });
+
+// ---- 下メニューの並び（チェックとは別のファイル） ----
+
+const LAYOUT_PATH = 'tok_wiki/data/menu-layout.json';
+const LAYOUT_URL = 'https://api.github.com/repos/someone/site/contents/' + LAYOUT_PATH;
+
+// 並びのファイルだけを持つ GitHub の代役。チェックのファイル（save.json）への通信が来たら失敗にする
+function createLayoutGitHub(initialData) {
+  const github = { data: initialData === undefined ? null : initialData, version: 1, requests: [], beforePut: null };
+  const sha = () => 'sha' + github.version;
+  github.fetch = async (url, init = {}) => {
+    const method = init.method || 'GET';
+    github.requests.push({ method, url });
+    if (url.startsWith(LAYOUT_URL) && method === 'GET') {
+      if (github.data === null) return response(404, {});
+      return response(200, { content: Buffer.from(JSON.stringify(github.data)).toString('base64'), sha: sha() });
+    }
+    if (url === LAYOUT_URL && method === 'PUT') {
+      if (github.beforePut) { const hook = github.beforePut; github.beforePut = null; hook(); }
+      const body = JSON.parse(init.body);
+      if (github.data !== null && body.sha !== sha()) return response(409, {});
+      github.data = JSON.parse(Buffer.from(body.content, 'base64').toString());
+      github.version++;
+      return response(200, { content: { sha: sha() } });
+    }
+    throw new Error('unexpected request: ' + method + ' ' + url);
+  };
+  return github;
+}
+
+function createLayoutStore(github, token = 'token') {
+  return TotkSave.createFileStore({ config: CONFIG, path: LAYOUT_PATH, fetch: github.fetch, getToken: () => token });
+}
+
+test('並び: 保存はチェックのファイル（save.json）には送らず、並びのファイルにだけ送る', async () => {
+  const github = createLayoutGitHub(null);
+
+  assert.equal(await createLayoutStore(github).save({ version: 1, rows: [['_toggle']] }), 'saved');
+  assert.deepEqual(github.data, { version: 1, rows: [['_toggle']] });
+  assert.ok(github.requests.every((r) => r.url.startsWith(LAYOUT_URL)));
+});
+
+test('並び: 読み込むと、GitHub に保存した並びが返る。ファイルが無い（404）ときは null', async () => {
+  assert.deepEqual(await createLayoutStore(createLayoutGitHub({ version: 1, lines: [2] })).load(), { version: 1, lines: [2] });
+  assert.equal(await createLayoutStore(createLayoutGitHub(null)).load(), null);
+});
+
+test('並び: トークンが無ければ送らない', async () => {
+  const github = createLayoutGitHub({ version: 1 });
+
+  assert.equal(await createLayoutStore(github, '').save({ version: 2 }), 'no-token');
+  assert.equal(github.requests.filter((r) => r.method === 'PUT').length, 0);
+  assert.deepEqual(github.data, { version: 1 });
+});
+
+test('並び: 他の端末が先に保存していたら（409）、最新の版を取り直して上書きする', async () => {
+  const github = createLayoutGitHub({ from: 'old' });
+  github.beforePut = () => { github.data = { from: 'other device' }; github.version++; };
+
+  assert.equal(await createLayoutStore(github).save({ from: 'me' }), 'saved');
+  assert.deepEqual(github.data, { from: 'me' });
+});
+
+test('並び: 送れなかったときは、理由（HTTP の番号）つきで失敗する', async () => {
+  const fetch = async () => response(401, {});
+  const store = TotkSave.createFileStore({ config: CONFIG, path: LAYOUT_PATH, fetch, getToken: () => 'bad' });
+
+  await assert.rejects(store.save({}), (error) => error.status === 401);
+  assert.equal(TotkSave.errorReason(401), 'トークンが無効');
+});
+
+test('並び: 設定が空なら通信せず、読み込みは null', async () => {
+  const github = createLayoutGitHub({});
+  const store = TotkSave.createFileStore({ config: {}, path: LAYOUT_PATH, fetch: github.fetch, getToken: () => 'token' });
+
+  assert.equal(await store.load(), null);
+  assert.equal(await store.save({}), 'no-config');
+  assert.equal(github.requests.length, 0);
+});
