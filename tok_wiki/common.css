@@ -83,6 +83,10 @@
 #RenderMap .totk-bottom-row.leaflet-left > .totk-search { margin-left: 0; }
 #RenderMap .totk-search .w-keyword-search-ui-body { width: 100%; }
 #RenderMap .totk-search .select2-container { width: 100% !important; }
+/* 影の像の武器名プルダウン（index.html の setupWeaponFilter）。検索欄の上に、同じ幅で置く。ツールは幅を150pxで直接書き込んでいる */
+#RenderMap .totk-weapon-filter { margin-bottom: 4px; }
+/* 高さは下の検索欄にそろえる。文字を16px未満にすると、iPhone は押したときに画面を拡大してしまう */
+#RenderMap .totk-weapon-filter select { width: 100% !important; height: 32px; font-size: 16px; }
 /* 検索欄を押すと出る入力欄と候補の一覧は、検索欄のすぐ上から上方向に出す。
    ツールは「欄の下に出す」位置を top で直接書き込むが、欄が下端にあるので地図からはみ出して見えない。
    そこで top を打ち消し、地図の下端からの距離で固定する。一覧が伸びても下の辺は動かず、上へ伸びる。横の位置はツールが検索欄に合わせる。

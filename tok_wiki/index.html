@@ -2820,7 +2820,8 @@ function moveControlsToBottom() {
   $('.leaflet-map-border-switch').before($('.leaflet-control-zoom'), menuControl);
   // 検索欄は、進捗の隣（地図の中央寄り）へ。横に並べる指定は common.css（.totk-bottom-row）
   var $progress = $('.leaflet-checker-progress');
-  var $search = $('.leaflet-keyword-search-ui').parent().addClass('totk-search');
+  // 武器名のプルダウン（ShadowWeaponFilter）も同じクラス（leaflet-keyword-search-ui）を使うので、検索の入力欄を目印にする
+  var $search = $('#JsWKSUPinSelect').closest('.leaflet-keyword-search-ui').parent().addClass('totk-search');
   var $corner = $progress.parent().addClass('totk-bottom-row');
   if ($corner.hasClass('leaflet-right')) $progress.before($search);
   else $progress.after($search);
@@ -2860,6 +2861,42 @@ function showTypeOnSearch() {
   });
 }
 
+// 影の像を武器名で絞り込むプルダウン。武器の一覧は地図ツールの部品（ShadowWeaponFilter）が作る。
+// ツールの絞り込みは、残す像に display:block を直接書き込むので、メニューで影の像をOFFにしても像が消えなくなる。
+// そこで、ツールが書き込んだ後で書き直す。残す像は書き込みを消して（種類のON/OFF・地図の切り替えはツールの CSS に任せる）、
+// 選んだ武器が出ない像だけを隠す
+var SHADOW_TYPES = ['shadow-sword', 'shadow-large', 'shadow-lance'];
+function setupWeaponFilter() {
+  var $select = $('#ShadowWeaponFilterSelect');
+  var $ui = $select.closest('.leaflet-keyword-search-ui');
+  var $control = $ui.parent();
+  var shadowPins = window._pinDatas.filter(function (pin) { return SHADOW_TYPES.indexOf(pin.type) !== -1; });
+  var $switches = $(SHADOW_TYPES.map(function (type) { return '#leaflet-side-switch-button-' + type; }).join(','));
+
+  // 検索欄のすぐ上に置く（同じ入れ物に入れると縦に並ぶ）。空になったツールの入れ物は消す
+  $('.totk-search').prepend($ui.addClass('totk-weapon-filter'));
+  $control.remove();
+
+  function filter() {
+    var weapon = String($select.val() || '');
+    shadowPins.forEach(function (pin) {
+      var matched = !weapon || pin.customData.items.split(',').indexOf(weapon) !== -1;
+      $('.leaflet-marker-' + pin.type + '[title="' + pin.id + '"]').css('display', matched ? '' : 'none');
+    });
+  }
+  // ツールは選んだとき・地図を切り替えたときに、少し待ってから（1ms 後に）書き込むので、その後で書き直す
+  function filterLater() { setTimeout(filter, 10); }
+  $select.on('change', filterLater);
+  new MutationObserver(filterLater).observe(document.getElementById('RenderMap'), { attributes: true, attributeFilter: ['d-map'] });
+
+  // 影の像のどれかがONのときだけ出す。「全てOFF」は change が起きないので、押されたときも見直す
+  function showIfShadowOn() { $ui.toggle($switches.is(':checked')); }
+  $switches.on('change', showIfShadowOn);
+  $('._clear-btn.totk-in-grid').on('click', showIfShadowOn);
+  showIfShadowOn();
+  filterLater();
+}
+
 // 地名チェックの印は、地図ツールの CSS で拡大4段階目からしか出ない（完璧版と同じ）。
 // 「地名」をONにしても引いた地図では何も出ないので、そのときは拡大するよう知らせる
 function noticeAreaZoom() {
@@ -2895,6 +2932,8 @@ $(function () {
       pcHeight: MAP_HEIGHT,
     })
       .KeywordSearchUI({ targetTypes: SEARCH_TYPES })
+      // 武器名のプルダウン。下メニューより先に作る（後だと、ツールが影の像のメニューボタンを隠してしまう）
+      .ShadowWeaponFilter()
       .TotkSideMenu(TotkMenuLayout.toolGroups(menuLayout))
       .CheckerProgress('hokora')
       // 大きく拡大したとき（4段階目から）、ボスなどの名前（ピンの label）を地図に文字で出す。切り替えボタンは出さない
@@ -2902,6 +2941,7 @@ $(function () {
     TotkMenuLayout.apply(menuLayout);
     locationPins.draw();
     moveControlsToBottom();
+    setupWeaponFilter();
     limitShownTypes();
     showTypeOnSearch();
     noticeAreaZoom();
