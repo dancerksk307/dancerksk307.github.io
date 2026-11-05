@@ -4,7 +4,9 @@
 (function () {
   'use strict';
 
-  // 進捗を出す種類。チェック欄がある種類だけ（施設・神殿・岩オクタは地図ツール側にチェック欄が無い）
+  // 進捗を出す種類。チェック欄がある種類だけ（施設・神殿・岩オクタ・ゾナウ・大妖精・地上絵・魔人像・女神像・鍛冶・バッテリー・影の像は
+  // 地図ツール側にチェック欄が無い）。
+  // counter を付けた行は地図ツールが数えないもので、そのクラス名（-count / -total）に別の部品が数を入れる
   var PROGRESS_GROUPS = [
     {
       heading: '進捗',
@@ -16,6 +18,18 @@
         { type: 'well', title: '井戸' },
         { type: 'korok', title: 'コログ' },
         { type: 'stables', title: '馬宿' },
+        // 地名チェックは地図ツールのピンではないので、location-pins.js が数を入れる
+        { title: '地名', counter: 'totk-area' },
+      ],
+    },
+    {
+      heading: '進捗（収集）',
+      items: [
+        { type: 'sage', title: '賢者の遺志' },
+        { type: 'map', title: '古びた地図' },
+        { type: 'blueprint', title: '設計図' },
+        { type: 'kanban', title: '看板' },
+        { type: 'ancienttablet', title: '古代の石碑' },
       ],
     },
     {
@@ -35,10 +49,13 @@
       ],
     },
     {
-      heading: '進捗（地底）',
+      heading: '進捗（地底・施設）',
       items: [
         { type: 'root', title: '地底の根' },
         { type: 'hole', title: '深穴' },
+        { type: 'grove', title: '樹海' },
+        { type: 'mine', title: '廃鉱' },
+        { type: 'seiren', title: '製錬ゴーレム' },
       ],
     },
   ];
@@ -106,12 +123,11 @@
     var list = document.createElement('ul');
     group.items.forEach(function (progress) {
       var item = document.createElement('li');
-      item.innerHTML =
-        '<span>' + progress.title + '</span>' +
-        '<span>' +
-          '<span class="w-achievement-count" data-types="' + progress.type + '"></span> / ' +
-          '<span class="w-achievement-total-count" data-types="' + progress.type + '"></span>' +
-        '</span>';
+      var count = progress.counter
+        ? '<span class="' + progress.counter + '-count"></span> / <span class="' + progress.counter + '-total"></span>'
+        : '<span class="w-achievement-count" data-types="' + progress.type + '"></span> / ' +
+          '<span class="w-achievement-total-count" data-types="' + progress.type + '"></span>';
+      item.innerHTML = '<span>' + progress.title + '</span><span>' + count + '</span>';
       list.appendChild(item);
     });
     find('.totk-drawer__progress').appendChild(heading);

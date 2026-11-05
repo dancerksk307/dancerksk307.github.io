@@ -25,6 +25,16 @@ const menuTypes = menuGroups.flatMap((group) => group.typeNames);
 
 const pins = loadPins();
 
+// 地名チェックの印（location-pins.js が描く）。種類のピンとは別の配列
+function loadLocationPins() {
+  const start = html.indexOf('window._locationPinDatas = [');
+  const end = html.indexOf('</script>', start);
+  return new Function(html.slice(start, end).replace('window._locationPinDatas =', 'return'))();
+}
+const locationPins = loadLocationPins();
+// 「地名」はピンの無い種類（area）で、下メニューのボタンだけを地名チェックの表示切り替えに使っている
+const PIN_LESS_MENU_TYPES = ['area'];
+
 test('ピンの件数と種類ごとの内訳が README の記載どおり', () => {
   const counts = {};
   pins.forEach((pin) => { counts[pin.type] = (counts[pin.type] || 0) + 1; });
@@ -42,7 +52,7 @@ test('ピンの件数と種類ごとの内訳が README の記載どおり', () 
     hinokkusu: 68,
     iwarokku: 63,
     ierokku: 24,
-    iwa_oct: 21,
+    iwa_oct: 22,
     block: 35,
     frox: 40,
     gurioku: 14,
@@ -53,7 +63,38 @@ test('ピンの件数と種類ごとの内訳が README の記載どおり', () 
     boss_temple: 12,
     root: 120,
     hole: 72,
+    // 完璧版から足した種類
+    zonai: 30,
+    fairy: 5,
+    map: 31,
+    sage: 20,
+    tears: 11,
+    blueprint: 46,
+    demon_statue: 7,
+    god_statue: 17,
+    kanban: 81,
+    mine: 10,
+    seiren: 11,
+    grove: 15,
+    blacksmith: 1,
+    battery: 2,
+    ancienttablet: 12,
+    // 影の像
+    'shadow-sword': 23,
+    'shadow-large': 29,
+    'shadow-lance': 27,
   });
+});
+
+test('地名チェックの印は223か所で、空島・地上・地底のどれかにある', () => {
+  assert.equal(locationPins.length, 223);
+  assert.deepEqual(locationPins.filter((pin) => !['空', '地上', '地底'].includes(pin.mapId)).map((pin) => pin.id), []);
+});
+
+test('地名チェックの id が、ピンの id とも地名どうしでも重ならない（チェックの保存データを共有している）', () => {
+  const ids = [...pins, ...locationPins].map((pin) => pin.id);
+
+  assert.equal(new Set(ids).size, ids.length);
 });
 
 test('ピンの id が重ならない（チェックの保存データは id だけで区別している）', () => {
@@ -102,7 +143,7 @@ test('地図に無い場所（空島・地上・地底以外）のピンが無�
 test('下メニューの種類と、データにある種類が一致する', () => {
   const typesInData = [...new Set(pins.map((pin) => pin.type))];
 
-  assert.deepEqual(typesInData.sort(), [...menuTypes].sort());
+  assert.deepEqual([...typesInData, ...PIN_LESS_MENU_TYPES].sort(), [...menuTypes].sort());
 });
 
 test('下メニューに同じ種類が2回出てこない', () => {
@@ -128,9 +169,10 @@ test('開いた直後にONの種類は、同時に表示できる数（MAX_SHOWN
   defaultOn.forEach((type) => assert.ok(menuTypes.includes(type), type));
 });
 
+// 地図ツールは、検索の一覧に name を出し、無ければ label を出す
 test('検索に出す種類のピンには、すべて名前がある（無いと一覧に空の行が出る）', () => {
   const searchTypes = loadLaunchArray('SEARCH_TYPES');
-  const nameless = pins.filter((pin) => searchTypes.includes(pin.type) && !pin.name);
+  const nameless = pins.filter((pin) => searchTypes.includes(pin.type) && !pin.name && !pin.label);
 
   assert.deepEqual(nameless.map((pin) => pin.id), []);
   searchTypes.forEach((type) => assert.ok(menuTypes.includes(type), type));
