@@ -57,6 +57,8 @@ body { overflow: hidden; }
 <script src="location-pins.js"></script>
 <!-- 下メニューの並び（横7マスのマス目） -->
 <script src="menu-layout.js"></script>
+<!-- メモ（地図の左下の「メモ」ボタンで開く） -->
+<script src="memo.js"></script>
 
 <!-- PWA 用のサービスワーカー（sw.js）を登録する。file:// で開いたときは使えないので登録しない -->
 <script>
@@ -2809,22 +2811,27 @@ function fitMenuHeight(layout) {
 
 // 地図の操作部品を下側に集める（スマホを持った手の指が届くように）。地図ツールは置き場所を選べないので、作られた後で移す。
 // ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置く。
-// どちらでも同じ並びになるよう、角を決め打ちせずに「境界線の上」「進捗の隣」を目印にしている
+// どちらでも同じ並びになるよう、角を決め打ちせずに「地図の切り替えの上」「進捗の隣」を目印にしている
 function moveControlsToBottom() {
-  // 拡大縮小と、ドロワーを開くボタン（drawer.js が作る）は、境界線・地図の切り替えと同じ列の上へ。
-  // 境界線は common.css で常に出しているので、地図を切り替えてもこの2つの位置は動かない。
-  // メニューボタンは地図ツールの部品ではないので、部品の並べ方（leaflet-control）に乗る入れ物に入れ、
+  // 拡大縮小と、☰（drawer.js が作る）・メモ（memo.js が作る）のボタンは、地図の切り替えと同じ列の上へ。
+  // ☰ とメモは地図ツールの部品ではないので、部品の並べ方（leaflet-control）に乗る入れ物に入れ、
   // 押したり触ったりしても地図が動かないようにする
-  var menuControl = $('<div class="leaflet-control totk-menu-control"></div>').append($('.totk-menu-button'))[0];
-  L.DomEvent.disableClickPropagation(menuControl);
-  $('.leaflet-map-border-switch').before($('.leaflet-control-zoom'), menuControl);
-  // 検索欄は、進捗の隣（地図の中央寄り）へ。横に並べる指定は common.css（.totk-bottom-row）
+  function buttonControl($button) {
+    var control = $('<div class="leaflet-control totk-button-control"></div>').append($button)[0];
+    L.DomEvent.disableClickPropagation(control);
+    return control;
+  }
+  $('.leaflet-map-select-tab').before($('.leaflet-control-zoom'), buttonControl($('.totk-menu-button')), buttonControl($('.totk-memo-button')));
+  // 進捗の上に、境界線（ほとんど使わないので小さくしている）を置く。縦に並べるため、2つを入れ物（.totk-progress-column）に入れる
   var $progress = $('.leaflet-checker-progress');
+  var $corner = $progress.parent().addClass('totk-bottom-row');
+  var $column = $progress.wrap('<div class="totk-progress-column"></div>').parent();
+  $progress.before($('.leaflet-map-border-switch'));
+  // 検索欄は、進捗の隣（地図の中央寄り）へ。横に並べる指定は common.css（.totk-bottom-row）
   // 武器名のプルダウン（ShadowWeaponFilter）も同じクラス（leaflet-keyword-search-ui）を使うので、検索の入力欄を目印にする
   var $search = $('#JsWKSUPinSelect').closest('.leaflet-keyword-search-ui').parent().addClass('totk-search');
-  var $corner = $progress.parent().addClass('totk-bottom-row');
-  if ($corner.hasClass('leaflet-right')) $progress.before($search);
-  else $progress.after($search);
+  if ($corner.hasClass('leaflet-right')) $column.before($search);
+  else $column.after($search);
 }
 
 // 地図ツールの検索は、選んだピンへ地図を動かすだけで種類のON/OFFは変えない。OFFの種類だとピンが見えないままなので、

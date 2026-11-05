@@ -394,3 +394,59 @@ test('並び: 設定が空なら通信せず、読み込みは null', async () =
   assert.equal(await store.save({}), 'no-config');
   assert.equal(github.requests.length, 0);
 });
+
+// ---- メモ（プレーンテキスト。チェックとは別のファイル） ----
+
+const MEMO_PATH = 'tok_wiki/data/memo.txt';
+const MEMO_URL = 'https://api.github.com/repos/someone/site/contents/' + MEMO_PATH;
+
+// メモのファイルだけを持つ GitHub の代役。中身は文字のまま持つ
+function createMemoGitHub(initialText) {
+  const github = { text: initialText === undefined ? null : initialText, version: 1, requests: [], lastMessage: null };
+  github.fetch = async (url, init = {}) => {
+    const method = init.method || 'GET';
+    github.requests.push({ method, url });
+    if (url.startsWith(MEMO_URL) && method === 'GET') {
+      if (github.text === null) return response(404, {});
+      return response(200, { content: Buffer.from(github.text).toString('base64'), sha: 'sha' + github.version });
+    }
+    if (url === MEMO_URL && method === 'PUT') {
+      const body = JSON.parse(init.body);
+      github.text = Buffer.from(body.content, 'base64').toString();
+      github.lastMessage = body.message;
+      github.version++;
+      return response(200, { content: { sha: 'sha' + github.version } });
+    }
+    throw new Error('unexpected request: ' + method + ' ' + url);
+  };
+  return github;
+}
+
+function createMemoStore(github, token = 'token') {
+  return TotkSave.createFileStore({ config: CONFIG, path: MEMO_PATH, fetch: github.fetch, getToken: () => token, format: 'text' });
+}
+
+// 空白・空行・字下げ・末尾の改行の有無まで、書いたとおりに残す
+const MEMO_TEXT = '  字下げした行\n\n\t空行のあと（タブ）\n末尾に空白   \n最後は改行なし';
+
+test('メモ: 書いたとおりの文字（空白・改行・日本語）で保存される。チェックや並びのファイルには送らない', async () => {
+  const github = createMemoGitHub(null);
+
+  assert.equal(await createMemoStore(github).save(MEMO_TEXT), 'saved');
+  assert.equal(github.text, MEMO_TEXT);
+  assert.equal(github.lastMessage, 'chore(save): update memo.txt');
+  assert.ok(github.requests.every((r) => r.url.startsWith(MEMO_URL)));
+});
+
+test('メモ: 読み込むと、保存した文字がそのまま返る。ファイルが無い（404）ときは null', async () => {
+  assert.equal(await createMemoStore(createMemoGitHub(MEMO_TEXT)).load(), MEMO_TEXT);
+  assert.equal(await createMemoStore(createMemoGitHub('')).load(), '');
+  assert.equal(await createMemoStore(createMemoGitHub(null)).load(), null);
+});
+
+test('メモ: トークンが無ければ送らない', async () => {
+  const github = createMemoGitHub('元のメモ');
+
+  assert.equal(await createMemoStore(github, '').save('新しいメモ'), 'no-token');
+  assert.equal(github.text, '元のメモ');
+});

@@ -7,4 +7,6 @@ window.TOTK_SAVE_CONFIG = {
   path: 'tok_wiki/data/save.json',
   // 下メニューの並び。チェックとはファイルを分け、並びの保存がチェックのデータに触れないようにしている
   layoutPath: 'tok_wiki/data/menu-layout.json',
+  // メモ（地図の左下の「メモ」ボタン）。プレーンテキストのまま保存する
+  memoPath: 'tok_wiki/data/memo.txt',
 };

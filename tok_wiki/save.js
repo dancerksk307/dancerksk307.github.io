@@ -258,16 +258,19 @@
     return { load: load, flush: flush, notifyChanged: notifyChanged };
   }
 
-  // 下メニューの並びなど、チェックとは別の json を GitHub に読み書きする（チェックのファイルには触れない）。
-  // 設定画面で「保存」を押したときだけ変わるものなので、チェックのような差分の重ね合わせはせず、保存したもので丸ごと置き換える。
-  // options: { config, path, fetch, getToken }
+  // 下メニューの並び・メモなど、チェックとは別のファイルを GitHub に読み書きする（チェックのファイルには触れない）。
+  // 画面で「保存」を押したときだけ変わるものなので、チェックのような差分の重ね合わせはせず、保存したもので丸ごと置き換える。
+  // options: { config, path, fetch, getToken, format }
+  //   format: 'json'（既定。オブジェクトを読み書きする）/ 'text'（文字をそのまま読み書きする。空白や改行も変えない）
   //   load(): ファイルの中身（無ければ null）
   //   save(data): 'saved' / 'no-token' / 'no-config'。送れなかったときは status 付きのエラーで失敗する
   function createFileStore(options) {
     var config = options.config || {};
     var getToken = options.getToken || function () { return ''; };
+    var asText = options.format === 'text';
     var configured = !!(config.owner && config.repo && config.branch && options.path);
     var fileUrl = API + '/repos/' + config.owner + '/' + config.repo + '/contents/' + options.path;
+    var commitMessage = 'chore(save): update ' + String(options.path).split('/').pop();
 
     function request(url, init) {
       init = init || {};
@@ -287,7 +290,10 @@
         if (!res.ok) throw httpError(res.status);
         return res.json().then(function (json) {
           var data;
-          try { data = JSON.parse(fromBase64(json.content || '')); } catch (e) { data = null; }
+          try {
+            var text = fromBase64(json.content || '');
+            data = asText ? text : JSON.parse(text);
+          } catch (e) { data = null; }
           return { data: data, sha: json.sha };
         });
       });
@@ -305,7 +311,8 @@
       function attempt() {
         // 置き換えるには今の版（sha）が要るので、毎回取り直す
         return fetchFile().then(function (file) {
-          var body = { message: 'chore(save): update menu layout', content: toBase64(JSON.stringify(data, null, 2) + '\n'), branch: config.branch };
+          var content = asText ? String(data) : JSON.stringify(data, null, 2) + '\n';
+          var body = { message: commitMessage, content: toBase64(content), branch: config.branch };
           if (file.sha) body.sha = file.sha;
           return request(fileUrl, { method: 'PUT', body: JSON.stringify(body) });
         }).then(function (res) {
@@ -372,11 +379,12 @@
     });
 
     api.ready = sync.load();
-    // チェックと同じ保存先・トークンで、別のファイルを読み書きする部品を作る（下メニューの並びに使う）
-    api.openFile = function (path) {
+    // チェックと同じ保存先・トークンで、別のファイルを読み書きする部品を作る（下メニューの並び・メモに使う）
+    api.openFile = function (path, format) {
       return createFileStore({
         config: options.config,
         path: path,
+        format: format,
         fetch: window.fetch.bind(window),
         getToken: function () { return rawStorage.getItem(TOKEN_KEY) || ''; },
       });
