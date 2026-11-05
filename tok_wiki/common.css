@@ -11,7 +11,8 @@
 /* 見た目は、同じ列の拡大縮小ボタンに合わせている（大きさも、拡大縮小ボタンと同じくツールの標準の1.5倍） */
 #RenderMap .totk-menu-button,
 #RenderMap .totk-memo-button { display: block; width: 48px; height: 48px; padding: 0; border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; background: rgba(32, 32, 32, .8); color: #fff; font-size: 27px; line-height: 1; cursor: pointer; }
-#RenderMap .totk-memo-button { font-size: 15px; font-weight: bold; }
+/* メモのボタンは鉛筆の絵（memo.js）。ボタンの中央に置く */
+#RenderMap .totk-memo-button > svg { display: block; margin: auto; }
 #RenderMap .totk-menu-button:active,
 #RenderMap .totk-memo-button:active { background: rgba(80, 80, 80, .9); }
 

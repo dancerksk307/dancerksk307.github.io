@@ -112,7 +112,12 @@
   var button = document.createElement('button');
   button.type = 'button';
   button.className = 'totk-memo-button';
-  button.textContent = 'メモ';
+  button.setAttribute('aria-label', 'メモを開く');
+  // 鉛筆のアイコン。絵文字は機種によって色や形が変わるので、☰ と同じ白一色になるよう線で描く（色は CSS の color）
+  button.innerHTML =
+    '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/><path d="M15 5l4 4"/>' +
+    '</svg>';
   button.addEventListener('click', open);
   document.body.appendChild(button);
 })();
