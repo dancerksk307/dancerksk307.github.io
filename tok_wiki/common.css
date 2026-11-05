@@ -46,19 +46,26 @@
 #RenderMap .leaflet-bottom.is-bottomMenu { padding-bottom: calc(59px + var(--totk-menu-space)); }
 
 /* 下メニューのボタンの置き場所。地図ツールは左上に「全てOFF」、右上に「表示設定」を置く。
-   よく押す「表示設定」を左上に、「全てOFF」を開いたときの2段目の左に移し、空いた右上まで1段目の種類を並べている。
+   よく押す「表示設定」を左上（1段目の左端の固定マス）に移している。「全てOFF」と種類のボタンは、menu-layout.js がマス目へ移す。
    ボタンはツールのものなので位置だけを上書きする。ツール側の指定（クラス5つ分）に勝つよう #RenderMap を付けている */
-#RenderMap ._sidemenu-section ._toggle-btn { right: auto; left: 10px; }
+/* 左右の位置は、1段目の左端のマスの中央（マス目の左端10px＋1マスの半分）から、ボタンの幅の半分（18px）を引いたところ */
+#RenderMap ._sidemenu-section ._toggle-btn { right: auto; left: calc(10px + (100% - 20px) / 14 - 18px); }
 /* ツールはメニューを開いている間「表示設定」を薄くする。押せないように見えるので、閉じているときと同じ見た目に戻す */
 #RenderMap ._sidemenu-section ._toggle-btn.is-open { border-color: rgba(255, 255, 255, .5); }
 #RenderMap ._sidemenu-section ._toggle-btn.is-open > img { opacity: 1; }
 #RenderMap ._sidemenu-section ._toggle-btn.is-open > ._label { color: #fff; }
-/* 84px = もとの位置（10px）＋1段目の高さ（48px）＋見出しの高さ（26px）。さらに1段目の下の余白の分だけ下げる。
-   閉じているときは地図の外にはみ出て見えない */
-#RenderMap ._sidemenu-section ._clear-btn { top: calc(84px + var(--totk-menu-space)); }
-/* 1段目と2段目は、左のボタンの分（46px）だけ空ける。1段目は、ツールが右側にも空ける「表示設定」の分を詰めることになる */
-#RenderMap ._sidemenu-section .always-show-section ._switch-group,
-#RenderMap ._sidemenu-section .opened-show-section ._subject:first-child + ._switch-group { width: calc(100% - 46px); margin: 0 0 0 46px; }
+/* 下メニューのマス目（menu-layout.js）。横7マス、1段の高さは地図ツールの段と同じ48px。
+   段や線を増やしても中身が切れないよう、ツールが400pxで固定している背景の高さを中身に合わせて伸ばす */
+#RenderMap ._sidemenu-section { height: auto; min-height: 400px; }
+#RenderMap ._sidemenu-section .totk-menu-row { display: grid; grid-template-columns: repeat(7, 1fr); height: 48px; }
+#RenderMap ._sidemenu-section .totk-menu-cell { display: flex; justify-content: center; min-width: 0; }
+/* ツールはボタンの左右に5pxずつ余白を付けるが、スマホ幅の1マス（約48px）からはみ出すので、マスの中央に置くだけにする */
+#RenderMap ._sidemenu-section .totk-menu-cell > .leaflet-side-marker-switch-ui { margin: 0 0 5px; }
+/* 「全てOFF」もマスの中に置く。ツールのスワイプ処理は「押した場所の親が _clear-btn か」を見て押せるかを決めるので、
+   位置の指定（relative）は残したまま、ツールが付けた上・左の位置だけを打ち消す */
+#RenderMap ._sidemenu-section ._clear-btn.totk-in-grid { position: relative; top: auto; left: auto; }
+/* 区切りの線（見出しの代わり）。高さは余白込みで8px（menu-layout.js の LINE_HEIGHT と合わせる） */
+#RenderMap ._sidemenu-section .totk-menu-line { height: 1px; margin: 3px 10px 4px; background: rgba(255, 255, 255, .35); }
 
 /* 地図の操作部品を下側に集めたとき（index.html の moveControlsToBottom）の並べ方。
    ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置くので、

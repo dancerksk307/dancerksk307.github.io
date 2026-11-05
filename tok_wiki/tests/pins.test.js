@@ -20,8 +20,17 @@ function loadLaunchArray(name) {
   return new Function('return ' + source)();
 }
 
-const menuGroups = loadLaunchArray('MENU_GROUPS');
-const menuTypes = menuGroups.flatMap((group) => group.typeNames);
+const TotkMenuLayout = require('../menu-layout.js');
+
+// 下メニューの初期配置（var DEFAULT_MENU_LAYOUT = { ... };）を取り出して実行する
+function loadDefaultMenuLayout() {
+  const source = /var DEFAULT_MENU_LAYOUT = (\{[\s\S]*?\r?\n\});\r?\n/.exec(html)[1];
+  return new Function('return ' + source)();
+}
+
+const defaultMenuLayout = loadDefaultMenuLayout();
+const menuItems = defaultMenuLayout.rows.flat().filter((item) => item && item !== TotkMenuLayout.FIXED);
+const menuTypes = menuItems.filter((item) => item !== TotkMenuLayout.CLEAR);
 
 const pins = loadPins();
 
@@ -146,19 +155,17 @@ test('下メニューの種類と、データにある種類が一致する', ()
   assert.deepEqual([...typesInData, ...PIN_LESS_MENU_TYPES].sort(), [...menuTypes].sort());
 });
 
-test('下メニューに同じ種類が2回出てこない', () => {
-  assert.equal(new Set(menuTypes).size, menuTypes.length);
+test('下メニューに同じ項目が2回出てこない', () => {
+  assert.equal(new Set(menuItems).size, menuItems.length);
 });
 
-// 地図ツールの下メニューが受け取れる形。これを超えると、はみ出したりボタンが描かれなかったりする
-test('下メニューは、いつも見える段が6種類まで、開いて見える組が4つまで', () => {
-  assert.ok(menuGroups[0].typeNames.length <= 6);
-  assert.ok(menuGroups.length - 1 <= 4);
-});
-test('メニューの隠れている分の高さ（MENU_HIDE_HEIGHT）は8の倍数（ツールが8pxずつ動かすので、ずれると開閉が止まらない）', () => {
-  const hideHeight = Number(/var MENU_HIDE_HEIGHT = (\d+);/.exec(html)[1]);
+// 初期配置が並びの決まり（横7マス、1段目の左端は「表示設定」）を守っていれば、並べ直しで何も変わらない
+test('下メニューの初期配置は、そのままで正しい並び（横7マス・左上は表示設定・全てOFFがある）', () => {
+  const normalized = TotkMenuLayout.normalize(defaultMenuLayout, menuItems, defaultMenuLayout);
 
-  assert.equal(hideHeight % 8, 0);
+  assert.deepEqual(normalized, defaultMenuLayout);
+  defaultMenuLayout.rows.forEach((row) => assert.equal(row.length, TotkMenuLayout.COLUMNS));
+  assert.ok(menuItems.includes(TotkMenuLayout.CLEAR));
 });
 
 test('開いた直後にONの種類は、同時に表示できる数（MAX_SHOWN_TYPES）以内', () => {
