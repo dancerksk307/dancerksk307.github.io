@@ -2786,8 +2786,29 @@ var MENU_ITEMS = DEFAULT_MENU_LAYOUT.rows
 // ピンの種類は分けたままにしている（地図ツールは、この3種類のピンを押したときだけ、出てくる武器の一覧を出すため）
 var LINKED_TYPES = { 'shadow-large': ['shadow-sword', 'shadow-lance'] };
 var LINKED_FOLLOWER_TYPES = Object.keys(LINKED_TYPES).reduce(function (all, main) { return all.concat(LINKED_TYPES[main]); }, []);
-// 開いた直後に表示する種類
+// 初めて開いたときに表示する種類（2回目からは、前回のON/OFF。下の loadShownTypes）
 var DEFAULT_ON_TYPES = ['hokora', 'tower'];
+
+// 種類のON/OFFは地図ツールが保存しないので、開き直すと初期状態に戻ってしまう。そこで、このブラウザに覚えておき、
+// 次に開いたときは起動オプション（defaultOffTypes）でその状態にする。端末ごとに使い方が違うので GitHub には保存しない（利用者の判断）
+var SHOWN_TYPES_KEY = 'TotkShownTypes';
+function loadShownTypes(types) {
+  var saved;
+  try { saved = JSON.parse(localStorage.getItem(SHOWN_TYPES_KEY)); } catch (e) { saved = null; }
+  if (!Array.isArray(saved)) return DEFAULT_ON_TYPES;
+  return saved.filter(function (type) { return types.indexOf(type) !== -1; });
+}
+function rememberShownTypes(types) {
+  function save() {
+    var shown = types.filter(function (type) { return $('#leaflet-side-switch-button-' + type).prop('checked'); });
+    try { localStorage.setItem(SHOWN_TYPES_KEY, JSON.stringify(shown)); } catch (e) { /* 覚えられなくても、表示はそのまま使える */ }
+  }
+  // メニューの中のクリックは Leaflet が外へ伝えないので、document ではなくチェック欄1つずつに付ける。
+  // 検索で種類をONにしたとき（showTypeOnSearch）も change が起きるので、ここで拾える
+  types.forEach(function (type) { $('#leaflet-side-switch-button-' + type).on('change', save); });
+  // 「全てOFF」はチェック欄を外すだけで change が起きない。ツールが外し終えてから覚える
+  $('._clear-btn').on('click', function () { setTimeout(save, 0); });
+}
 // 検索の一覧に出す種類。名前が1つずつ違う種類だけにしている（コログは名前が無く、ボスや深穴は同じ名前がいくつも並ぶ）。
 // 一覧の文字は name（無ければ label）。ゾナウは name が出るゾナウギアの一覧なので、ギアの名前で探せる
 var SEARCH_TYPES = ['hokora', 'hokorachallenge', 'tower', 'cave', 'well', 'village', 'stables', 'dungeon', 'root',
@@ -2914,7 +2935,7 @@ function markNightTalus() {
   });
 }
 
-// チェック済みのピンを、全種類まとめてうんと薄くしたり戻したりするボタン（メモの横）。地図ツールには無い機能なので、
+// チェック済みのピンを、全種類まとめてもっと薄くしたり戻したりするボタン（メモの横）。地図ツールには無い機能なので、
 // #RenderMap にクラスを付け外しし、薄くする指定は common.css（.totk-hide-checked）に任せる。
 // 消さずに薄くするのは、どこをチェックしたかも地図の上で見えるようにするため（利用者の要望）。
 // クラス名・保存のキーは、隠す作りだったころのまま（覚えておいた状態を引き継ぐため）。
@@ -2956,6 +2977,8 @@ $(function () {
     var menuLayout = TotkMenuLayout.normalize(loaded[1], MENU_ITEMS, DEFAULT_MENU_LAYOUT);
     // 一緒にON/OFFする種類もボタン（チェック欄）は要るので、地図ツールに渡す種類に含める（マス目には置かない）
     var menuTypes = MENU_ITEMS.filter(function (item) { return item !== TotkMenuLayout.CLEAR; }).concat(LINKED_FOLLOWER_TYPES);
+    // 前回ONだった種類（一緒にON/OFFする種類も、チェック欄ごとに覚えている）
+    var shownTypes = loadShownTypes(menuTypes);
     // 地図ツールが作る地図をつかまえるため、起動より前に用意する
     var locationPins = TotkLocationPins.create(window._locationPinDatas);
     fitMenuHeight(menuLayout);
@@ -2971,7 +2994,7 @@ $(function () {
       // 地図は最初から画面いっぱいなので、ツールの「全画面 ON/OFF」ボタンは出さない
       enableFullScreen: false,
       isHideAllButton: true,
-      defaultOffTypes: menuTypes.filter(function (type) { return DEFAULT_ON_TYPES.indexOf(type) === -1; }),
+      defaultOffTypes: menuTypes.filter(function (type) { return shownTypes.indexOf(type) === -1; }),
       noSetViewOnChangeMap: true,
       noMarkerLastPositionTypes: ['hokorachallenge'],
       height: MAP_HEIGHT,
@@ -2996,6 +3019,8 @@ $(function () {
     // 武器名のプルダウンを出すかは影の像のチェック欄で決めるので、まとめてON/OFFする処理を先に付ける（同じボタンの処理は付けた順に走る）
     linkTypeSwitches();
     setupWeaponFilter();
+    // 一緒にON/OFFする種類をそろえた後で覚えるよう、linkTypeSwitches より後に付ける（同じボタンの処理は付けた順に走る）
+    rememberShownTypes(menuTypes);
     showTypeOnSearch();
     noticeAreaZoom();
     markNightTalus();

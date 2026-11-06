@@ -42,6 +42,9 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
 - 吹き出しの「取得済み／未取得」の文言は `#RenderMap` の `data-pin-checked` / `data-pin-unchecked` で変えられる。
   全種類で1つの文言しか持てないので、祠にも洞窟にも合う「チェック済み／未チェック」にしている。
 - 種類のON/OFFはツールが保存しない。開くたびに起動オプションの `defaultOffTypes` の状態に戻る。
+  そこで `index.html` の `rememberShownTypes` が、ONの種類をこのブラウザに覚え（localStorage `TotkShownTypes`。GitHub には保存しない。利用者の判断）、
+  次に開いたときは `loadShownTypes` でそれを `defaultOffTypes` に使う。覚えたものが無いとき（初めて開いたとき）は `DEFAULT_ON_TYPES`。
+  チェック欄の change で覚えるが、「全てOFF」は change が起きないので、ボタンを押した後にも覚える。
 - 進捗の数字はツールが入れる。画面内の `.w-achievement-count`（チェック数）と `.w-achievement-total-count`（総数）を、
   `data-types` の種類で数えて書き換える。☰ の進捗一覧（`drawer.js`）はこの仕組みに乗っているだけ。
 - 検索は、選んだピンへ地図を動かして吹き出しを開くだけで、種類のON/OFFは変えない。
@@ -179,9 +182,9 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
   丸の位置はピンの大きさ20px（ツールの既定。種類データに `size` があると変わる）から決めた値で、
   `size` を持つ種類が無いことを `tests/pins.test.js` で確かめている。
 - 夜光イワロックの色（下）はチェック済みには付けない。`filter` は赤丸にもかかり、赤丸まで青緑になるため。
-- **チェック済みのピンは、メモの横の目のボタン（`index.html` の `setupHideChecked`）で、全種類まとめてうんと薄く（透明度0.2）できる**。
+- **チェック済みのピンは、メモの横の目のボタン（`index.html` の `setupHideChecked`）で、全種類まとめてもっと薄く（透明度0.5）できる**。
   消さずに薄くするのは、利用者の要望（どこをチェックしたかも見えるように）。赤丸は透けさせない。
-  `#RenderMap` に `totk-hide-checked` を付け外しし、薄くするのは CSS（画像のピンはマスクの画像を 0.2 のものに替える）。
+  `#RenderMap` に `totk-hide-checked` を付け外しし、薄くするのは CSS（画像のピンはマスクの画像を 0.5 のものに替える）。
   クラス名と保存のキーは、隠す作りだったころの名前のまま。
   地名の印はツールの `is-checked` が付かない（付けるとツールの見た目の指定がかかる）ので、`location-pins.js` がチェック済みに `totk-area-checked` を付けている。
   ツールの種類のON/OFFと違い、開き直しても前の状態のままにするため、このブラウザに覚えておく（localStorage `TotkHideChecked`。GitHub には保存しない）。
@@ -261,7 +264,7 @@ GitHub のトークンはコードに書かない。メニューから入力し�
 ## ピンの種類を追加するとき
 
 1. `index.html` の `var data` にピンを足し、`DEFAULT_MENU_LAYOUT` の空きマスに種類名を足す（既存の種類名から選ぶ。上の制約を参照）。
-   開いた直後に出すなら `DEFAULT_ON_TYPES` に、名前で探せるようにするなら `SEARCH_TYPES` にも足す。
+   初めて開いたときに出すなら `DEFAULT_ON_TYPES` に（ON/OFFを覚えている利用者には、新しい種類はOFFで出る）、名前で探せるようにするなら `SEARCH_TYPES` にも足す。
    並びを保存済みの利用者の下メニューには、2段目以降の空きマスに自動で足される。
 2. 開いた状態の下メニューをスマホ幅の画面で確かめる。
 3. チェック欄がある種類なら、`drawer.js` の `PROGRESS_GROUPS` に1行足す。

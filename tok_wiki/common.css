@@ -162,15 +162,15 @@
 /* 大きく拡大して名前が出ているピンは、ツールが「絵と名前」の箱（div）に作り替える。名前は箱の外に出ているのでマスクは使えない
    （外が消える）。中の絵と名前だけを0.8にする */
 #RenderMap div.leaflet-marker-icon.is-checked > * { opacity: .8; }
-/* チェック済みのピンを、消さずにうんと薄くする（透明度0.2。index.html の setupHideChecked のボタン）。赤丸は透けさせない。
-   画像のピンは、上のマスクの 0.8 を 0.2 にしたものに替える（位置・大きさは上の指定のまま）。
+/* チェック済みのピンを、消さずにもっと薄くする（透明度0.5。index.html の setupHideChecked のボタン）。赤丸は透けさせない。
+   画像のピンは、上のマスクの 0.8 を 0.5 にしたものに替える（位置・大きさは上の指定のまま）。
    地名の印はチェック済みに totk-area-checked が付く（location-pins.js）。赤丸は無いので印ごと薄くする */
 #RenderMap.totk-hide-checked img.leaflet-marker-icon.is-checked {
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.2'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.2'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.5'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.5'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E");
 }
 #RenderMap.totk-hide-checked div.leaflet-marker-icon.is-checked > *,
-#RenderMap.totk-hide-checked .location-pin.totk-area-checked { opacity: .2; }
+#RenderMap.totk-hide-checked .location-pin.totk-area-checked { opacity: .5; }
 /* 夜光イワロック（index.html の markNightTalus）。ふつうのイワロック（白）・ガチロック（青）と見分けられるよう、青緑にしてほんのり光らせる。
    アイコンが白なので、いったんセピアで色を付けてから色相を回している。
    チェック済みには付けない（filter は右上の赤丸にもかかり、赤丸まで青緑になるため） */
