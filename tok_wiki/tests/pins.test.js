@@ -184,6 +184,15 @@ test('開いた直後にONの種類は、下メニューにある種類', () => 
   defaultOn.forEach((type) => assert.ok(menuTypes.includes(type), type));
 });
 
+// 地図ツールは種類データに size が無ければピンを20pxで描く。チェック済みのピンの絵を縮める余白（common.css の padding: 3px）は、
+// この大きさから決めているので、大きさを変える種類を足したら CSS も見直す
+test('ピンのアイコンの大きさを変えている種類が無い（どのピンも20px）', () => {
+  const start = html.indexOf('window._typeDatas = [');
+  const typeDatas = new Function('return ' + html.slice(start + 'window._typeDatas = '.length, html.indexOf('];', start) + 1))();
+
+  assert.deepEqual(typeDatas.filter((type) => type.size !== undefined).map((type) => type.name), []);
+});
+
 // 地図ツールは、検索の一覧に name を出し、無ければ label を出す
 test('検索に出す種類のピンには、すべて名前がある（無いと一覧に空の行が出る）', () => {
   const searchTypes = loadLaunchArray('SEARCH_TYPES');
