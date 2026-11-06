@@ -141,7 +141,8 @@ window._typeDatas = [
   { name: 'demon_statue', text: '魔人像', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_demon_statue.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_demon_statue.png', defaultChecked: true },
   { name: 'shadow', text: '影の像', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_shadow.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_shadow.png', defaultChecked: true },
   { name: 'shadow-sword', text: '片手剣', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_shadow-sword.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_shadow-sword.png', defaultChecked: true },
-  { name: 'shadow-large', text: '両手剣', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_shadow-large.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_shadow-large.png', defaultChecked: true },
+  // 影の像は3種類（片手剣・両手剣・槍）を、下メニューでは両手剣のボタン1つでまとめてON/OFFする（index.html の LINKED_TYPES）。そのボタンの名前
+  { name: 'shadow-large', text: '影の像', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_shadow-large.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_shadow-large.png', defaultChecked: true },
   { name: 'shadow-lance', text: '槍', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_shadow-lance.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_shadow-lance.png', defaultChecked: true },
   { name: 'kanban', text: '看板', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_kanban.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_kanban.png', defaultChecked: true },
   { name: 'well', text: '井戸', switch: 'button', iconUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/pin_well.png', buttonUrl: 'https://img.gamewith.jp/article_tools/zelda-totk/gacha/button_well.png', defaultChecked: true },
@@ -2770,7 +2771,7 @@ var DEFAULT_MENU_LAYOUT = {
     ['_toggle', 'hokora', 'hokorachallenge', 'tower', 'cave', 'well', 'korok'],
     ['_clear', 'root', 'hole', 'grove', 'mine', 'seiren', 'blueprint'],
     ['village', 'stables', 'fairy', 'god_statue', 'kanban', 'battery', 'blacksmith'],
-    ['tears', 'sage', 'map', 'ancienttablet', 'shadow-sword', 'shadow-large', 'shadow-lance'],
+    ['tears', 'sage', 'map', 'ancienttablet', 'shadow-large', null, null],
     ['demon_statue', 'ierokku', 'iwa_oct', 'frox', 'gurioku', 'morudora', 'phantom'],
     ['koga', 'boss_temple', null, null, null, null, null],
   ],
@@ -2780,6 +2781,11 @@ var DEFAULT_MENU_LAYOUT = {
 var MENU_ITEMS = DEFAULT_MENU_LAYOUT.rows
   .reduce(function (all, row) { return all.concat(row); }, [])
   .filter(function (item) { return item && item !== TotkMenuLayout.FIXED; });
+// 1つのボタンでまとめてON/OFFする種類。{ 下メニューに置く種類: [一緒にON/OFFする種類] }。
+// 影の像はピンの種類が3つ（武器の種類ごと）あるが、ボタンは両手剣の1つ（名前は「影の像」）にまとめている。
+// ピンの種類は分けたままにしている（地図ツールは、この3種類のピンを押したときだけ、出てくる武器の一覧を出すため）
+var LINKED_TYPES = { 'shadow-large': ['shadow-sword', 'shadow-lance'] };
+var LINKED_FOLLOWER_TYPES = Object.keys(LINKED_TYPES).reduce(function (all, main) { return all.concat(LINKED_TYPES[main]); }, []);
 // 開いた直後に表示する種類
 var DEFAULT_ON_TYPES = ['hokora', 'tower'];
 // 検索の一覧に出す種類。名前が1つずつ違う種類だけにしている（コログは名前が無く、ボスや深穴は同じ名前がいくつも並ぶ）。
@@ -2887,6 +2893,16 @@ function setupWeaponFilter() {
   filterLater();
 }
 
+// まとめてON/OFFする種類（LINKED_TYPES）。下メニューに置いたボタンを押したら、一緒の種類のチェック欄も同じ状態にする。
+// ボタンに直接付けた処理は、地図ツールが document に付けた処理（チェック欄を見てピンを出し入れする）より先に走るので、
+// ツールはそろった状態でピンを出し入れする。「全てOFF」はツールがすべてのチェック欄を外すので、何もしなくてよい
+function linkTypeSwitches() {
+  Object.keys(LINKED_TYPES).forEach(function (main) {
+    var $followers = $(LINKED_TYPES[main].map(function (type) { return '#leaflet-side-switch-button-' + type; }).join(','));
+    $('#leaflet-side-switch-button-' + main).on('change', function () { $followers.prop('checked', this.checked); });
+  });
+}
+
 // 夜光イワロック（夜だけ出るイワロック）は、地図ツールではふつうのイワロックと同じアイコンで見分けられない。
 // ピン（label が「夜光」で始まるもの）に目印のクラスを付け、common.css（.totk-night）で色を変える
 function markNightTalus() {
@@ -2909,7 +2925,8 @@ $(function () {
   Promise.all([TotkSave.ready, TotkMenuLayout.loadSaved(layoutStore)]).then(function (loaded) {
     // 保存した並びは、その後で種類が増減していても使えるよう直してから使う（無ければ初期配置）
     var menuLayout = TotkMenuLayout.normalize(loaded[1], MENU_ITEMS, DEFAULT_MENU_LAYOUT);
-    var menuTypes = MENU_ITEMS.filter(function (item) { return item !== TotkMenuLayout.CLEAR; });
+    // 一緒にON/OFFする種類もボタン（チェック欄）は要るので、地図ツールに渡す種類に含める（マス目には置かない）
+    var menuTypes = MENU_ITEMS.filter(function (item) { return item !== TotkMenuLayout.CLEAR; }).concat(LINKED_FOLLOWER_TYPES);
     // 地図ツールが作る地図をつかまえるため、起動より前に用意する
     var locationPins = TotkLocationPins.create(window._locationPinDatas);
     fitMenuHeight(menuLayout);
@@ -2934,7 +2951,7 @@ $(function () {
       .KeywordSearchUI({ targetTypes: SEARCH_TYPES })
       // 武器名のプルダウン。下メニューより先に作る（後だと、ツールが影の像のメニューボタンを隠してしまう）
       .ShadowWeaponFilter()
-      .TotkSideMenu(TotkMenuLayout.toolGroups(menuLayout))
+      .TotkSideMenu(TotkMenuLayout.toolGroups(menuLayout, LINKED_FOLLOWER_TYPES))
       .CheckerProgress('hokora')
       // 大きく拡大したとき（4段階目から）、ボスなどの名前（ピンの label）を地図に文字で出す。切り替えボタンは出さない
       .LabelIcon({ enableDisplaySwitchButton: false, zoomLevelLabelVisibility: 4 });
@@ -2945,6 +2962,8 @@ $(function () {
     });
     locationPins.draw();
     moveControlsToBottom();
+    // 武器名のプルダウンを出すかは影の像のチェック欄で決めるので、まとめてON/OFFする処理を先に付ける（同じボタンの処理は付けた順に走る）
+    linkTypeSwitches();
     setupWeaponFilter();
     showTypeOnSearch();
     noticeAreaZoom();

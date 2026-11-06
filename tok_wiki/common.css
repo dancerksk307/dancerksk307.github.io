@@ -72,6 +72,8 @@
 /* 「表示設定」と「全てOFF」もマスの中に置く。ツールのスワイプ処理は「押した場所の親が _toggle-btn / _clear-btn か」を見て
    押せるかを決めるので、位置の指定（relative）は残したまま、ツールが付けた上・左右の位置だけを打ち消す */
 #RenderMap ._sidemenu-section .totk-in-grid { position: relative; top: auto; right: auto; left: auto; }
+/* マス目に置かない種類のボタン（ほかのボタンと一緒にON/OFFする種類。menu-layout.js の apply）。画面には出さない */
+#RenderMap ._sidemenu-section .totk-menu-hidden { display: none; }
 /* 区切りの線（見出しの代わり）。高さは余白込みで8px（menu-layout.js の LINE_HEIGHT と合わせる） */
 #RenderMap ._sidemenu-section .totk-menu-line { height: 1px; margin: 3px 10px 4px; background: rgba(255, 255, 255, .35); }
 

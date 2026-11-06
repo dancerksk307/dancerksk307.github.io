@@ -150,13 +150,14 @@
   }
 
   // 地図ツールの下メニューに渡す組。1組目＝閉じていても見える段（お気に入りと地上の段）。残りの種類は1組にまとめて渡す
-  // （ツールに作らせたボタンは apply でマス目へ並べ直すので、組の分け方は見た目に関係ない）
-  function toolGroups(layout) {
+  // （ツールに作らせたボタンは apply でマス目へ並べ直すので、組の分け方は見た目に関係ない）。
+  // hiddenTypes は、マス目に置かないがボタン（チェック欄）は要る種類（ほかのボタンと一緒にON/OFFする種類）。残りの組に足す
+  function toolGroups(layout, hiddenTypes) {
     function types(rows) {
       return rows.reduce(function (all, row) { return all.concat(row); }, [])
         .filter(function (item) { return item && item !== FIXED && item !== CLEAR; });
     }
-    var rest = types(layout.rows.slice(2));
+    var rest = types(layout.rows.slice(2)).concat(hiddenTypes || []);
     var groups = [{ typeNames: types(layout.rows.slice(0, 2)) }];
     if (rest.length) groups.push({ typeNames: rest });
     return groups;
@@ -177,11 +178,12 @@
     buttons[FIXED] = $section.children('._toggle-btn').detach().addClass('totk-in-grid');
     buttons[CLEAR] = $section.children('._clear-btn').detach().addClass('totk-in-grid');
 
+    var placed = {};
     function rowElement(row) {
       var $row = $('<div class="totk-menu-row"></div>');
       row.forEach(function (item) {
         var $cell = $('<div class="totk-menu-cell"></div>');
-        if (buttons[item] && item !== FIXED && item !== CLEAR) $cell.append(buttons[item]);
+        if (buttons[item] && item !== FIXED && item !== CLEAR) { $cell.append(buttons[item]); placed[item] = true; }
         $row.append($cell);
       });
       return $row;
@@ -205,6 +207,12 @@
       if (r < UNDERGROUND_ROW) return;
       lineIfAbove(r, $opened);
       $opened.append(r === UNDERGROUND_ROW ? $second : $row);
+    });
+    // マス目に置かない種類のボタン（ほかのボタンと一緒にON/OFFする種類）は、見えない入れ物に入れて画面の中に残す。
+    // 地図ツールは画面の中のチェック欄を見て、どの種類を出すかを決めるので、外したままにすると出せなくなる
+    var $hidden = $('<div class="totk-menu-hidden"></div>').appendTo($opened);
+    Object.keys(buttons).forEach(function (item) {
+      if (!placed[item] && item !== FIXED && item !== CLEAR) $hidden.append(buttons[item]);
     });
 
     // 地底を選んでいる間は、地上の段と地底の段を入れ替える（閉じたメニューに地底向けの種類が見えるように）。

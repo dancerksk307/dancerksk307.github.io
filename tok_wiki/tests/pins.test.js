@@ -31,6 +31,9 @@ function loadDefaultMenuLayout() {
 const defaultMenuLayout = loadDefaultMenuLayout();
 const menuItems = defaultMenuLayout.rows.flat().filter((item) => item && item !== TotkMenuLayout.FIXED);
 const menuTypes = menuItems.filter((item) => item !== TotkMenuLayout.CLEAR);
+// まとめてON/OFFする種類（var LINKED_TYPES = { 下メニューに置く種類: [一緒にON/OFFする種類] };）
+const linkedTypes = new Function('return ' + /var LINKED_TYPES = (\{.*\});/.exec(html)[1])();
+const linkedFollowerTypes = Object.values(linkedTypes).flat();
 
 const pins = loadPins();
 
@@ -149,10 +152,17 @@ test('地図に無い場所（空島・地上・地底以外）のピンが無�
   assert.deepEqual(hidden.map((pin) => pin.id), []);
 });
 
-test('下メニューの種類と、データにある種類が一致する', () => {
+// 一緒にON/OFFする種類（影の像の片手剣・槍）は、下メニューには置かず、代表のボタン（両手剣）でON/OFFする
+test('下メニューの種類（と、一緒にON/OFFする種類）と、データにある種類が一致する', () => {
   const typesInData = [...new Set(pins.map((pin) => pin.type))];
 
-  assert.deepEqual([...typesInData, ...PIN_LESS_MENU_TYPES].sort(), [...menuTypes].sort());
+  assert.deepEqual([...typesInData, ...PIN_LESS_MENU_TYPES].sort(), [...menuTypes, ...linkedFollowerTypes].sort());
+});
+
+test('まとめてON/OFFする種類は、代表だけが下メニューにあり、一緒の種類は下メニューに無い', () => {
+  assert.deepEqual(linkedTypes, { 'shadow-large': ['shadow-sword', 'shadow-lance'] });
+  Object.keys(linkedTypes).forEach((main) => assert.ok(menuTypes.includes(main), main));
+  linkedFollowerTypes.forEach((type) => assert.ok(!menuTypes.includes(type), type));
 });
 
 test('下メニューに同じ項目が2回出てこない', () => {
