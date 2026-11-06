@@ -136,12 +136,12 @@
 #RenderMap.totk-show-area[d-map="地上"] .location-pin.leaflet-marker-map-地上,
 #RenderMap.totk-show-area[d-map="地底"] .location-pin.leaflet-marker-map-地底 { display: block; }
 
-/* チェック済みのピン。地図ツールは「透明度0.5＋灰色」にするが、薄すぎて地図に埋もれ見つけにくいので、灰色をやめて透明度を0.7にとどめ、
+/* チェック済みのピン。地図ツールは「透明度0.5＋灰色」にするが、薄すぎて地図に埋もれ見つけにくいので、灰色も透明もやめ、
    代わりに絵を約70%に小さくして、まだのピンと見分けられるようにする。ツールの指定（クラス2つ）に勝つよう #RenderMap を付けている。
    押せる範囲は小さくしない。transform で縮めると押せる範囲も一緒に縮むので、画像の内側に余白（padding）を入れて絵だけを縮める
    （box-sizing: border-box なので、ピンの大きさは変わらない）。3px は、ピンの大きさ20px（地図ツールの既定）の15%ずつ。
    大きく拡大して名前が出ているピンは、ツールが「名前と絵（.icon-image）」の箱に作り替えるので、中の絵に同じ余白を入れる */
-#RenderMap .leaflet-marker-icon.is-checked { opacity: .7; filter: none; }
+#RenderMap .leaflet-marker-icon.is-checked { opacity: 1; filter: none; }
 #RenderMap img.leaflet-marker-icon.is-checked,
 #RenderMap .leaflet-marker-icon.is-checked .icon-image { padding: 3px; }
 /* 夜光イワロック（index.html の markNightTalus）。ふつうのイワロック（白）・ガチロック（青）と見分けられるよう、青緑にしてほんのり光らせる。
