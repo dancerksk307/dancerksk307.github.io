@@ -18,8 +18,8 @@
 #RenderMap .totk-menu-button:active,
 #RenderMap .totk-memo-button:active,
 #RenderMap .totk-hide-checked-button:active { background: rgba(80, 80, 80, .9); }
-/* チェック済みを隠すボタン（index.html の setupHideChecked）は、メモの横に並べる。地図の中央寄りに来るよう、右の角では並びを逆にする。
-   隠している間は、赤丸と同じ赤にして、押されていることがわかるようにする */
+/* チェック済みを薄くするボタン（index.html の setupHideChecked）は、メモの横に並べる。地図の中央寄りに来るよう、右の角では並びを逆にする。
+   薄くしている間は、赤丸と同じ赤にして、押されていることがわかるようにする */
 #RenderMap .totk-button-row { display: flex; gap: 6px; }
 #RenderMap .leaflet-right > .totk-button-row { flex-direction: row-reverse; }
 #RenderMap .totk-hide-checked-button[aria-pressed="true"] { border-color: #f66; background: rgba(200, 0, 0, .85); }
@@ -162,10 +162,15 @@
 /* 大きく拡大して名前が出ているピンは、ツールが「絵と名前」の箱（div）に作り替える。名前は箱の外に出ているのでマスクは使えない
    （外が消える）。中の絵と名前だけを0.8にする */
 #RenderMap div.leaflet-marker-icon.is-checked > * { opacity: .8; }
-/* チェック済みのピンを隠す（index.html の setupHideChecked のボタン）。地名の印はチェック済みに totk-area-checked が付く（location-pins.js）。
-   ツールの表示の指定（_is-show）や、武器名の絞り込みが直接書き込む display に勝つよう !important にしている */
-#RenderMap.totk-hide-checked .leaflet-marker-icon.is-checked,
-#RenderMap.totk-hide-checked .location-pin.totk-area-checked { display: none !important; }
+/* チェック済みのピンを、消さずにうんと薄くする（透明度0.2。index.html の setupHideChecked のボタン）。赤丸は透けさせない。
+   画像のピンは、上のマスクの 0.8 を 0.2 にしたものに替える（位置・大きさは上の指定のまま）。
+   地名の印はチェック済みに totk-area-checked が付く（location-pins.js）。赤丸は無いので印ごと薄くする */
+#RenderMap.totk-hide-checked img.leaflet-marker-icon.is-checked {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.2'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.2'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E");
+}
+#RenderMap.totk-hide-checked div.leaflet-marker-icon.is-checked > *,
+#RenderMap.totk-hide-checked .location-pin.totk-area-checked { opacity: .2; }
 /* 夜光イワロック（index.html の markNightTalus）。ふつうのイワロック（白）・ガチロック（青）と見分けられるよう、青緑にしてほんのり光らせる。
    アイコンが白なので、いったんセピアで色を付けてから色相を回している。
    チェック済みには付けない（filter は右上の赤丸にもかかり、赤丸まで青緑になるため） */

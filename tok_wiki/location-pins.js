@@ -49,7 +49,7 @@
       var checked = parse(readData())[pin.id] === true;
       return L.divIcon({
         // 地図ツールの地名の印と同じクラス。いま開いている地図の印だけを出す指定は common.css。
-        // totk-area-checked は「チェック済みを隠す」ボタンで隠すための目印（ツールの is-checked は、ツールの見た目の指定がかかるので使わない）
+        // totk-area-checked は「チェック済みを薄くする」ボタンで薄くするための目印（ツールの is-checked は、ツールの見た目の指定がかかるので使わない）
         className: 'location-pin leaflet-marker-map-' + pin.mapId + (checked ? ' totk-area-checked' : ''),
         html: '<img src="' + GACHA_URL + (checked ? 'pin_check.png' : 'pin_uncheck.png') + '">',
         iconSize: [16, 16],

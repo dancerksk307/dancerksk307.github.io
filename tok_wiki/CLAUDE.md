@@ -150,7 +150,7 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
   PC幅ではその逆。角を決め打ちにすると片方で崩れるので、「地図の切り替えの上」「進捗の隣」を目印にして移し、CSS も左右両方の角に書いている。
   直したら両方の幅で確かめる。
 - 拡大縮小・☰・メモは、地図の切り替えと同じ列の上へ（上から拡大縮小・☰・メモ）入れる。
-  チェック済みを隠すボタン（`setupHideChecked`）は、メモと同じ入れ物に入れて横に並べる（`.totk-button-row`。右の角では地図の中央寄りに来るよう並びを逆にする）。
+  チェック済みを薄くするボタン（`setupHideChecked`）は、メモと同じ入れ物に入れて横に並べる（`.totk-button-row`。右の角では地図の中央寄りに来るよう並びを逆にする）。
   ☰ とメモはツールの部品ではないので、部品の並べ方に乗る入れ物（`.leaflet-control.totk-button-control`）に入れ、
   `L.DomEvent.disableClickPropagation` で、押したときに地図が動かないようにしている。
   ☰ とメモは地図の中へ移すまで見えない（`common.css`）。地図ツールの起動に失敗すると ☰ もメモも出ない点に注意。
@@ -179,8 +179,10 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
   丸の位置はピンの大きさ20px（ツールの既定。種類データに `size` があると変わる）から決めた値で、
   `size` を持つ種類が無いことを `tests/pins.test.js` で確かめている。
 - 夜光イワロックの色（下）はチェック済みには付けない。`filter` は赤丸にもかかり、赤丸まで青緑になるため。
-- **チェック済みのピンは、メモの横の目のボタン（`index.html` の `setupHideChecked`）で、全種類まとめて隠せる**。
-  `#RenderMap` に `totk-hide-checked` を付け外しし、隠すのは CSS（`!important`。ツールの `_is-show` や武器名の絞り込みが書き込む display に勝たせる）。
+- **チェック済みのピンは、メモの横の目のボタン（`index.html` の `setupHideChecked`）で、全種類まとめてうんと薄く（透明度0.2）できる**。
+  消さずに薄くするのは、利用者の要望（どこをチェックしたかも見えるように）。赤丸は透けさせない。
+  `#RenderMap` に `totk-hide-checked` を付け外しし、薄くするのは CSS（画像のピンはマスクの画像を 0.2 のものに替える）。
+  クラス名と保存のキーは、隠す作りだったころの名前のまま。
   地名の印はツールの `is-checked` が付かない（付けるとツールの見た目の指定がかかる）ので、`location-pins.js` がチェック済みに `totk-area-checked` を付けている。
   ツールの種類のON/OFFと違い、開き直しても前の状態のままにするため、このブラウザに覚えておく（localStorage `TotkHideChecked`。GitHub には保存しない）。
 - 夜光イワロックは、ツールではふつうのイワロックと同じ白いアイコン。`index.html` の `markNightTalus` が、label が「夜光」で始まるピンに

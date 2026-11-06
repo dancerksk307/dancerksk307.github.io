@@ -2831,7 +2831,7 @@ function moveControlsToBottom() {
     L.DomEvent.disableClickPropagation(control);
     return control;
   }
-  // チェック済みを隠すボタン（setupHideChecked）は、メモの横に並べる（並べ方は common.css の .totk-button-row）
+  // チェック済みを薄くするボタン（setupHideChecked）は、メモの横に並べる（並べ方は common.css の .totk-button-row）
   var memoRow = buttonControl($('.totk-memo-button, .totk-hide-checked-button'));
   memoRow.className += ' totk-button-row';
   $('.leaflet-map-select-tab').before($('.leaflet-control-zoom'), buttonControl($('.totk-menu-button')), memoRow);
@@ -2914,8 +2914,10 @@ function markNightTalus() {
   });
 }
 
-// チェック済みのピンを、全種類まとめて隠したり出したりするボタン（メモの横）。地図ツールには無い機能なので、
-// #RenderMap にクラスを付け外しし、隠す指定は common.css（.totk-hide-checked）に任せる。
+// チェック済みのピンを、全種類まとめてうんと薄くしたり戻したりするボタン（メモの横）。地図ツールには無い機能なので、
+// #RenderMap にクラスを付け外しし、薄くする指定は common.css（.totk-hide-checked）に任せる。
+// 消さずに薄くするのは、どこをチェックしたかも地図の上で見えるようにするため（利用者の要望）。
+// クラス名・保存のキーは、隠す作りだったころのまま（覚えておいた状態を引き継ぐため）。
 // ツールの種類のON/OFFと違い、開き直しても前の状態のままにしたいので、このブラウザに覚えておく
 var HIDE_CHECKED_KEY = 'TotkHideChecked';
 function setupHideChecked() {
@@ -2924,8 +2926,8 @@ function setupHideChecked() {
   function render(hidden) {
     $('#RenderMap').toggleClass('totk-hide-checked', hidden);
     button.setAttribute('aria-pressed', String(hidden));
-    button.setAttribute('aria-label', hidden ? 'チェック済みのピンを出す' : 'チェック済みのピンを隠す');
-    // 目の絵。隠している間は斜線を足す（色は CSS の color。メモの鉛筆と同じ線の絵）
+    button.setAttribute('aria-label', hidden ? 'チェック済みのピンを元の濃さに戻す' : 'チェック済みのピンを薄くする');
+    // 目の絵。薄くしている間は斜線を足す（色は CSS の color。メモの鉛筆と同じ線の絵）
     button.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       EYE + (hidden ? '<path d="M4 4l16 16"/>' : '') + '</svg>';
   }
