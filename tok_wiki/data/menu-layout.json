@@ -1,6 +1,15 @@
 {
-  "version": 1,
+  "version": 2,
   "rows": [
+    [
+      "hole",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     [
       "_toggle",
       "hokora",
@@ -13,10 +22,10 @@
     [
       "_clear",
       "root",
-      "hole",
-      "grove",
-      "shadow-sword",
+      "shadow-large",
       null,
+      "grove",
+      "demon_statue",
       "blueprint"
     ],
     [
@@ -30,7 +39,7 @@
     ],
     [
       "zonai",
-      "demon_statue",
+      null,
       "ancienttablet",
       "tears",
       "sage",
@@ -40,8 +49,8 @@
     [
       "battery",
       null,
-      "shadow-large",
-      "shadow-lance",
+      null,
+      null,
       "mine",
       "seiren",
       "blacksmith"
@@ -66,8 +75,8 @@
     ]
   ],
   "lines": [
-    1,
     2,
-    5
+    3,
+    6
   ]
 }
