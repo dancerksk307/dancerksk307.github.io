@@ -1,11 +1,14 @@
 // 下メニューの並び（横7マスのマス目）。並びのデータの扱いと、地図ツールが作った下メニューをマス目に並べ直す処理。
 // 地図ツールの下メニュー（TotkSideMenu）は「見出し付きの組」しか受け取れず、マスの位置や空きマスを指定できないので、
 // ツールにボタンを作らせた後で、ボタンをこのマス目へ移している。
-// 並びのデータ: { version: 1, rows: [[7マス分の項目名か null], ...], lines: [線を入れる行の番号] }
-//   rows[0] は閉じていても見える段で、左端（rows[0][0]）は「表示設定」の固定マス（FIXED）。
-//   rows[1] は地底用の段。地図で地底を選んでいる間は rows[0] と入れ替わり、閉じていても見える段になる。
-//   rows[1][0] は「全てOFF」（CLEAR）の固定マス。左端の2マス（表示設定・全てOFF）は、地底で段が入れ替わっても動かない。
-//   項目名は種類名（hokora など）と FIXED・CLEAR。lines の n は「n 行目の上に線を引く」（1 以上）。
+// 並びのデータ: { version: 2, rows: [[7マス分の項目名か null], ...], lines: [線を入れる段の番号] }
+//   メニューを閉じているときは2段見える。上の段がお気に入り（rows[0]）、下の段が地図に合わせた段（地上の段か地底の段）。
+//   rows[0] はお気に入りの段。どの地図でも閉じていても見える。7マスとも自由に置ける。
+//   rows[1] は地上の段（空島・地上を選んでいる間に、閉じていても見える）。左端（rows[1][0]）は「表示設定」の固定マス（FIXED）。
+//   rows[2] は地底の段（地底を選んでいる間は rows[1] と入れ替わる）。左端（rows[2][0]）は「全てOFF」の固定マス（CLEAR）。
+//   左端の固定マスは、地底で段が入れ替わっても動かない（表示設定は閉じたときの下の段、全てOFF はその次の段の左端のまま）。
+//   項目名は種類名（hokora など）と FIXED・CLEAR。lines の n は「上から n 段目の上に線を引く」（1 以上。入れ替わっても場所は変わらない）。
+//   version 1 は、お気に入りの段が無かったころの形（rows[0] が地上の段）。読むときに上へ空のお気に入りの段を足して読み替える。
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.TotkMenuLayout = factory();
@@ -20,11 +23,14 @@
   // 並べ替え画面で作れる段の数。開いたメニューが地図をほとんど隠してしまわない程度にしている
   var MAX_ROWS = 8;
   var LOCAL_KEY = 'TotkMenuLayout'; // ブラウザ内の控え（GitHub から読めないときに使う）
-  var UNDERGROUND_MAP = '地底';    // この地図を選んでいる間は、地底用の段（rows[1]）を閉じていても見える段にする
+  var UNDERGROUND_MAP = '地底';    // この地図を選んでいる間は、地底の段（rows[2]）を閉じていても見える段にする
+  var GROUND_ROW = 1;
+  var UNDERGROUND_ROW = 2;
+  var BASE_ROWS = 3;              // お気に入り・地上・地底の段は、空でも消さない
 
-  // 1段目と2段目の左端は固定マス（表示設定と全てOFF）。並べ替えの対象外で、地底で段が入れ替わっても動かない
-  function isFixedCell(row, col) { return row <= 1 && col === 0; }
-  function fixedItem(row) { return row === 0 ? FIXED : CLEAR; }
+  // 地上の段と地底の段の左端は固定マス（表示設定と全てOFF）。並べ替えの対象外で、地底で段が入れ替わっても動かない
+  function isFixedCell(row, col) { return (row === GROUND_ROW || row === UNDERGROUND_ROW) && col === 0; }
+  function fixedItem(row) { return row === GROUND_ROW ? FIXED : CLEAR; }
 
   function emptyRow() {
     var row = [];
@@ -33,22 +39,33 @@
   }
 
   function isLayout(value) {
-    return !!value && typeof value === 'object' && value.version === 1 &&
+    return !!value && typeof value === 'object' && (value.version === 1 || value.version === 2) &&
       Array.isArray(value.rows) && value.rows.length > 0 &&
       value.rows.every(function (row) { return Array.isArray(row); });
   }
 
+  // version 1（お気に入りの段が無かったころ）の並びを、上に空のお気に入りの段を足して読み替える。
+  // 地上の段・地底の段・固定マス・線は、そのまま1段ずつ下へずれる
+  function fromVersion1(layout) {
+    return {
+      version: 2,
+      rows: [emptyRow()].concat(layout.rows),
+      lines: (Array.isArray(layout.lines) ? layout.lines : []).map(function (n) { return n + 1; }),
+    };
+  }
+
   // 保存された並びを、今ある項目（items）に合わせて直す。壊れていれば fallback（初期配置）を使う。
   // - 知らない項目（種類を減らしたとき）と、2回目以降に出てくる項目は消す
-  // - 固定マス（1段目の左端は表示設定、2段目の左端は全てOFF）は、何が保存されていてもその項目にする。
-  //   そこに置かれていた項目（固定マスを決める前に保存した並びなど）は空いたマスへ移し、ほかの場所にある全てOFF は消す
-  // - 置かれていない項目（種類を増やしたとき）は、2段目以降の空いたマスに足す。空きが無ければ段を足す
-  // - 何も無い段は詰める（線はその下の段の上へ移す）。1・2段目は固定マスがあるので詰めない
+  // - 固定マス（地上の段の左端は表示設定、地底の段の左端は全てOFF）は、何が保存されていてもその項目にする。
+  //   そこに置かれていた項目は空いたマスへ移し、ほかの場所にある全てOFF は消す
+  // - 置かれていない項目（種類を増やしたとき）は、4段目以降（開いたときだけ見える段）の空いたマスに足す。空きが無ければ段を足す
+  // - 何も無い段は詰める（線はその下の段の上へ移す）。お気に入り・地上・地底の段は空でも詰めない
   function normalize(saved, items, fallback) {
-    var source = isLayout(saved) ? saved : fallback;
+    var source = !isLayout(saved) ? fallback : saved.version === 1 ? fromVersion1(saved) : saved;
     var placed = {};
     placed[CLEAR] = true;
-    var sourceRows = source.rows.length >= 2 ? source.rows : source.rows.concat([emptyRow()]);
+    var sourceRows = source.rows.slice();
+    while (sourceRows.length < BASE_ROWS) sourceRows.push(emptyRow());
     var rows = sourceRows.map(function (row, r) {
       var cells = emptyRow();
       for (var c = 0; c < COLUMNS; c++) {
@@ -64,7 +81,7 @@
 
     items.forEach(function (item) {
       if (placed[item]) return;
-      for (var r = 1; r < rows.length; r++) {
+      for (var r = BASE_ROWS; r < rows.length; r++) {
         var c = rows[r].indexOf(null);
         if (c !== -1) { rows[r][c] = item; placed[item] = true; return; }
       }
@@ -74,7 +91,7 @@
       placed[item] = true;
     });
 
-    for (var r = rows.length - 1; r >= 1; r--) {
+    for (var r = rows.length - 1; r >= BASE_ROWS; r--) {
       var isEmpty = rows[r].every(function (cell) { return cell === null; });
       if (!isEmpty) continue;
       rows.splice(r, 1);
@@ -82,15 +99,15 @@
     }
     lines = lines.filter(function (n, i) { return lines.indexOf(n) === i; }).sort(function (a, b) { return a - b; });
 
-    return { version: 1, rows: rows, lines: lines };
+    return { version: 2, rows: rows, lines: lines };
   }
 
   function copy(layout) {
-    return { version: 1, rows: layout.rows.map(function (row) { return row.slice(); }), lines: layout.lines.slice() };
+    return { version: 2, rows: layout.rows.map(function (row) { return row.slice(); }), lines: layout.lines.slice() };
   }
 
   // 並べ替え画面の操作。from のマスの項目を to のマスへ動かす。to に項目があれば入れ替える。
-  // to の行が今の段の数と同じなら、一番下に段を足して置く。固定マス（1・2段目の左端）は動かせず、そこへも置けない
+  // to の行が今の段の数と同じなら、一番下に段を足して置く。固定マス（地上・地底の段の左端）は動かせず、そこへも置けない
   function moveItem(layout, from, to) {
     var result = copy(layout);
     var isFixed = function (cell) { return isFixedCell(cell.row, cell.col); };
@@ -112,20 +129,35 @@
     return result;
   }
 
-  // メニューを開いたときに増える高さ（px）。地図ツールはメニューを8pxずつ動かすので、必ず8の倍数になる
-  function menuHideHeight(layout) {
-    return (layout.rows.length - 1) * ROW_HEIGHT + layout.lines.length * LINE_HEIGHT;
+  // お気に入りの段に何も置いていないか。そのときはお気に入りの段（とその下の線）を出さず、閉じたときは1段だけ見せる。
+  // お気に入りの段が無かったころ（version 1）の並びを読み替えると空になるので、空の帯が出ないようにしている
+  function hasFavorites(layout) {
+    return layout.rows[0].some(function (cell) { return cell !== null; });
   }
 
-  // 地図ツールの下メニューに渡す組。1組目＝閉じていても見える段。残りの種類は1組にまとめて渡す
+  // 閉じていても見える段のうち、地図ツールが見込んでいる1段より多い分の高さ（px）。
+  // お気に入りの段と、その下に線があれば線の分（お気に入りが空なら 0）
+  function menuShowExtraHeight(layout) {
+    if (!hasFavorites(layout)) return 0;
+    return ROW_HEIGHT + (layout.lines.indexOf(1) !== -1 ? LINE_HEIGHT : 0);
+  }
+
+  // メニューを開いたときに増える高さ（px）。閉じていても見える2段より下の段と線の分。
+  // 地図ツールはメニューを8pxずつ動かすので、必ず8の倍数になる
+  function menuHideHeight(layout) {
+    var hiddenLines = layout.lines.filter(function (n) { return n >= 2; }).length;
+    return (layout.rows.length - 2) * ROW_HEIGHT + hiddenLines * LINE_HEIGHT;
+  }
+
+  // 地図ツールの下メニューに渡す組。1組目＝閉じていても見える段（お気に入りと地上の段）。残りの種類は1組にまとめて渡す
   // （ツールに作らせたボタンは apply でマス目へ並べ直すので、組の分け方は見た目に関係ない）
   function toolGroups(layout) {
     function types(rows) {
       return rows.reduce(function (all, row) { return all.concat(row); }, [])
         .filter(function (item) { return item && item !== FIXED && item !== CLEAR; });
     }
-    var rest = types(layout.rows.slice(1));
-    var groups = [{ typeNames: types(layout.rows.slice(0, 1)) }];
+    var rest = types(layout.rows.slice(2));
+    var groups = [{ typeNames: types(layout.rows.slice(0, 2)) }];
     if (rest.length) groups.push({ typeNames: rest });
     return groups;
   }
@@ -141,37 +173,49 @@
     $section.find('.leaflet-side-marker-switch-ui').each(function () {
       buttons[$(this).children('input').data('type')] = $(this).detach();
     });
+    // 表示設定と全てOFF もマスの中へ移す（固定マス）。ツールは2つを段の外に絶対位置で置いている
+    buttons[FIXED] = $section.children('._toggle-btn').detach().addClass('totk-in-grid');
     buttons[CLEAR] = $section.children('._clear-btn').detach().addClass('totk-in-grid');
 
     function rowElement(row) {
       var $row = $('<div class="totk-menu-row"></div>');
       row.forEach(function (item) {
         var $cell = $('<div class="totk-menu-cell"></div>');
-        if (buttons[item]) $cell.append(buttons[item]);
+        if (buttons[item] && item !== FIXED && item !== CLEAR) $cell.append(buttons[item]);
         $row.append($cell);
       });
       return $row;
     }
+    function lineIfAbove(slot, $parent) {
+      if (layout.lines.indexOf(slot) !== -1) $parent.append('<div class="totk-menu-line"></div>');
+    }
 
     var $rows = layout.rows.map(rowElement);
-    // 開いたときの最初の段（ふだんは2段目の地底用の段、地底では1段目）の置き場所
+    // 閉じていても見える下の段（ふだんは地上の段、地底では地底の段）と、開いたときの最初の段（もう一方）の置き場所
+    var $visible = $('<div class="totk-menu-visible"></div>');
     var $second = $('<div class="totk-menu-second"></div>');
     $always.empty();
+    if (hasFavorites(layout)) {
+      $always.append($rows[0]);
+      lineIfAbove(GROUND_ROW, $always);
+    }
+    $always.append($visible);
     $opened.empty();
     $rows.forEach(function ($row, r) {
-      if (r === 0) return;
-      if (layout.lines.indexOf(r) !== -1) $opened.append('<div class="totk-menu-line"></div>');
-      $opened.append(r === 1 ? $second : $row);
+      if (r < UNDERGROUND_ROW) return;
+      lineIfAbove(r, $opened);
+      $opened.append(r === UNDERGROUND_ROW ? $second : $row);
     });
 
-    // 地底を選んでいる間は、1段目と2段目を入れ替える（閉じたメニューに地底用の段が見えるように）。
+    // 地底を選んでいる間は、地上の段と地底の段を入れ替える（閉じたメニューに地底向けの種類が見えるように）。
     // 段は作り直さずに移すだけなので、ボタンの ON/OFF の状態はそのまま残る。
-    // 左端の固定マスは入れ替えない。表示設定はツールが段の外に置いているので動かず、全てOFF は2段目の左端へ戻す
+    // 左端の固定マスは入れ替えない。表示設定は閉じたときの下の段の左端、全てOFF はその次の段の左端へ戻す
     var map = document.getElementById('RenderMap');
     function placeRows() {
       var underground = map.getAttribute('d-map') === UNDERGROUND_MAP;
-      $always.append(underground ? $rows[1] : $rows[0]);
-      $second.append(underground ? $rows[0] : $rows[1]);
+      $visible.append(underground ? $rows[UNDERGROUND_ROW] : $rows[GROUND_ROW]);
+      $second.append(underground ? $rows[GROUND_ROW] : $rows[UNDERGROUND_ROW]);
+      $visible.find('.totk-menu-cell').first().append(buttons[FIXED]);
       $second.find('.totk-menu-cell').first().append(buttons[CLEAR]);
     }
     new MutationObserver(placeRows).observe(map, { attributes: true, attributeFilter: ['d-map'] });
@@ -218,13 +262,8 @@
     var drag = null;
     var $root = $(
       '<div class="totk-layout-editor" role="dialog" aria-label="下メニューの並べ替え">' +
-        '<div class="totk-layout-editor__head">下メニューの並べ替え' +
-          '<button type="button" class="totk-layout-editor__close" aria-label="閉じる">✕</button></div>' +
+        '<div class="totk-layout-editor__head">下メニューの並べ替え</div>' +
         '<div class="totk-layout-editor__body">' +
-          '<p class="totk-layout-editor__help">アイコンを指で動かして並べ替えます。空いたマスに置くと移動、ほかのアイコンの上に置くと入れ替えます。' +
-            '段と段の間を押すと、区切りの線を付けたり外したりできます。いちばん上の段は、メニューを閉じていても見える段です。' +
-            '2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わって、閉じていても見えます。' +
-            '左端の表示設定と全てOFF（鍵の印）は動かせず、地底でも入れ替わりません。</p>' +
           '<div class="totk-layout-editor__grid"></div>' +
           '<p class="totk-layout-editor__message"></p>' +
         '</div>' +
@@ -252,8 +291,10 @@
             .appendTo($grid);
         }
         var $row = $('<div class="totk-layout-editor__row"></div>')
-          .toggleClass('is-always', r === 0)
-          .toggleClass('is-underground', r === 1)
+          // 閉じていても見える段を色で分ける（お気に入り・地上・地底）
+          .toggleClass('is-favorite', r === 0)
+          .toggleClass('is-ground', r === GROUND_ROW)
+          .toggleClass('is-underground', r === UNDERGROUND_ROW)
           .appendTo($grid);
         (draft.rows[r] || emptyRow()).forEach(function (item, c) {
           var $cell = $('<div class="totk-layout-editor__cell"></div>').attr({ 'data-row': r, 'data-col': c }).appendTo($row);
@@ -325,7 +366,7 @@
       $(document).off('.totkLayoutDrag');
       $root.remove();
     }
-    $root.find('.totk-layout-editor__close, .totk-layout-editor__cancel').on('click', close);
+    $root.find('.totk-layout-editor__cancel').on('click', close);
     $root.find('.totk-layout-editor__reset').on('click', function () {
       draft = normalize(editor.fallback, editor.items, editor.fallback);
       message('初期配置に戻しました（まだ保存していません）');
@@ -358,6 +399,7 @@
     normalize: normalize,
     moveItem: moveItem,
     toggleLine: toggleLine,
+    menuShowExtraHeight: menuShowExtraHeight,
     menuHideHeight: menuHideHeight,
     toolGroups: toolGroups,
     apply: apply,

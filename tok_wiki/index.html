@@ -2758,23 +2758,23 @@ window._locationPinDatas = [
 <script>
 // 地図は画面いっぱいに出す。スマホのアドレスバーの出入りに合わせた高さ（100dvh）は common.css で上書きしていて、これは使えないブラウザ向けの高さ
 var MAP_HEIGHT = '100vh';
-// 下メニューの初期配置（横7マス。データの形は menu-layout.js の冒頭）。1段目はいつも見えている段で、左端は「表示設定」の固定マス（_toggle）。
-// 2段目は地底用の段で、地図で地底を選んでいる間は1段目と入れ替わる。左端は「全てOFF」の固定マス（_clear）。
-// 左端の2マス（表示設定・全てOFF）は並べ替えの対象外で、地底で段が入れ替わっても動かない。
-// 2段目以降は「表示設定」で上に開いたときに出る段。lines の番号の段の上に、区切りの線を引く。
+// 下メニューの初期配置（横7マス。データの形は menu-layout.js の冒頭）。閉じていても2段見える。
+// 1段目はお気に入りの段（どの地図でも見える）。2段目は地上の段、3段目は地底の段で、地底を選んでいる間は入れ替わり、
+// 閉じたときの下の段には、地図に合った方が見える。左端は「表示設定」（_toggle）と「全てOFF」（_clear）の固定マスで、
+// 並べ替えの対象外。地底で段が入れ替わっても動かない。lines の番号の段の上に、区切りの線を引く。
 // 下メニューに出す項目（種類と全てOFF）は、この初期配置に置いたものがすべて。種類を足すときはここに足す
 var DEFAULT_MENU_LAYOUT = {
-  version: 1,
+  version: 2,
   rows: [
+    ['area', 'zonai', 'hinokkusu', 'lynel', 'block', 'iwarokku', 'dungeon'],
     ['_toggle', 'hokora', 'hokorachallenge', 'tower', 'cave', 'well', 'korok'],
     ['_clear', 'root', 'hole', 'grove', 'mine', 'seiren', 'blueprint'],
-    ['area', 'village', 'stables', 'dungeon', 'fairy', 'god_statue', 'kanban'],
-    ['zonai', 'demon_statue', 'ancienttablet', 'tears', 'sage', 'map', 'blacksmith'],
-    ['battery', 'shadow-sword', 'shadow-large', 'shadow-lance', null, null, null],
-    ['hinokkusu', 'iwarokku', 'ierokku', 'iwa_oct', 'block', 'frox', 'gurioku'],
-    ['lynel', 'morudora', 'phantom', 'koga', 'boss_temple', null, null],
+    ['village', 'stables', 'fairy', 'god_statue', 'kanban', 'battery', 'blacksmith'],
+    ['tears', 'sage', 'map', 'ancienttablet', 'shadow-sword', 'shadow-large', 'shadow-lance'],
+    ['demon_statue', 'ierokku', 'iwa_oct', 'frox', 'gurioku', 'morudora', 'phantom'],
+    ['koga', 'boss_temple', null, null, null, null, null],
   ],
-  lines: [1, 2, 5],
+  lines: [1, 2, 3, 5],
 };
 // 下メニューに出す項目すべて（並びを保存した後で種類を増減しても、これに合わせて直す）
 var MENU_ITEMS = DEFAULT_MENU_LAYOUT.rows
@@ -2798,15 +2798,19 @@ function showNotice(text) {
 
 // 開いたメニューの高さを中身に合わせる。ツールの既定は390pxで、段が少ないと下が空いたまま地図を隠す。
 // 起動オプションでは変えられないので、ツールが下メニューを作る前に、メニュー部品（Leaflet の SlideMenu）の既定値を書き換える
-// 閉じたときに見えている高さも、1段目のボタンの下に足した余白の分だけ高くする（ボタンを画面の下端から持ち上げるため）。
-// hideHeight（閉じているときに地図の下へ隠れている分）は、2段目以降の段と線の高さ。
+// 閉じたときに見えている高さは、ツールが見込む1段分（showHeight）に、お気に入りの段（と、その下の線）の分と、
+// 下のボタンの下に足した余白の分を足す（ボタンを画面の下端から持ち上げるため）。
+// hideHeight（閉じているときに地図の下へ隠れている分）は、閉じていても見える2段より下の段と線の高さ。
 // ツールはメニューを8pxずつ動かし、ちょうど0にならないと止まらないので8の倍数にする（menuHideHeight がそうなるよう計算している）
+// お気に入りの段で増えた分は、CSS の変数（--totk-menu-extra）にも入れる。メニューの上に並ぶ部品と検索の候補を、その分持ち上げるため
 function fitMenuHeight(layout) {
   var options = L.Control.SlideMenu.prototype.options;
   var space = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--totk-menu-space'), 10) || 0;
+  var extra = TotkMenuLayout.menuShowExtraHeight(layout);
   var hideHeight = TotkMenuLayout.menuHideHeight(layout);
   options.hideHeight = hideHeight + 'px';
-  options.height = (hideHeight + parseInt(options.showHeight, 10) + space) + 'px';
+  options.height = (hideHeight + parseInt(options.showHeight, 10) + extra + space) + 'px';
+  document.documentElement.style.setProperty('--totk-menu-extra', extra + 'px');
 }
 
 // 地図の操作部品を下側に集める（スマホを持った手の指が届くように）。地図ツールは置き場所を選べないので、作られた後で移す。
@@ -2883,6 +2887,14 @@ function setupWeaponFilter() {
   filterLater();
 }
 
+// 夜光イワロック（夜だけ出るイワロック）は、地図ツールではふつうのイワロックと同じアイコンで見分けられない。
+// ピン（label が「夜光」で始まるもの）に目印のクラスを付け、common.css（.totk-night）で色を変える
+function markNightTalus() {
+  window._pinDatas.forEach(function (pin) {
+    if (pin.type === 'iwarokku' && /^夜光/.test(pin.label || '')) $('.leaflet-marker-icon[title="' + pin.id + '"]').addClass('totk-night');
+  });
+}
+
 // 地名チェックの印は、地図ツールの CSS で拡大4段階目からしか出ない（完璧版と同じ）。
 // 「地名」をONにしても引いた地図では何も出ないので、そのときは拡大するよう知らせる
 function noticeAreaZoom() {
@@ -2936,6 +2948,7 @@ $(function () {
     setupWeaponFilter();
     showTypeOnSearch();
     noticeAreaZoom();
+    markNightTalus();
   });
 });
 </script>
