@@ -144,20 +144,24 @@
 #RenderMap.totk-show-area[d-map="地上"] .location-pin.leaflet-marker-map-地上,
 #RenderMap.totk-show-area[d-map="地底"] .location-pin.leaflet-marker-map-地底 { display: block; }
 
-/* チェック済みのピン。地図ツールは「透明度0.5＋灰色」にするが、薄すぎて地図に埋もれ見つけにくいので、見た目はそのままにして、
-   右上に赤丸（直径4px、白の1pxのふち付き）を付けて見分ける。ツールの指定（クラス2つ）に勝つよう #RenderMap を付けている。
-   ピンはふつう画像（img）で、::after が使えない。そこで枠の画像（border-image）を、ピンの外側へはみ出させて（outset）描く。
-   はみ出した分は、押せる範囲にも並び方にも影響しない。outset で広げた 23×23px（ピンの20px＋右と上へ3px）に SVG を引き伸ばすので、
-   丸の位置（cx/cy）はピンの大きさ20px（地図ツールの既定）から決めている。中心はピンの右上の角から2pxずつ内側。
-   絵の多くは角が透けている（祠はひし形）ので、角ちょうどだと絵から離れて見えるため。
-   ただし枠は絵より下に描かれるので、角まで絵が詰まっているピンでは、丸の重なった部分が絵に隠れる。
-   大きく拡大して名前が出ているピン（ツールが作る、絵と名前の箱）にも同じ箱の大きさで効く */
+/* チェック済みのピン。地図ツールは「透明度0.5＋灰色」にするが、薄すぎて地図に埋もれ見つけにくいので、灰色をやめて透明度を0.8にとどめ、
+   右上に赤丸（直径4px、白の1pxのふち付き）を付けて見分ける。赤丸は透けさせない。ツールの指定（クラス2つ）に勝つよう #RenderMap を付けている。
+   ピンはふつう画像（img）で、::after が使えないので、赤丸は背景に描く。背景は絵より下に描かれるので、絵に重なった部分は隠れる。
+   丸の位置（cx/cy）はピンの大きさ20px（地図ツールの既定）から決めている。中心はピンの右上の角から3pxずつ内側で、丸はピンの中に収まる
+   （絵の多くは角が透けている。祠はひし形）。ピンの外にはみ出すと、下のマスクで消えてしまう。 */
 #RenderMap .leaflet-marker-icon.is-checked {
   opacity: 1;
   filter: none;
-  border: 0 solid;
-  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='23' height='23'%3E%3Ccircle cx='18' cy='5' r='2.5' fill='%23e00' stroke='%23fff'/%3E%3C/svg%3E") 0 fill / 0 / 3px 3px 0 0 stretch;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='17' cy='3' r='2.5' fill='%23e00' stroke='%23fff'/%3E%3C/svg%3E") 0 0 / 20px 20px no-repeat;
 }
+/* opacity は赤丸（背景）まで透けさせるので、画像のピンはマスク（場所ごとの透け具合）で、赤丸の丸の中だけ透けないようにし、残りを0.8にする */
+#RenderMap img.leaflet-marker-icon.is-checked {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.8'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E") 0 0 / 20px 20px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill-opacity='.8'/%3E%3Ccircle cx='17' cy='3' r='3'/%3E%3C/svg%3E") 0 0 / 20px 20px no-repeat;
+}
+/* 大きく拡大して名前が出ているピンは、ツールが「絵と名前」の箱（div）に作り替える。名前は箱の外に出ているのでマスクは使えない
+   （外が消える）。中の絵と名前だけを0.8にする */
+#RenderMap div.leaflet-marker-icon.is-checked > * { opacity: .8; }
 /* チェック済みのピンを隠す（index.html の setupHideChecked のボタン）。地名の印はチェック済みに totk-area-checked が付く（location-pins.js）。
    ツールの表示の指定（_is-show）や、武器名の絞り込みが直接書き込む display に勝つよう !important にしている */
 #RenderMap.totk-hide-checked .leaflet-marker-icon.is-checked,
