@@ -7,14 +7,22 @@
 #RenderMap { height: 100dvh !important; margin: 0; border-radius: 0; }
 
 /* ドロワーを開くボタン（☰）とメモのボタン。地図の中（拡大縮小ボタンの下）へ移すまでは出さない。移す前に出すと、地図の上に一瞬はみ出す */
-.totk-menu-button, .totk-memo-button { display: none; }
+.totk-menu-button, .totk-memo-button, .totk-hide-checked-button { display: none; }
 /* 見た目は、同じ列の拡大縮小ボタンに合わせている（大きさも、拡大縮小ボタンと同じくツールの標準の1.5倍） */
 #RenderMap .totk-menu-button,
-#RenderMap .totk-memo-button { display: block; width: 48px; height: 48px; padding: 0; border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; background: rgba(32, 32, 32, .8); color: #fff; font-size: 27px; line-height: 1; cursor: pointer; }
+#RenderMap .totk-memo-button,
+#RenderMap .totk-hide-checked-button { display: block; width: 48px; height: 48px; padding: 0; border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; background: rgba(32, 32, 32, .8); color: #fff; font-size: 27px; line-height: 1; cursor: pointer; }
 /* メモのボタンは鉛筆の絵（memo.js）。ボタンの中央に置く */
-#RenderMap .totk-memo-button > svg { display: block; margin: auto; }
+#RenderMap .totk-memo-button > svg,
+#RenderMap .totk-hide-checked-button > svg { display: block; margin: auto; }
 #RenderMap .totk-menu-button:active,
-#RenderMap .totk-memo-button:active { background: rgba(80, 80, 80, .9); }
+#RenderMap .totk-memo-button:active,
+#RenderMap .totk-hide-checked-button:active { background: rgba(80, 80, 80, .9); }
+/* チェック済みを隠すボタン（index.html の setupHideChecked）は、メモの横に並べる。地図の中央寄りに来るよう、右の角では並びを逆にする。
+   隠している間は、赤丸と同じ赤にして、押されていることがわかるようにする */
+#RenderMap .totk-button-row { display: flex; gap: 6px; }
+#RenderMap .leaflet-right > .totk-button-row { flex-direction: row-reverse; }
+#RenderMap .totk-hide-checked-button[aria-pressed="true"] { border-color: #f66; background: rgba(200, 0, 0, .85); }
 
 /* 地図ツールの操作部品（最大で1000台）より手前に出す */
 .totk-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, .4); }
@@ -136,18 +144,28 @@
 #RenderMap.totk-show-area[d-map="地上"] .location-pin.leaflet-marker-map-地上,
 #RenderMap.totk-show-area[d-map="地底"] .location-pin.leaflet-marker-map-地底 { display: block; }
 
-/* チェック済みのピン。地図ツールは「透明度0.5＋灰色」にするが、薄すぎて地図に埋もれ見つけにくいので、灰色も透明もやめ、
-   代わりに絵を約70%に小さくして、まだのピンと見分けられるようにする。ツールの指定（クラス2つ）に勝つよう #RenderMap を付けている。
-   押せる範囲は小さくしない。transform で縮めると押せる範囲も一緒に縮むので、画像の内側に余白（padding）を入れて絵だけを縮める
-   （box-sizing: border-box なので、ピンの大きさは変わらない）。3px は、ピンの大きさ20px（地図ツールの既定）の15%ずつ。
-   大きく拡大して名前が出ているピンは、ツールが「名前と絵（.icon-image）」の箱に作り替えるので、中の絵に同じ余白を入れる */
-#RenderMap .leaflet-marker-icon.is-checked { opacity: 1; filter: none; }
-#RenderMap img.leaflet-marker-icon.is-checked,
-#RenderMap .leaflet-marker-icon.is-checked .icon-image { padding: 3px; }
+/* チェック済みのピン。地図ツールは「透明度0.5＋灰色」にするが、薄すぎて地図に埋もれ見つけにくいので、見た目はそのままにして、
+   右上に赤丸（直径4px、白の1pxのふち付き）を付けて見分ける。ツールの指定（クラス2つ）に勝つよう #RenderMap を付けている。
+   ピンはふつう画像（img）で、::after が使えない。そこで枠の画像（border-image）を、ピンの外側へはみ出させて（outset）描く。
+   はみ出した分は、押せる範囲にも並び方にも影響しない。outset で広げた 23×23px（ピンの20px＋右と上へ3px）に SVG を引き伸ばすので、
+   丸の位置（cx/cy）はピンの大きさ20px（地図ツールの既定）から決めている。中心はピンの右上の角から2pxずつ内側。
+   絵の多くは角が透けている（祠はひし形）ので、角ちょうどだと絵から離れて見えるため。
+   ただし枠は絵より下に描かれるので、角まで絵が詰まっているピンでは、丸の重なった部分が絵に隠れる。
+   大きく拡大して名前が出ているピン（ツールが作る、絵と名前の箱）にも同じ箱の大きさで効く */
+#RenderMap .leaflet-marker-icon.is-checked {
+  opacity: 1;
+  filter: none;
+  border: 0 solid;
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='23' height='23'%3E%3Ccircle cx='18' cy='5' r='2.5' fill='%23e00' stroke='%23fff'/%3E%3C/svg%3E") 0 fill / 0 / 3px 3px 0 0 stretch;
+}
+/* チェック済みのピンを隠す（index.html の setupHideChecked のボタン）。地名の印はチェック済みに totk-area-checked が付く（location-pins.js）。
+   ツールの表示の指定（_is-show）や、武器名の絞り込みが直接書き込む display に勝つよう !important にしている */
+#RenderMap.totk-hide-checked .leaflet-marker-icon.is-checked,
+#RenderMap.totk-hide-checked .location-pin.totk-area-checked { display: none !important; }
 /* 夜光イワロック（index.html の markNightTalus）。ふつうのイワロック（白）・ガチロック（青）と見分けられるよう、青緑にしてほんのり光らせる。
-   アイコンが白なので、いったんセピアで色を付けてから色相を回している。チェック済みも灰色にしないので、色はそのまま残す
-   （上のチェック済みの filter: none より後に書いて勝たせている） */
-#RenderMap .leaflet-marker-icon.totk-night { filter: sepia(1) saturate(4) hue-rotate(140deg) drop-shadow(0 0 3px #6ff); }
+   アイコンが白なので、いったんセピアで色を付けてから色相を回している。
+   チェック済みには付けない（filter は右上の赤丸にもかかり、赤丸まで青緑になるため） */
+#RenderMap .leaflet-marker-icon.totk-night:not(.is-checked) { filter: sepia(1) saturate(4) hue-rotate(140deg) drop-shadow(0 0 3px #6ff); }
 
 /* 地図の上に出す短いお知らせ（地名の印を出すには拡大が要る、など）。地図ツールの操作部品（1000台）より手前に出す。
    下のメニューや地図の操作をじゃましないよう、クリックは素通しにしている */

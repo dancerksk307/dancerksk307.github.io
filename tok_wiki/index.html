@@ -2831,7 +2831,10 @@ function moveControlsToBottom() {
     L.DomEvent.disableClickPropagation(control);
     return control;
   }
-  $('.leaflet-map-select-tab').before($('.leaflet-control-zoom'), buttonControl($('.totk-menu-button')), buttonControl($('.totk-memo-button')));
+  // チェック済みを隠すボタン（setupHideChecked）は、メモの横に並べる（並べ方は common.css の .totk-button-row）
+  var memoRow = buttonControl($('.totk-memo-button, .totk-hide-checked-button'));
+  memoRow.className += ' totk-button-row';
+  $('.leaflet-map-select-tab').before($('.leaflet-control-zoom'), buttonControl($('.totk-menu-button')), memoRow);
   // 進捗の上に、境界線（ほとんど使わないので小さくしている）を置く。縦に並べるため、2つを入れ物（.totk-progress-column）に入れる
   var $progress = $('.leaflet-checker-progress');
   var $corner = $progress.parent().addClass('totk-bottom-row');
@@ -2911,6 +2914,30 @@ function markNightTalus() {
   });
 }
 
+// チェック済みのピンを、全種類まとめて隠したり出したりするボタン（メモの横）。地図ツールには無い機能なので、
+// #RenderMap にクラスを付け外しし、隠す指定は common.css（.totk-hide-checked）に任せる。
+// ツールの種類のON/OFFと違い、開き直しても前の状態のままにしたいので、このブラウザに覚えておく
+var HIDE_CHECKED_KEY = 'TotkHideChecked';
+function setupHideChecked() {
+  var EYE = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
+  var button = $('<button type="button" class="totk-hide-checked-button"></button>')[0];
+  function render(hidden) {
+    $('#RenderMap').toggleClass('totk-hide-checked', hidden);
+    button.setAttribute('aria-pressed', String(hidden));
+    button.setAttribute('aria-label', hidden ? 'チェック済みのピンを出す' : 'チェック済みのピンを隠す');
+    // 目の絵。隠している間は斜線を足す（色は CSS の color。メモの鉛筆と同じ線の絵）
+    button.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      EYE + (hidden ? '<path d="M4 4l16 16"/>' : '') + '</svg>';
+  }
+  button.addEventListener('click', function () {
+    var hidden = button.getAttribute('aria-pressed') !== 'true';
+    localStorage.setItem(HIDE_CHECKED_KEY, hidden ? '1' : '0');
+    render(hidden);
+  });
+  render(localStorage.getItem(HIDE_CHECKED_KEY) === '1');
+  document.body.appendChild(button);
+}
+
 // 地名チェックの印は、地図ツールの CSS で拡大4段階目からしか出ない（完璧版と同じ）。
 // 「地名」をONにしても引いた地図では何も出ないので、そのときは拡大するよう知らせる
 function noticeAreaZoom() {
@@ -2961,6 +2988,8 @@ $(function () {
       layout: menuLayout, items: MENU_ITEMS, fallback: DEFAULT_MENU_LAYOUT, typeDatas: window._typeDatas, store: layoutStore,
     });
     locationPins.draw();
+    // ボタンを作ってから、メモの横へ移す
+    setupHideChecked();
     moveControlsToBottom();
     // 武器名のプルダウンを出すかは影の像のチェック欄で決めるので、まとめてON/OFFする処理を先に付ける（同じボタンの処理は付けた順に走る）
     linkTypeSwitches();
