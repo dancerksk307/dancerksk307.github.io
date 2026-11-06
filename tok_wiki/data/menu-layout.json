@@ -5,10 +5,10 @@
       "hole",
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      "iwarokku",
+      "frox",
+      "sage",
+      "map"
     ],
     [
       "_toggle",
@@ -23,7 +23,7 @@
       "_clear",
       "root",
       "shadow-large",
-      null,
+      "mine",
       "grove",
       "demon_statue",
       "blueprint"
@@ -33,7 +33,7 @@
       "village",
       "stables",
       "dungeon",
-      "map",
+      null,
       "god_statue",
       "kanban"
     ],
@@ -42,7 +42,7 @@
       null,
       "ancienttablet",
       "tears",
-      "sage",
+      null,
       null,
       "fairy"
     ],
@@ -51,17 +51,17 @@
       null,
       null,
       null,
-      "mine",
+      null,
       "seiren",
       "blacksmith"
     ],
     [
       "hinokkusu",
-      "iwarokku",
+      null,
       "ierokku",
       "iwa_oct",
       "block",
-      "frox",
+      null,
       "gurioku"
     ],
     [
