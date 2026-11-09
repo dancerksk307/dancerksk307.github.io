@@ -39,37 +39,28 @@
     ],
     [
       "zonai",
-      null,
+      "fairy",
       "ancienttablet",
       "tears",
-      null,
-      null,
-      "fairy"
-    ],
-    [
       "battery",
-      null,
-      null,
-      null,
-      null,
       "seiren",
       "blacksmith"
     ],
     [
       "hinokkusu",
-      null,
+      "lynel",
       "ierokku",
       "iwa_oct",
       "block",
       null,
-      "gurioku"
+      null
     ],
     [
-      "lynel",
       "morudora",
       "phantom",
       "koga",
       "boss_temple",
+      "gurioku",
       null,
       null
     ]
@@ -77,6 +68,6 @@
   "lines": [
     2,
     3,
-    6
+    5
   ]
 }
