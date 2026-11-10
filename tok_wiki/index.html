@@ -2969,6 +2969,56 @@ function noticeAreaZoom() {
   });
 }
 
+// 地図の中心を、画面の上から25%の位置として扱う（利用者の要望）。
+// 画面の下側は操作部品と下メニューで隠れるのに、地図ツールは「地図の端が画面の端より内側に入らない」範囲でしか地図を動かせない。
+// そのため引いた地図では、地図の下の方が部品の裏から出てこない。そこで地図を「画面の上半分（中心は上から25%）」が見える範囲として扱う。
+// - 動ける範囲（maxBounds）を、下へ画面の高さの半分だけ広げる。地図の下端を画面の真ん中まで持ち上げられ、
+//   地図が画面より小さいときは、上から25%の位置に置かれる。範囲は地図上の距離で持つので、拡大率が変わるたびに計算し直す
+// - ＋−ボタンの拡大縮小は、上から25%の点を動かさずに行う
+// ツールは地図を切り替えるたびに setMaxBounds を呼ぶので、その入口を包む。地図はツールの外から取れないので、作られたときにつかまえる
+var MAP_FOCUS_RATIO = 0.25;
+function liftMapCenter() {
+  L.Map.addInitHook(function () {
+    var map = this;
+    var setMaxBounds = map.setMaxBounds;
+    var bounds = null;
+    function apply() {
+      if (!bounds || !map._loaded) return;
+      var lift = map.getSize().y * (1 - 2 * MAP_FOCUS_RATIO) / map.options.crs.scale(map.getZoom());
+      setMaxBounds.call(map, L.latLngBounds([bounds.getSouth() - lift, bounds.getWest()], bounds.getNorthEast()));
+    }
+    map.setMaxBounds = function (value) {
+      bounds = value ? L.latLngBounds(value) : null;
+      if (!bounds || !bounds.isValid() || !map._loaded) return setMaxBounds.call(map, value);
+      apply();
+      return map;
+    };
+    map.on('load zoomend resize', apply);
+    function zoomAroundFocus(zoom, options) {
+      var size = map.getSize();
+      return map.setZoomAround(L.point(size.x / 2, size.y * MAP_FOCUS_RATIO), map._limitZoom(zoom), options);
+    }
+    map.zoomIn = function (delta, options) { return zoomAroundFocus(map.getZoom() + (delta || map.options.zoomDelta), options); };
+    map.zoomOut = function (delta, options) { return zoomAroundFocus(map.getZoom() - (delta || map.options.zoomDelta), options); };
+  });
+}
+
+// 賢者の遺志・古びた地図のように、ピンが別の地図（空島など）にしか無い種類は、ONにしても今の地図には何も出ない。
+// 壊れたように見えるので、どの地図にあるかを知らせる。ピンの無い種類（地名）は対象外
+var MAP_NAMES = { '空': '空島', '地上': '地上', '地底': '地底' };
+function noticeOtherMap(types) {
+  types.forEach(function (type) {
+    var maps = [];
+    window._pinDatas.forEach(function (pin) { if (pin.type === type && maps.indexOf(pin.mapId) === -1) maps.push(pin.mapId); });
+    if (!maps.length) return;
+    var text = (window._typeDatas.filter(function (d) { return d.name === type; })[0] || {}).text || type;
+    $('#leaflet-side-switch-button-' + type).on('change', function () {
+      if (!this.checked || maps.indexOf($('#RenderMap').attr('d-map')) !== -1) return;
+      showNotice('「' + text + '」は' + maps.map(function (id) { return MAP_NAMES[id] || id; }).join('・') + 'の地図にあります');
+    });
+  });
+}
+
 // GitHub の保存データ（チェックと、下メニューの並び）を読み終えてから地図ツールを起動する。先に起動すると古いチェック状態で描かれる
 $(function () {
   var layoutStore = TotkSave.openFile((window.TOTK_SAVE_CONFIG || {}).layoutPath);
@@ -2981,6 +3031,7 @@ $(function () {
     var shownTypes = loadShownTypes(menuTypes);
     // 地図ツールが作る地図をつかまえるため、起動より前に用意する
     var locationPins = TotkLocationPins.create(window._locationPinDatas);
+    liftMapCenter();
     fitMenuHeight(menuLayout);
     $.fn.leafletArticleMapToolV3({
       pinDatas: window._pinDatas,
@@ -3023,6 +3074,8 @@ $(function () {
     rememberShownTypes(menuTypes);
     showTypeOnSearch();
     noticeAreaZoom();
+    // 下メニューに置いた種類だけ（影の像の片手剣・槍は、両手剣のボタンで一緒にONになるので知らせは両手剣の分だけでよい）
+    noticeOtherMap(MENU_ITEMS.filter(function (item) { return item !== TotkMenuLayout.CLEAR; }));
     markNightTalus();
   });
 });

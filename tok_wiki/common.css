@@ -214,8 +214,10 @@
 .totk-layout-editor__buttons .totk-layout-editor__save { background: #34b792; color: #fff; }
 .totk-layout-editor__buttons button:disabled { opacity: .5; }
 
-/* メモ（memo.js）。並べ替え画面と同じく、サイドメニューより手前に画面いっぱいに出す */
-.totk-memo { position: fixed; inset: 0; z-index: 10002; display: flex; flex-direction: column; background: #222; color: #fff; }
+/* メモ（memo.js）。サイドメニューより手前に出す。読むときは画面の下半分だけにして、上の地図はそのまま使えるようにする（利用者の要望）。
+   編集中は画面いっぱいにする。下半分のままだと、スマホのキーボードに入力欄が隠れるため */
+.totk-memo { position: fixed; top: 50%; right: 0; bottom: 0; left: 0; z-index: 10002; display: flex; flex-direction: column; background: #222; color: #fff; box-shadow: 0 -2px 8px rgba(0, 0, 0, .5); }
+.totk-memo.is-editing { top: 0; }
 .totk-memo__head { display: flex; flex: none; align-items: center; height: 40px; padding: 0 16px; background: #2b542b; font-weight: bold; }
 .totk-memo__body { display: flex; flex: 1; min-height: 0; padding: 12px; }
 /* 読むときは、保存した文字をそのまま見せる（空白・空行・字下げを詰めない。長い行は折り返す） */

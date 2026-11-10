@@ -1,4 +1,4 @@
-// メモ。地図の左下の「メモ」ボタンで全画面に開き、プレーンテキストを読み書きする。
+// メモ。地図の左下の「メモ」ボタンで画面の下半分に開き（編集中は全画面）、プレーンテキストを読み書きする。
 // 中身は GitHub の保存先（config.js の memoPath）に、書いたとおりの文字のまま保存する（空白・改行も変えない）。
 // チェックのファイルとは別のファイルなので、メモの保存がチェックのデータに触れることはない。
 // save.js（TotkSave.start）を先に動かしておくこと。ボタンは、地図ツールの起動後に index.html が地図の中へ移す。移すまでは見えない（common.css）
@@ -17,6 +17,8 @@
   }
 
   function open() {
+    // 読むときは下半分にしか出さないので、画面の形によってはメモのボタンが隠れずに見えている。2枚目を開かないようにする
+    if (document.querySelector('.totk-memo')) return;
     var store = window.TotkSave.openFile(config.memoPath, 'text');
     var text = readLocal() || '';
     var editing = false;
