@@ -3032,6 +3032,30 @@ function noticeOtherMap(types) {
   });
 }
 
+// 地図ツールの下メニューは、指でなぞって開け閉めできる（スマホのとき）。ツールは、メニューに触れたときの高さを覚え、
+// 指を離したとき（touchend）に、動かした後の高さと比べて開け閉めし、覚えた高さを消す。
+// ところが、途中でスマホ本体に操作を取られたとき（touchcancel）は何もしないので、覚えた高さが残る。
+// 画面の下端（＝下メニュー）から上へなぞって他のアプリへ移ると、こうなる。戻ってきて画面のどこかを触ると、
+// 残っていた下端の高さと比べて「上へなぞった」とみなされ、メニューが開いてしまう。
+// ツールの覚えた高さは外から消せないので、「触れたのと同じ高さで指を離した」ことをツールの処理へ送り、動かさなかった扱いで消させる。
+// 何も覚えていないときに送っても、ツールは何もしない
+function resetMenuSwipeOnCancel() {
+  var startY = null;
+  $('.leaflet-menu').on('touchstart', function (event) { startY = event.originalEvent.touches[0].clientY; });
+  function reset() {
+    if (startY === null) return;
+    // ツールは document に付けた jQuery の処理で受けるので、jQuery の trigger で送る（本物の画面のタッチは作らない）
+    var noop = function () {};
+    $(document).trigger($.Event('touchmove', { originalEvent: { changedTouches: [{ clientY: startY }], preventDefault: noop } }));
+    $(document).trigger($.Event('touchend', { originalEvent: { preventDefault: noop } }));
+    startY = null;
+  }
+  document.addEventListener('touchcancel', reset, true);
+  // 機種によっては touchcancel が届かないまま画面が隠れることがあるので、隠れたとき・戻ったときにも消す
+  document.addEventListener('visibilitychange', reset);
+  window.addEventListener('pageshow', reset);
+}
+
 // GitHub の保存データ（チェックと、下メニューの並び）を読み終えてから地図ツールを起動する。先に起動すると古いチェック状態で描かれる
 $(function () {
   var layoutStore = TotkSave.openFile((window.TOTK_SAVE_CONFIG || {}).layoutPath);
@@ -3091,6 +3115,7 @@ $(function () {
     // 下メニューに置いた種類だけ（影の像の片手剣・槍は、両手剣のボタンで一緒にONになるので知らせは両手剣の分だけでよい）
     noticeOtherMap(MENU_ITEMS.filter(function (item) { return item !== TotkMenuLayout.CLEAR; }));
     markNightTalus();
+    resetMenuSwipeOnCancel();
   });
 });
 </script>

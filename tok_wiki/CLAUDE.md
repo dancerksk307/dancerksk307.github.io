@@ -104,6 +104,12 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
   例外は、押した場所の親（`offsetParent`）が `_toggle-btn` か `_clear-btn` のとき。
   そのため、マスへ移した「表示設定」「全てOFF」は `position: relative` のままにしている（static にすると親が変わり、スマホで押せなくなる）。
   メニューの中に独自のボタンを足しても、スマホでは押せない。
+- そのスワイプの処理は、メニューに触れた高さを覚え、指を離したとき（touchend）だけ消す。中断（touchcancel）では消さないので、
+  画面の下端から上へなぞって他のアプリへ移ると高さが残り、戻って画面のどこかを触るとメニューが開いてしまう。
+  `index.html` の `resetMenuSwipeOnCancel` が、中断・画面が隠れた・戻ったときに「触れた高さのまま指を離した」ことを
+  jQuery の trigger でツールの処理へ送り、覚えた高さを消させている（ツールの処理は jQuery で document に付いているため）。
+  確認用のヘッドレス Chrome では、`navigator.maxTouchPoints` と `window.ontouchstart` を起動前に用意しないとスワイプの処理が付かない。
+  なお、作ったタッチは地図（Leaflet）の「触ったら閉じる」には届かないので、閉じるのはなぞる操作で確かめる。
 
 ### 下メニューの並べ替え画面（menu-layout.js の openEditor）
 
