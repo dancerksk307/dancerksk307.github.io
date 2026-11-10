@@ -36,15 +36,17 @@
       '</div>' +
       '<p class="totk-memo__message"></p>' +
       '<div class="totk-memo__buttons">' +
+        '<button type="button" class="totk-memo__edit"></button>' +
         '<button type="button" class="totk-memo__close">閉じる</button>' +
-        '<button type="button" class="totk-memo__edit">編集</button>' +
-        '<button type="button" class="totk-memo__save">保存</button>' +
+        '<button type="button" class="totk-memo__size"></button>' +
       '</div>';
     function find(selector) { return root.querySelector(selector); }
     var view = find('.totk-memo__view');
     var input = find('.totk-memo__input');
+    // 1つのボタンを、読んでいる間は「編集」、編集中は「保存」として使う
     var editButton = find('.totk-memo__edit');
-    var saveButton = find('.totk-memo__save');
+    var sizeButton = find('.totk-memo__size');
+    var saving = false;
 
     function message(textToShow, isError) {
       var p = find('.totk-memo__message');
@@ -57,9 +59,12 @@
       root.classList.toggle('is-editing', editing);
       view.textContent = text;
       view.classList.toggle('is-empty', text === '');
-      // 編集中に「編集」をもう一度押すと、書きかけの内容が保存前の文に戻ってしまうので押せなくする
-      editButton.disabled = editing || loading;
-      saveButton.disabled = !editing;
+      editButton.textContent = editing ? '保存' : '編集';
+      editButton.classList.toggle('is-save', editing);
+      editButton.disabled = loading || saving;
+      var full = root.classList.contains('is-full');
+      sizeButton.textContent = full ? '半分' : '全画面';
+      sizeButton.setAttribute('aria-pressed', String(full));
     }
 
     // 開いたら GitHub の最新を読む（他の端末で書いたメモも見えるように）。読み終わるまでは編集できない。
@@ -78,28 +83,41 @@
       render();
     });
 
-    editButton.addEventListener('click', function () {
+    function startEdit() {
       editing = true;
       input.value = text;
       message('');
       render();
       input.focus();
-    });
+    }
 
-    saveButton.addEventListener('click', function () {
+    function save() {
       var newText = input.value;
-      saveButton.disabled = true;
+      saving = true;
+      render();
       writeLocal(newText);
       message('保存中…');
       store.save(newText).then(function (result) {
         text = newText;
         editing = false;
+        saving = false;
         render();
         message(result === 'saved' ? '保存しました' : 'このブラウザだけに保存しました（GitHub のトークンが未設定）');
       }, function (error) {
-        saveButton.disabled = false;
+        saving = false;
+        render();
         message('GitHub に保存できませんでした（' + window.TotkSave.errorReason(error.status) + '）。もう一度「保存」を押してください', true);
       });
+    }
+
+    editButton.addEventListener('click', function () {
+      if (editing) save(); else startEdit();
+    });
+
+    // 下半分と全画面を切り替える。開くたびに下半分から始める（上の地図を使えるようにするのがふだんの形のため）
+    sizeButton.addEventListener('click', function () {
+      root.classList.toggle('is-full');
+      render();
     });
 
     find('.totk-memo__close').addEventListener('click', function () {

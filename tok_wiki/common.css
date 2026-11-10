@@ -217,14 +217,16 @@
 .totk-layout-editor__gap.is-line::after { border-top: 1px solid rgba(255, 255, 255, .8); }
 .totk-layout-editor__message { min-height: 1.6em; margin: 12px 4px 0; font-size: 13px; text-align: center; }
 .totk-layout-editor__message.is-error { color: #ff8a80; }
-.totk-layout-editor__buttons { display: flex; flex: none; gap: 8px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: #2a2a2a; }
+.totk-layout-editor__buttons { display: flex; flex: none; gap: 8px; padding: 8px 8px calc(18px + env(safe-area-inset-bottom)); background: #2a2a2a; }
 .totk-layout-editor__buttons button { flex: 1; padding: 10px 0; border: solid 1px #34b792; border-radius: 2px; background: transparent; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
 .totk-layout-editor__buttons .totk-layout-editor__save { background: #34b792; color: #fff; }
 .totk-layout-editor__buttons button:disabled { opacity: .5; }
 
 /* メモ（memo.js）。サイドメニューより手前に出す。画面の下半分だけにして、上の地図はそのまま使えるようにする（利用者の要望）。
-   編集中も下半分のまま（利用者の要望。スマホのキーボードでどう見えるかは利用者が確かめる） */
+   編集中も下半分のまま（利用者の要望。スマホのキーボードでどう見えるかは利用者が確かめる）。「全画面」ボタンで画面いっぱいにもできる（is-full）。
+   下のボタンの下は、押しやすいよう10px多めに空けている（並べ替え画面も同じ） */
 .totk-memo { position: fixed; top: 50%; right: 0; bottom: 0; left: 0; z-index: 10002; display: flex; flex-direction: column; background: #222; color: #fff; box-shadow: 0 -2px 8px rgba(0, 0, 0, .5); }
+.totk-memo.is-full { top: 0; }
 .totk-memo__head { display: flex; flex: none; align-items: center; height: 40px; padding: 0 16px; background: #2b542b; font-weight: bold; }
 .totk-memo__body { display: flex; flex: 1; min-height: 0; padding: 12px; }
 /* 読むときは、保存した文字をそのまま見せる（空白・空行・字下げを詰めない。長い行は折り返す） */
@@ -236,7 +238,7 @@
 .totk-memo.is-editing .totk-memo__input { display: block; }
 .totk-memo__message { flex: none; min-height: 1.6em; margin: 0 12px 8px; font-size: 13px; text-align: center; }
 .totk-memo__message.is-error { color: #ff8a80; }
-.totk-memo__buttons { display: flex; flex: none; gap: 8px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: #2a2a2a; }
+.totk-memo__buttons { display: flex; flex: none; gap: 8px; padding: 8px 8px calc(18px + env(safe-area-inset-bottom)); background: #2a2a2a; }
 .totk-memo__buttons button { flex: 1; padding: 10px 0; border: solid 1px #34b792; border-radius: 2px; background: transparent; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
-.totk-memo__buttons .totk-memo__save { background: #34b792; color: #fff; }
+.totk-memo__buttons .totk-memo__edit.is-save { background: #34b792; color: #fff; }
 .totk-memo__buttons button:disabled { opacity: .5; }

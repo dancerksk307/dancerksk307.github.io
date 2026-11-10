@@ -276,9 +276,9 @@
           '<p class="totk-layout-editor__message"></p>' +
         '</div>' +
         '<div class="totk-layout-editor__buttons">' +
-          '<button type="button" class="totk-layout-editor__reset">初期配置に戻す</button>' +
-          '<button type="button" class="totk-layout-editor__cancel">やめる</button>' +
           '<button type="button" class="totk-layout-editor__save">保存</button>' +
+          '<button type="button" class="totk-layout-editor__cancel">やめる</button>' +
+          '<button type="button" class="totk-layout-editor__reset">初期配置に戻す</button>' +
         '</div>' +
       '</div>').appendTo('body');
     var $grid = $root.find('.totk-layout-editor__grid');
