@@ -2841,30 +2841,20 @@ function fitMenuHeight(layout) {
 }
 
 // 地図の操作部品を下側に集める（スマホを持った手の指が届くように）。地図ツールは置き場所を選べないので、作られた後で移す。
-// ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置く。
-// どちらでも同じ並びになるよう、角を決め打ちせずに「地図の切り替えの上」「進捗の隣」を目印にしている
+// 地図の切り替え・拡大縮小・境界線・目・メモ・☰・検索欄を、1つの入れ物（.totk-dock）に入れて左下に置く。
+// 並び（3段のマス目）は common.css の .totk-dock。ツールは画面の幅で部品を左右の角に振り分けるが、入れ物ごと左下へ移すので、
+// どの幅でも同じ並びになる。
+// ☰・メモ・目・境界線は地図ツールの部品ではないので、入れ物を部品の並べ方（leaflet-control）に乗せ、
+// 押したり触ったりしても地図が動かないようにする
 function moveControlsToBottom() {
-  // 拡大縮小と、☰（drawer.js が作る）・メモ（memo.js が作る）のボタンは、地図の切り替えと同じ列の上へ。
-  // ☰ とメモは地図ツールの部品ではないので、部品の並べ方（leaflet-control）に乗る入れ物に入れ、
-  // 押したり触ったりしても地図が動かないようにする
-  function buttonControl($button) {
-    var control = $('<div class="leaflet-control totk-button-control"></div>').append($button)[0];
-    L.DomEvent.disableClickPropagation(control);
-    return control;
-  }
-  // チェック済みを薄くするボタン（setupHideChecked）と境界線のボタン（setupBorderButton）は、メモの横に並べる
-  // （並べ方は common.css の .totk-button-row。並びは body に足した順）
-  var memoRow = buttonControl($('.totk-memo-button, .totk-hide-checked-button, .totk-border-button'));
-  memoRow.className += ' totk-button-row';
-  $('.leaflet-map-select-tab').before($('.leaflet-control-zoom'), buttonControl($('.totk-menu-button')), memoRow);
-  // 検索欄は、進捗のある角へ。進捗（n/152）は地図の上には出さない（common.css）が、検索欄を置く角の目印に使う。
-  // 横に並べる指定は common.css（.totk-bottom-row）。
   // 武器名のプルダウン（ShadowWeaponFilter）も同じクラス（leaflet-keyword-search-ui）を使うので、検索の入力欄を目印にする
-  var $progress = $('.leaflet-checker-progress');
-  var $corner = $progress.parent().addClass('totk-bottom-row');
   var $search = $('#JsWKSUPinSelect').closest('.leaflet-keyword-search-ui').parent().addClass('totk-search');
-  if ($corner.hasClass('leaflet-right')) $progress.before($search);
-  else $progress.after($search);
+  var $dock = $('<div class="leaflet-control totk-dock"></div>').append(
+    $('.leaflet-map-select-tab'), $('.leaflet-control-zoom'),
+    $('.totk-border-button'), $('.totk-hide-checked-button'), $('.totk-memo-button'), $('.totk-menu-button'),
+    $search);
+  $('#RenderMap .leaflet-bottom.leaflet-left').append($dock);
+  L.DomEvent.disableClickPropagation($dock[0]);
 }
 
 // 地図ツールの検索は、選んだピンへ地図を動かすだけで種類のON/OFFは変えない。OFFの種類だとピンが見えないままなので、
@@ -2934,7 +2924,7 @@ function markNightTalus() {
   });
 }
 
-// チェック済みのピンを、全種類まとめてもっと薄くしたり戻したりするボタン（メモの横）。地図ツールには無い機能なので、
+// チェック済みのピンを、全種類まとめてもっと薄くしたり戻したりするボタン（左下のマス目）。地図ツールには無い機能なので、
 // #RenderMap にクラスを付け外しし、薄くする指定は common.css（.totk-hide-checked）に任せる。
 // 消さずに薄くするのは、どこをチェックしたかも地図の上で見えるようにするため（利用者の要望）。
 // クラス名・保存のキーは、隠す作りだったころのまま（覚えておいた状態を引き継ぐため）。
@@ -2960,7 +2950,7 @@ function setupHideChecked() {
   document.body.appendChild(button);
 }
 
-// 境界線の有／無を切り替える四角いボタン（目のボタンの横）。ツールの切り替え（有／無の選択肢）は出さずに残しておき、
+// 境界線の有／無を切り替える四角いボタン（左下のマス目）。ツールの切り替え（有／無の選択肢）は出さずに残しておき、
 // このボタンからその選択肢を押す（ツールは選択肢の onchange で地図を描き直す）。
 // ツールは地上の地図にしか境界線を持たず、ほかの地図では切り替えを隠すので、このボタンも地上のときだけ出す
 function setupBorderButton() {
@@ -3087,7 +3077,7 @@ $(function () {
       layout: menuLayout, items: MENU_ITEMS, fallback: DEFAULT_MENU_LAYOUT, typeDatas: window._typeDatas, store: layoutStore,
     });
     locationPins.draw();
-    // ボタンを作ってから、メモの横へ移す
+    // ボタンを作ってから、左下のマス目へ移す
     setupHideChecked();
     setupBorderButton();
     moveControlsToBottom();
