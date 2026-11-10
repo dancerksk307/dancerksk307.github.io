@@ -7,22 +7,29 @@
 #RenderMap { height: 100dvh !important; margin: 0; border-radius: 0; }
 
 /* ドロワーを開くボタン（☰）とメモのボタン。地図の中（拡大縮小ボタンの下）へ移すまでは出さない。移す前に出すと、地図の上に一瞬はみ出す */
-.totk-menu-button, .totk-memo-button, .totk-hide-checked-button { display: none; }
+.totk-menu-button, .totk-memo-button, .totk-hide-checked-button, .totk-border-button { display: none; }
 /* 見た目は、同じ列の拡大縮小ボタンに合わせている（大きさも、拡大縮小ボタンと同じくツールの標準の1.5倍） */
 #RenderMap .totk-menu-button,
 #RenderMap .totk-memo-button,
-#RenderMap .totk-hide-checked-button { display: block; width: 48px; height: 48px; padding: 0; border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; background: rgba(32, 32, 32, .8); color: #fff; font-size: 27px; line-height: 1; cursor: pointer; }
+#RenderMap .totk-hide-checked-button,
+#RenderMap .totk-border-button { display: block; width: 48px; height: 48px; padding: 0; border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; background: rgba(32, 32, 32, .8); color: #fff; font-size: 27px; line-height: 1; cursor: pointer; }
 /* メモのボタンは鉛筆の絵（memo.js）。ボタンの中央に置く */
 #RenderMap .totk-memo-button > svg,
-#RenderMap .totk-hide-checked-button > svg { display: block; margin: auto; }
+#RenderMap .totk-hide-checked-button > svg,
+#RenderMap .totk-border-button > svg { display: block; margin: auto; }
 #RenderMap .totk-menu-button:active,
 #RenderMap .totk-memo-button:active,
-#RenderMap .totk-hide-checked-button:active { background: rgba(80, 80, 80, .9); }
+#RenderMap .totk-hide-checked-button:active,
+#RenderMap .totk-border-button:active { background: rgba(80, 80, 80, .9); }
 /* チェック済みを薄くするボタン（index.html の setupHideChecked）は、メモの横に並べる。地図の中央寄りに来るよう、右の角では並びを逆にする。
    薄くしている間は、赤丸と同じ赤にして、押されていることがわかるようにする */
 #RenderMap .totk-button-row { display: flex; gap: 6px; }
 #RenderMap .leaflet-right > .totk-button-row { flex-direction: row-reverse; }
 #RenderMap .totk-hide-checked-button[aria-pressed="true"] { border-color: #f66; background: rgba(200, 0, 0, .85); }
+/* 境界線のボタン（index.html の setupBorderButton）は、目のボタンの横。境界線を出している間は、ツールの「有」と同じ青にする。
+   地上の地図にしか境界線が無いので、ほかの地図では隠す（hidden。上の display: block に勝たせる） */
+#RenderMap .totk-border-button[aria-pressed="true"] { border-color: #6cf; background: rgba(0, 140, 220, .85); }
+#RenderMap .totk-border-button[hidden] { display: none; }
 
 /* 地図ツールの操作部品（最大で1000台）より手前に出す */
 .totk-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, .4); }
@@ -88,18 +95,12 @@
 /* 地図の操作部品を下側に集めたとき（index.html の moveControlsToBottom）の並べ方。
    ツールは下側の部品を、スマホ幅では「左下に境界線・地図の切り替え、右下に進捗」、PC幅ではその左右逆に置くので、
    左右どちらの角でも効くように書いている。
-   進捗のある角（.totk-bottom-row）を、反対側の「地図の切り替え」の幅（106px = 幅96px＋余白10px）を残して横いっぱいに広げ、検索欄と進捗を横に並べる。
-   検索欄は、狭い画面では残りの幅に合わせて縮む（ツールは幅を220px相当で固定している） */
+   進捗のある角（.totk-bottom-row）を、反対側の「地図の切り替え」の幅（106px = 幅96px＋余白10px）を残して横いっぱいに広げ、検索欄を置く。
+   進捗は出さない（下の「地図の上の進捗」）。検索欄は、狭い画面では残りの幅に合わせて縮む（ツールは幅を220px相当で固定している） */
 #RenderMap .totk-bottom-row { display: flex; align-items: flex-end; }
 #RenderMap .totk-bottom-row.leaflet-right { left: 106px; justify-content: flex-end; }
 #RenderMap .totk-bottom-row.leaflet-left { right: 106px; }
-/* 進捗はツールが幅100%（最大200px）にしているので、横に並べると広がって検索欄を押しつぶす。中身の幅にする
-   （進捗は境界線と一緒に .totk-progress-column に入れているので、その中の指定は下の境界線のところ） */
-#RenderMap .totk-bottom-row > .leaflet-control { flex: none; width: auto; }
-/* 進捗はツールが外側へ5px寄せているので、検索欄との間が空きすぎないよう、進捗側の余白を無くす */
 #RenderMap .totk-bottom-row > .totk-search { flex: 0 1 220px; min-width: 0; }
-#RenderMap .totk-bottom-row.leaflet-right > .totk-search { margin-right: 0; }
-#RenderMap .totk-bottom-row.leaflet-left > .totk-search { margin-left: 0; }
 #RenderMap .totk-search .w-keyword-search-ui-body { width: 100%; }
 #RenderMap .totk-search .select2-container { width: 100% !important; }
 /* 影の像の武器名プルダウン（index.html の setupWeaponFilter）。検索欄の上に、同じ幅で置く。ツールは幅を150pxで直接書き込んでいる */
@@ -125,17 +126,12 @@
 #RenderMap .leaflet-bottom.leaflet-left > .totk-button-control { left: -5px; }
 #RenderMap .leaflet-bottom.leaflet-right > .leaflet-control-zoom,
 #RenderMap .leaflet-bottom.leaflet-right > .totk-button-control { right: -5px; }
-/* 境界線（有／無）は、ほとんど使わないので進捗（n/152）の上に小さく置く（index.html の moveControlsToBottom）。
-   進捗と縦に並べ、幅は進捗にそろえる。ツールは地上以外（空島・地底）で境界線を消すが、そのときは進捗だけが残る */
-#RenderMap .totk-bottom-row > .totk-progress-column { display: flex; flex: none; flex-direction: column; }
-#RenderMap .totk-bottom-row.leaflet-right > .totk-progress-column { align-items: flex-end; }
-#RenderMap .totk-bottom-row.leaflet-left > .totk-progress-column { align-items: flex-start; }
-#RenderMap .totk-progress-column > .leaflet-control { width: auto; }
-/* 幅を決めないと、ツールの指定で境界線が横へ大きく広がる。80px は進捗（n/152）の幅にそろえた値 */
-#RenderMap .totk-progress-column > .leaflet-map-border-switch { width: 80px; margin-top: 26px; margin-bottom: 0; padding: 4px; }
-#RenderMap .totk-progress-column > .leaflet-map-border-switch > ._inner-table > input[type=radio] + label { padding: 3px 0; font-size: 13px; line-height: 13px; }
-/* 枠の上にはみ出している「境界線」の見出しも、枠の幅に合わせる */
-#RenderMap .totk-progress-column > .leaflet-map-border-switch > ._head { width: 100%; font-size: 12px; }
+/* 地図の上の進捗（n/152）と、ツールの境界線の切り替え（有／無）は出さない（利用者の要望）。
+   進捗は、検索欄を置く角の目印にだけ使う（index.html の moveControlsToBottom）。☰ の進捗一覧の数は、ツールがこれとは別に数えて入れる。
+   境界線は、目のボタンの横の四角いボタン（index.html の setupBorderButton）で、隠したツールの「有／無」を押して切り替える。
+   ツールは地図を切り替えるたびに「有／無」を jQuery の show() で出し直す（display を直接書き込む）ので、!important で隠す */
+#RenderMap .leaflet-checker-progress,
+#RenderMap .leaflet-map-border-switch { display: none !important; }
 
 /* 地名チェックの印（location-pins.js）。地図ツールは印を隠しておき（#RenderMap .location-pin { display: none }）、
    いま開いている地図（d-map）の印だけを出す。ここでは、さらに下メニューの「地名」がONのとき（totk-show-area）だけに絞る。
@@ -214,10 +210,9 @@
 .totk-layout-editor__buttons .totk-layout-editor__save { background: #34b792; color: #fff; }
 .totk-layout-editor__buttons button:disabled { opacity: .5; }
 
-/* メモ（memo.js）。サイドメニューより手前に出す。読むときは画面の下半分だけにして、上の地図はそのまま使えるようにする（利用者の要望）。
-   編集中は画面いっぱいにする。下半分のままだと、スマホのキーボードに入力欄が隠れるため */
+/* メモ（memo.js）。サイドメニューより手前に出す。画面の下半分だけにして、上の地図はそのまま使えるようにする（利用者の要望）。
+   編集中も下半分のまま（利用者の要望。スマホのキーボードでどう見えるかは利用者が確かめる） */
 .totk-memo { position: fixed; top: 50%; right: 0; bottom: 0; left: 0; z-index: 10002; display: flex; flex-direction: column; background: #222; color: #fff; box-shadow: 0 -2px 8px rgba(0, 0, 0, .5); }
-.totk-memo.is-editing { top: 0; }
 .totk-memo__head { display: flex; flex: none; align-items: center; height: 40px; padding: 0 16px; background: #2b542b; font-weight: bold; }
 .totk-memo__body { display: flex; flex: 1; min-height: 0; padding: 12px; }
 /* 読むときは、保存した文字をそのまま見せる（空白・空行・字下げを詰めない。長い行は折り返す） */
