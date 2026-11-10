@@ -4,11 +4,11 @@
     [
       "hole",
       null,
-      null,
+      "hinokkusu",
       "iwarokku",
       "frox",
-      "sage",
-      "map"
+      "kanban",
+      null
     ],
     [
       "_toggle",
@@ -33,9 +33,9 @@
       "village",
       "stables",
       "dungeon",
-      null,
+      "sage",
       "god_statue",
-      "kanban"
+      "map"
     ],
     [
       "zonai",
@@ -47,20 +47,20 @@
       "blacksmith"
     ],
     [
-      "hinokkusu",
+      "morudora",
       "lynel",
-      "ierokku",
-      "iwa_oct",
       "block",
+      "gurioku",
+      "iwa_oct",
       null,
       null
     ],
     [
-      "morudora",
       "phantom",
-      "koga",
       "boss_temple",
-      "gurioku",
+      "koga",
+      "ierokku",
+      null,
       null,
       null
     ]
