@@ -1,5 +1,5 @@
-// ドロワーメニュー（進捗・保存設定・リセット）と、それを開くボタンを画面に差し込む。
-// save.js と config.js を先に読み込んでおくこと。
+// ドロワーメニュー（お気に入り・進捗を見る・並べ替え・保存設定・リセット）と、それを開くボタン、進捗の全画面を画面に差し込む。
+// お気に入りの中身は links.js が入れる。save.js と config.js を先に読み込んでおくこと。
 // 開くボタン（.totk-menu-button）は、地図ツールの起動後に index.html が地図の中へ移す。移すまでは見えない（common.css）
 (function () {
   'use strict';
@@ -80,9 +80,11 @@
     '<div class="totk-overlay"></div>' +
     '<nav class="totk-drawer">' +
       '<div class="totk-drawer__head">メニュー<button type="button" class="totk-drawer__close" aria-label="メニューを閉じる">✕</button></div>' +
-      '<div class="totk-drawer__progress"></div>' +
+      // お気に入りのリンク（中身は links.js が入れる）。進捗はめったに見ないので、一番上はこちらにしている（利用者の要望）
+      '<div class="totk-drawer__links"></div>' +
       '<div class="totk-drawer__layout">' +
-        '<p class="totk-drawer__heading">設定</p>' +
+        '<p class="totk-drawer__heading">表示・設定</p>' +
+        '<button type="button" class="totk-drawer__wide-button totk-drawer__progress-button">進捗を見る</button>' +
         // 押すと menu-layout.js の並べ替え画面を開く（地図ツールの起動の後でないと開かない）
         '<button type="button" class="totk-drawer__layout-button">下メニューの並べ替え</button>' +
       '</div>' +
@@ -103,7 +105,13 @@
         // 地図ツールより先に画面にある必要があるので、ここで作っている。誤って押さないよう、メニューの一番下に置いている
         '<button type="button" class="totk-drawer__reset-button js-check-reset-all" data-confirm="すべてのチェックを消します。よろしいですか？">すべてのチェックを消す</button>' +
       '</div>' +
-    '</nav>';
+    '</nav>' +
+    // 進捗の全画面。地図ツールは画面の中の数の欄を探して書き込むので、起動時から画面に置いておき、ふだんは隠す（common.css）
+    '<div class="totk-progress" role="dialog" aria-label="進捗">' +
+      '<div class="totk-progress__head">進捗</div>' +
+      '<div class="totk-progress__body"><div class="totk-progress__table"></div></div>' +
+      '<div class="totk-progress__buttons"><button type="button" class="totk-progress__close">閉じる</button></div>' +
+    '</div>';
 
   function find(selector) { return root.querySelector(selector); }
 
@@ -127,8 +135,8 @@
       item.innerHTML = '<span>' + progress.title + '</span><span>' + count + '</span>';
       list.appendChild(item);
     });
-    find('.totk-drawer__progress').appendChild(heading);
-    find('.totk-drawer__progress').appendChild(list);
+    find('.totk-progress__table').appendChild(heading);
+    find('.totk-progress__table').appendChild(list);
   });
 
   function setOpen(open) { root.classList.toggle('totk-is-open', open); }
@@ -139,8 +147,16 @@
     setOpen(false);
     window.TotkMenuLayout.openEditor();
   });
+  function setProgressOpen(open) { find('.totk-progress').classList.toggle('is-open', open); }
+  find('.totk-drawer__progress-button').addEventListener('click', function () {
+    setOpen(false);
+    setProgressOpen(true);
+  });
+  find('.totk-progress__close').addEventListener('click', function () { setProgressOpen(false); });
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') setOpen(false);
+    if (event.key !== 'Escape') return;
+    setOpen(false);
+    setProgressOpen(false);
   });
 
   function showStatus(state, httpStatus) {

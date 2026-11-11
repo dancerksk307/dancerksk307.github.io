@@ -46,7 +46,7 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
   次に開いたときは `loadShownTypes` でそれを `defaultOffTypes` に使う。覚えたものが無いとき（初めて開いたとき）は `DEFAULT_ON_TYPES`。
   チェック欄の change で覚えるが、「全てOFF」は change が起きないので、ボタンを押した後にも覚える。
 - 進捗の数字はツールが入れる。画面内の `.w-achievement-count`（チェック数）と `.w-achievement-total-count`（総数）を、
-  `data-types` の種類で数えて書き換える。☰ の進捗一覧（`drawer.js`）はこの仕組みに乗っているだけ。
+  `data-types` の種類で数えて書き換える。☰ →「進捗を見る」の進捗一覧（`drawer.js`）はこの仕組みに乗っているだけ。
 - 検索は、選んだピンへ地図を動かして吹き出しを開くだけで、種類のON/OFFは変えない。
   `index.html` の `showTypeOnSearch` が、選んだピンの種類をONにする処理を足している。
   検索の一覧は `name`（無ければ `label`）で作られる。対象の種類は `SEARCH_TYPES`。
@@ -138,7 +138,7 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
   ツール側の控えも読み直させる。ツールの地図は外から取れないので、起動前に `L.Map.addInitHook` でつかまえている。
 - 印を出す・隠すのはツールの CSS（`#RenderMap .location-pin`）と `common.css`。ツールは拡大1〜3段階で印を !important で隠すので、
   印は拡大4段階目から出る（完璧版と同じ）。引いた地図で「地名」をONにしたときは、拡大するようお知らせを出す（`noticeAreaZoom`）。
-- 地名の数はツールが数えないので、サイドメニューの進捗の「地名」の数はこの部品が入れる（`.totk-area-count` / `.totk-area-total`）。
+- 地名の数はツールが数えないので、進捗一覧の「地名」の数はこの部品が入れる（`.totk-area-count` / `.totk-area-total`）。
 
 ### 影の像の武器名プルダウン（index.html の setupWeaponFilter）
 
@@ -182,7 +182,7 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
   入れ物に `L.DomEvent.disableClickPropagation` をかけ、ボタンを押したときに地図が動かないようにしている。
 - ☰・メモ・目・境界線はマス目へ移すまで見えない（`common.css`）。地図ツールの起動に失敗すると出ない点に注意。
 - **地図の上の進捗（n/152）と、ツールの境界線の切り替え（有／無）は出さない**（利用者の要望。`common.css` で隠す）。
-  - 進捗の部品は、ツールの起動のために残している（`.CheckerProgress`）。☰ の進捗一覧の数は、ツールがこの部品とは別に数えて入れるので影響しない。
+  - 進捗の部品は、ツールの起動のために残している（`.CheckerProgress`）。☰ →「進捗を見る」の数は、ツールがこの部品とは別に数えて入れるので影響しない。
   - 境界線は、マス目の四角いボタン（`setupBorderButton`）で切り替える。ボタンから、隠したツールの「有／無」の選択肢を押す
     （ツールは選択肢の onchange で地図を描き直す）。境界線を出している間はボタンを青にする。
   - ツールは地上の地図にしか境界線を持たず、地図を切り替えるたびに「有／無」を jQuery の `show()` / `hide()` で出し入れする。
@@ -238,7 +238,7 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
    base が無い（そのブラウザで初めて）ときは GitHub 側を正とし、元からあるブラウザ内データは引き継がない。
 
 `save.js` は `createSync`（通信・保存先を外から渡せる本体。テスト対象）と `start`（ブラウザ用の組み立て）に分かれた UMD。
-下メニューの並びとメモは、それぞれ別のファイルに `createFileStore` で読み書きする（上の「並べ替え画面」と下の「メモ」を参照）。
+下メニューの並び・メモ・お気に入りのリンクは、それぞれ別のファイルに `createFileStore` で読み書きする（上の「並べ替え画面」と下の「メモ」「お気に入りのリンク」を参照）。
 `createSync` とは別のもので、チェックのファイルには触れない。
 保存先は `config.js`。公開用の master ではなく `save-data` ブランチに保存している（master だと保存のたびに Pages の再公開が走るため）。
 ブランチが無ければ初回保存時に既定ブランチから自動で作る。
@@ -247,9 +247,28 @@ GitHub のトークンはコードに書かない。メニューから入力し�
 
 ### サイドメニュー（drawer.js / common.css）
 
-`drawer.js` が ☰ ボタンと、ドロワー（進捗・下メニューの並べ替え・保存設定・保存状態・リセット）を body 先頭に差し込み、
-`TotkSave.start()` を呼ぶ。読み込み順は `config.js` → `save.js` → `drawer.js` → `location-pins.js` → `menu-layout.js` → `memo.js` → `index.html` の起動スクリプト。
+`drawer.js` が ☰ ボタンと、ドロワー（お気に入り・進捗を見る・下メニューの並べ替え・保存設定・保存状態・リセット）と進捗の全画面を body 先頭に差し込み、
+`TotkSave.start()` を呼ぶ。読み込み順は `config.js` → `save.js` → `drawer.js` → `location-pins.js` → `menu-layout.js` → `memo.js` → `links.js` → `index.html` の起動スクリプト。
 クラス名はツールの CSS とぶつからないよう `totk-` で始める。
+
+- **進捗はめったに見ないので、サイドメニューには出さず、「進捗を見る」で全画面に開く**（利用者の要望。見た目は並べ替え画面にそろえている）。
+  ツールは画面の中の数の欄を探して書き込むので、進捗の表（`.totk-progress`）は起動時から画面に置いたまま、ふだんは CSS で隠している。
+  隠すときに要素を外したり、開くたびに作り直したりすると、数が入らなくなる。
+
+### お気に入りのリンク（links.js / common.css）
+
+サイドメニューの一番上に、登録したリンクの一覧を出す。押すと別のタブで開く（`target="_blank" rel="noopener"`）。
+攻略サイト（GameWith・Game8・YouTube・Reddit・atwiki）はどれも他のページへの埋め込みを禁止している（X-Frame-Options / frame-ancestors）ので、地図の中には出せない。
+
+- 見出しの右の「編集」で、その場で各行が名前と URL の入力欄に変わる。↑↓で並べ替え、✕で消す、「＋追加」「保存」「やめる」。名前が空なら一覧には URL を出す。
+- 保存できる URL は `http://` / `https://` で始まるものだけ（`isSafeUrl`）。`javascript:` などは、押したときにこのページの中で動いてしまうため。
+  合わない行があれば保存せずにお知らせし、名前も URL も空の行は捨てる（`clean`）。GitHub 上で直接書き換えられたデータも、読むときに同じ検査をする（`normalize`）。
+  名前と URL は textContent・value・href で入れ、HTML として組み立てない。
+- `save-data` ブランチの `tok_wiki/data/links.json`（`config.js` の `linksPath`）に `{ version: 1, links: [{ name, url }] }` で保存する。チェックのファイルには触れない。
+- ☰ を押すたびに GitHub の最新を読み、読み終わるまで「編集」は押せない（理由はメモと同じ）。編集中は読み直さず、サイドメニューを閉じても書きかけを残す。
+  2つの端末で同時に編集すると、後から保存した方が残る。
+- ブラウザ内にも控え（localStorage `TotkLinks`）を持つ。GitHub から読めないときはそれを出し、トークンが無いときはそれにだけ保存する。
+- テストできる部分（`isSafeUrl`・`normalize`・`clean`・`move`）は UMD で外に出し、`tests/links.test.js` で確かめている。
 
 ### メモ（memo.js / common.css）
 

@@ -9,4 +9,6 @@ window.TOTK_SAVE_CONFIG = {
   layoutPath: 'tok_wiki/data/menu-layout.json',
   // メモ（地図の左下の「メモ」ボタン）。プレーンテキストのまま保存する
   memoPath: 'tok_wiki/data/memo.txt',
+  // お気に入りのリンク（☰ のサイドメニュー）
+  linksPath: 'tok_wiki/data/links.json',
 };
