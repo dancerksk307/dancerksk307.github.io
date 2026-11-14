@@ -3,12 +3,12 @@
   "rows": [
     [
       "hole",
-      null,
+      "area",
       "hinokkusu",
       "iwarokku",
       "frox",
-      "kanban",
-      null
+      "lynel",
+      "kanban"
     ],
     [
       "_toggle",
@@ -29,7 +29,7 @@
       "blueprint"
     ],
     [
-      "area",
+      null,
       "village",
       "stables",
       "dungeon",
@@ -48,18 +48,18 @@
     ],
     [
       "morudora",
-      "lynel",
+      "phantom",
       "block",
       "gurioku",
       "iwa_oct",
-      null,
-      null
+      "boss_temple",
+      "koga"
     ],
     [
-      "phantom",
-      "boss_temple",
-      "koga",
       "ierokku",
+      null,
+      null,
+      null,
       null,
       null,
       null
