@@ -8,7 +8,7 @@
       "iwarokku",
       "frox",
       "lynel",
-      "kanban"
+      "phantom"
     ],
     [
       "_toggle",
@@ -29,7 +29,7 @@
       "blueprint"
     ],
     [
-      null,
+      "kanban",
       "village",
       "stables",
       "dungeon",
@@ -48,21 +48,12 @@
     ],
     [
       "morudora",
-      "phantom",
+      "ierokku",
       "block",
       "gurioku",
       "iwa_oct",
       "boss_temple",
       "koga"
-    ],
-    [
-      "ierokku",
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
     ]
   ],
   "lines": [
