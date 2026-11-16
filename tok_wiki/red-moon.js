@@ -63,7 +63,7 @@
     container.innerHTML =
       '<p class="totk-drawer__heading">赤い月</p>' +
       '<p class="totk-redmoon__last">最終発生: <span class="totk-redmoon__date"></span></p>' +
-      '<button type="button" class="totk-drawer__wide-button totk-redmoon__record">赤い月が出た（今の日時を記録）</button>' +
+      '<button type="button" class="totk-drawer__wide-button totk-redmoon__record">日時更新</button>' +
       '<p class="totk-redmoon__message"></p>';
     function find(selector) { return container.querySelector(selector); }
     var recordButton = find('.totk-redmoon__record');
