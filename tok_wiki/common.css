@@ -64,9 +64,15 @@
 .totk-links__add { margin-top: 8px; }
 .totk-links__buttons { margin-top: 8px; }
 .totk-links__buttons button:disabled { opacity: .5; }
-.totk-links__message { margin-top: 6px; color: #555; font-size: 12px; }
-.totk-links__message:empty { display: none; }
-.totk-links__message.is-error { color: #c0392b; }
+.totk-links__message, .totk-redmoon__message { margin-top: 6px; color: #555; font-size: 12px; }
+.totk-links__message:empty, .totk-redmoon__message:empty { display: none; }
+.totk-links__message.is-error, .totk-redmoon__message.is-error { color: #c0392b; }
+
+/* 赤い月の最終発生日時（red-moon.js）。お気に入りの下 */
+.totk-drawer__redmoon { padding: 0 16px 16px; font-size: 13px; }
+.totk-redmoon__last { margin-bottom: 6px; }
+.totk-redmoon__date { color: #c0392b; font-weight: bold; white-space: nowrap; }
+.totk-redmoon__record:disabled { opacity: .5; }
 
 .totk-drawer__settings { padding: 16px; font-size: 12px; }
 .totk-drawer__heading { margin-bottom: 4px; font-size: 13px; font-weight: bold; }

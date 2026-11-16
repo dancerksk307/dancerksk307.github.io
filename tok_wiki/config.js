@@ -11,4 +11,6 @@ window.TOTK_SAVE_CONFIG = {
   memoPath: 'tok_wiki/data/memo.txt',
   // お気に入りのリンク（☰ のサイドメニュー）
   linksPath: 'tok_wiki/data/links.json',
+  // 赤い月の最終発生日時（☰ のサイドメニュー）
+  redMoonPath: 'tok_wiki/data/red-moon.json',
 };

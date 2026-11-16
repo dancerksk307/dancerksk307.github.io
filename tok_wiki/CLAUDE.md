@@ -238,7 +238,7 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
    base が無い（そのブラウザで初めて）ときは GitHub 側を正とし、元からあるブラウザ内データは引き継がない。
 
 `save.js` は `createSync`（通信・保存先を外から渡せる本体。テスト対象）と `start`（ブラウザ用の組み立て）に分かれた UMD。
-下メニューの並び・メモ・お気に入りのリンクは、それぞれ別のファイルに `createFileStore` で読み書きする（上の「並べ替え画面」と下の「メモ」「お気に入りのリンク」を参照）。
+下メニューの並び・メモ・お気に入りのリンク・赤い月の日時は、それぞれ別のファイルに `createFileStore` で読み書きする（上の「並べ替え画面」と下の「メモ」「お気に入りのリンク」「赤い月」を参照）。
 `createSync` とは別のもので、チェックのファイルには触れない。
 保存先は `config.js`。公開用の master ではなく `save-data` ブランチに保存している（master だと保存のたびに Pages の再公開が走るため）。
 ブランチが無ければ初回保存時に既定ブランチから自動で作る。
@@ -247,8 +247,8 @@ GitHub のトークンはコードに書かない。メニューから入力し�
 
 ### サイドメニュー（drawer.js / common.css）
 
-`drawer.js` が ☰ ボタンと、ドロワー（お気に入り・進捗を見る・下メニューの並べ替え・保存設定・保存状態・リセット）と進捗の全画面を body 先頭に差し込み、
-`TotkSave.start()` を呼ぶ。読み込み順は `config.js` → `save.js` → `drawer.js` → `location-pins.js` → `menu-layout.js` → `memo.js` → `links.js` → `index.html` の起動スクリプト。
+`drawer.js` が ☰ ボタンと、ドロワー（お気に入り・赤い月・進捗を見る・下メニューの並べ替え・保存設定・保存状態・リセット）と進捗の全画面を body 先頭に差し込み、
+`TotkSave.start()` を呼ぶ。読み込み順は `config.js` → `save.js` → `drawer.js` → `location-pins.js` → `menu-layout.js` → `memo.js` → `links.js` → `red-moon.js` → `index.html` の起動スクリプト。
 クラス名はツールの CSS とぶつからないよう `totk-` で始める。
 
 - **進捗はめったに見ないので、サイドメニューには出さず、「進捗を見る」で全画面に開く**（利用者の要望。見た目は並べ替え画面にそろえている）。
@@ -269,6 +269,16 @@ GitHub のトークンはコードに書かない。メニューから入力し�
   2つの端末で同時に編集すると、後から保存した方が残る。
 - ブラウザ内にも控え（localStorage `TotkLinks`）を持つ。GitHub から読めないときはそれを出し、トークンが無いときはそれにだけ保存する。
 - テストできる部分（`isSafeUrl`・`normalize`・`clean`・`move`）は UMD で外に出し、`tests/links.test.js` で確かめている。
+
+### 赤い月の最終発生日時（red-moon.js / common.css）
+
+サイドメニューのお気に入りの下に「最終発生: 日時」とボタン1つを出す。ボタンを押すと確かめのダイアログを出し、OK なら押した時刻を記録する（利用者の要望。周期で起きる赤い月の控え）。
+
+- `save-data` ブランチの `tok_wiki/data/red-moon.json`（`config.js` の `redMoonPath`）に `{ version: 1, last: ISO の日時 }` で保存する。チェックのファイルには触れない。
+  表示はその端末の時刻（`formatDate`。`2026/11/16(月) 14:32`）。
+- ☰ を押すたびに GitHub の記録を読み、ブラウザ内の控え（localStorage `TotkRedMoon`）と比べて**新しい方**を出す（`newer`）。
+  GitHub に保存できなかった記録を、古い記録で上書きしないため。他の端末が後から記録した分は、新しいのでそちらが出る。
+- テストできる部分（`normalize`・`newer`・`formatDate`）は `tests/red-moon.test.js` で確かめている。
 
 ### メモ（memo.js / common.css）
 

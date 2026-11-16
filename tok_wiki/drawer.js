@@ -1,5 +1,5 @@
-// ドロワーメニュー（お気に入り・進捗を見る・並べ替え・保存設定・リセット）と、それを開くボタン、進捗の全画面を画面に差し込む。
-// お気に入りの中身は links.js が入れる。save.js と config.js を先に読み込んでおくこと。
+// ドロワーメニュー（お気に入り・赤い月・進捗を見る・並べ替え・保存設定・リセット）と、それを開くボタン、進捗の全画面を画面に差し込む。
+// お気に入りの中身は links.js、赤い月の中身は red-moon.js が入れる。save.js と config.js を先に読み込んでおくこと。
 // 開くボタン（.totk-menu-button）は、地図ツールの起動後に index.html が地図の中へ移す。移すまでは見えない（common.css）
 (function () {
   'use strict';
@@ -82,6 +82,8 @@
       '<div class="totk-drawer__head">メニュー<button type="button" class="totk-drawer__close" aria-label="メニューを閉じる">✕</button></div>' +
       // お気に入りのリンク（中身は links.js が入れる）。進捗はめったに見ないので、一番上はこちらにしている（利用者の要望）
       '<div class="totk-drawer__links"></div>' +
+      // 赤い月の最終発生日時（中身は red-moon.js が入れる）
+      '<div class="totk-drawer__redmoon"></div>' +
       '<div class="totk-drawer__layout">' +
         '<p class="totk-drawer__heading">表示・設定</p>' +
         '<button type="button" class="totk-drawer__wide-button totk-drawer__progress-button">進捗を見る</button>' +
