@@ -3,8 +3,8 @@
   "rows": [
     [
       "hole",
-      "area",
-      "block",
+      null,
+      "hinokkusu",
       "iwarokku",
       "frox",
       "lynel",
@@ -49,11 +49,20 @@
     [
       "morudora",
       "ierokku",
-      "hinokkusu",
+      null,
       "gurioku",
       "iwa_oct",
       "boss_temple",
       "koga"
+    ],
+    [
+      "area",
+      "block",
+      null,
+      null,
+      null,
+      null,
+      null
     ]
   ],
   "lines": [
