@@ -37,11 +37,15 @@
 .totk-drawer__head { display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 8px 0 16px; background: #2b542b; color: #fff; font-weight: bold; }
 .totk-drawer__close { width: 32px; height: 32px; padding: 0; border: 0; background: transparent; color: #fff; font-size: 16px; cursor: pointer; }
 
+/* サイドメニューの各組の見出しは、色付きの帯に白い文字（利用者の要望）。組の左右の余白を打ち消して、帯をメニューの幅いっぱいにする。
+   進捗の全画面の見出しも同じクラスだが、そちらは暗い背景なので帯にしない（.totk-drawer の中だけ） */
+.totk-drawer .totk-drawer__heading, .totk-links__head { margin: 0 -16px 8px; padding: 5px 16px; background: #2e8a6e; color: #fff; }
+.totk-links__head { display: flex; align-items: center; justify-content: space-between; padding-top: 3px; padding-bottom: 3px; }
+.totk-links__head .totk-drawer__heading { margin: 0; padding: 0; background: none; }
+
 /* お気に入りのリンク（links.js）。サイドメニューの一番上 */
-.totk-drawer__links { padding: 16px 16px 12px; font-size: 13px; }
-.totk-links__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.totk-links__head .totk-drawer__heading { margin-bottom: 0; }
-.totk-links__edit { padding: 2px 12px; border: solid 1px #34b792; border-radius: 2px; background: #fff; color: #34b792; font-size: 12px; font-weight: bold; cursor: pointer; }
+.totk-drawer__links { padding: 12px 16px; font-size: 13px; }
+.totk-links__edit { padding: 2px 12px; border: solid 1px #fff; border-radius: 2px; background: transparent; color: #fff; font-size: 12px; font-weight: bold; cursor: pointer; }
 .totk-links__edit:disabled { opacity: .5; }
 .totk-links__list { margin: 0; padding: 0; list-style: none; }
 .totk-links__list li { border-bottom: solid 1px #eee; }
@@ -69,12 +73,15 @@
 .totk-links__message.is-error, .totk-redmoon__message.is-error { color: #c0392b; }
 
 /* 赤い月の最終発生日時（red-moon.js）。お気に入りの下 */
-.totk-drawer__redmoon { padding: 0 16px 16px; font-size: 13px; }
+.totk-drawer__redmoon { padding: 0 16px 12px; font-size: 13px; }
 .totk-redmoon__last { margin-bottom: 6px; }
 .totk-redmoon__date { color: #c0392b; font-weight: bold; white-space: nowrap; }
+/* 日時更新は赤いボタン（利用者の要望） */
+.totk-drawer__wide-button.totk-redmoon__record { border-color: #c0392b; background: #c0392b; color: #fff; }
+.totk-drawer__wide-button.totk-redmoon__record:active { border-color: #962d22; background: #962d22; }
 .totk-redmoon__record:disabled { opacity: .5; }
 
-.totk-drawer__settings { padding: 16px; font-size: 12px; }
+.totk-drawer__settings { padding: 0 16px 24px; font-size: 12px; }
 .totk-drawer__heading { margin-bottom: 4px; font-size: 13px; font-weight: bold; }
 .totk-drawer__dest { color: #888; word-break: break-all; }
 .totk-drawer__status.is-warn { color: #c0392b; }
@@ -83,14 +90,10 @@
 .totk-drawer__buttons button { flex: 1; padding: 8px 0; border: solid 1px #34b792; border-radius: 2px; background: #fff; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
 .totk-drawer__buttons button:active { background: #34b792; color: #fff; }
 
-.totk-drawer__layout { padding: 0 16px; font-size: 12px; }
+.totk-drawer__layout { padding: 0 16px 12px; font-size: 12px; }
 .totk-drawer__layout-button, .totk-drawer__wide-button { width: 100%; padding: 8px 0; border: solid 1px #34b792; border-radius: 2px; background: #fff; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
 .totk-drawer__layout-button:active, .totk-drawer__wide-button:active { background: #34b792; color: #fff; }
 .totk-drawer__progress-button { margin-bottom: 8px; }
-
-.totk-drawer__reset { padding: 0 16px 24px; font-size: 12px; }
-.totk-drawer__reset-button { width: 100%; padding: 8px 0; border: solid 1px #c0392b; border-radius: 2px; background: #fff; color: #c0392b; font-size: 13px; font-weight: bold; cursor: pointer; }
-.totk-drawer__reset-button:active { background: #c0392b; color: #fff; }
 
 /* 閉じた下メニューで、ボタンの下に空ける高さ。ボタンを画面の下端から持ち上げ、押しやすくする
    （ホーム画面に追加したアプリでは、画面の下端がスマホ本体の操作（ホームへ戻るなど）と重なる）。
@@ -265,6 +268,9 @@
 .totk-progress__table { max-width: 420px; margin: 0 auto; }
 .totk-progress__table ul { margin: 0 0 16px; padding: 0; list-style: none; }
 .totk-progress__table li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: solid 1px #444; }
+/* すべてのチェックを消す（閉じるの横）。誤って押さないよう赤にしている */
+.totk-progress__buttons .totk-progress__reset { border-color: #ff6b5b; color: #ff6b5b; }
+.totk-progress__buttons .totk-progress__reset:active { background: #c0392b; color: #fff; }
 
 /* メモ（memo.js）。サイドメニューより手前に出す。画面の下半分だけにして、上の地図はそのまま使えるようにする（利用者の要望）。
    編集中も下半分のまま（利用者の要望。スマホのキーボードでどう見えるかは利用者が確かめる）。「全画面」ボタンで画面いっぱいにもできる（is-full）。

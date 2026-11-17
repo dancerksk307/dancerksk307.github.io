@@ -1,4 +1,4 @@
-// ドロワーメニュー（お気に入り・赤い月・進捗を見る・並べ替え・保存設定・リセット）と、それを開くボタン、進捗の全画面を画面に差し込む。
+// ドロワーメニュー（お気に入り・赤い月・進捗を見る・並べ替え・保存設定）と、それを開くボタン、進捗の全画面（チェックのリセットもここ）を画面に差し込む。
 // お気に入りの中身は links.js、赤い月の中身は red-moon.js が入れる。save.js と config.js を先に読み込んでおくこと。
 // 開くボタン（.totk-menu-button）は、地図ツールの起動後に index.html が地図の中へ移す。移すまでは見えない（common.css）
 (function () {
@@ -101,18 +101,17 @@
           '<button type="button" class="totk-drawer__clear">削除</button>' +
         '</div>' +
       '</div>' +
-      '<div class="totk-drawer__reset">' +
-        '<p class="totk-drawer__heading">チェックのリセット</p>' +
-        // 地図ツールは起動時に .js-check-reset-all へリセット処理（確認つき）を付けるので、このクラス名は変えない。
-        // 地図ツールより先に画面にある必要があるので、ここで作っている。誤って押さないよう、メニューの一番下に置いている
-        '<button type="button" class="totk-drawer__reset-button js-check-reset-all" data-confirm="すべてのチェックを消します。よろしいですか？">すべてのチェックを消す</button>' +
-      '</div>' +
     '</nav>' +
     // 進捗の全画面。地図ツールは画面の中の数の欄を探して書き込むので、起動時から画面に置いておき、ふだんは隠す（common.css）
     '<div class="totk-progress" role="dialog" aria-label="進捗">' +
       '<div class="totk-progress__head">進捗</div>' +
       '<div class="totk-progress__body"><div class="totk-progress__table"></div></div>' +
-      '<div class="totk-progress__buttons"><button type="button" class="totk-progress__close">閉じる</button></div>' +
+      '<div class="totk-progress__buttons">' +
+        '<button type="button" class="totk-progress__close">閉じる</button>' +
+        // 地図ツールは起動時に .js-check-reset-all へリセット処理（確認つき）を付けるので、このクラス名は変えない。
+        // 地図ツールより先に画面にある必要があるので、ここで作っている。進捗の画面の中に置いている（利用者の要望）
+        '<button type="button" class="totk-progress__reset js-check-reset-all" data-confirm="すべてのチェックを消します。よろしいですか？">すべてのチェックを消す</button>' +
+      '</div>' +
     '</div>';
 
   function find(selector) { return root.querySelector(selector); }
