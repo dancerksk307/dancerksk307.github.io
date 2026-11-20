@@ -7,8 +7,9 @@ window.TOTK_SAVE_CONFIG = {
   path: 'tok_wiki/data/save.json',
   // 下メニューの並び。チェックとはファイルを分け、並びの保存がチェックのデータに触れないようにしている
   layoutPath: 'tok_wiki/data/menu-layout.json',
-  // メモ（地図の左下の「メモ」ボタン）。プレーンテキストのまま保存する
-  memoPath: 'tok_wiki/data/memo.txt',
+  // メモ（地図の左下の「メモ」ボタン）。1ページ1ファイルで、プレーンテキストのまま保存する。
+  // 1ページ目は、ページが1つだったころのファイルのまま（それまでのメモを引き継ぐため）
+  memoPaths: ['tok_wiki/data/memo.txt', 'tok_wiki/data/memo-2.txt', 'tok_wiki/data/memo-3.txt'],
   // お気に入りのリンク（☰ のサイドメニュー）
   linksPath: 'tok_wiki/data/links.json',
   // 赤い月の最終発生日時（☰ のサイドメニュー）

@@ -167,6 +167,22 @@
 #RenderMap .totk-weapon-filter { margin-bottom: 4px; }
 /* 高さは下の検索欄にそろえる。文字を16px未満にすると、iPhone は押したときに画面を拡大してしまう */
 #RenderMap .totk-weapon-filter select { width: 100% !important; height: 32px; font-size: 16px; }
+/* ゾナウギア製造機をギアで絞り込む部品（gear-filter.js）。検索欄の上に、武器名のプルダウンと同じ高さのボタンで置く。
+   絞り込み中は、かかっていることがわかるよう青い枠にする */
+#RenderMap .totk-gear-filter { margin-bottom: 4px; }
+#RenderMap .totk-gear-filter[hidden] { display: none; }
+#RenderMap .totk-gear-filter__button { display: block; width: 100%; height: 32px; padding: 0 8px; overflow: hidden; border: solid 1px #aaa; border-radius: 4px; background: #fff; color: #333; font-size: 14px; text-align: left; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
+#RenderMap .totk-gear-filter__button.is-active { border: solid 2px #00acff; font-weight: bold; }
+/* ギアを選ぶ画面。マス目の入れ物の幅いっぱいに、部品の上へ出す。ギアの一覧だけをスクロールする */
+#RenderMap .totk-dock > .totk-gear-panel { position: absolute; right: 0; bottom: calc(100% + 8px); left: 0; display: flex; flex-direction: column; max-height: 55dvh; padding: 8px; border-radius: 4px; background: rgba(34, 34, 34, .95); color: #fff; font-size: 14px; }
+#RenderMap .totk-dock > .totk-gear-panel[hidden] { display: none; }
+#RenderMap .totk-gear-panel__modes, #RenderMap .totk-gear-panel__buttons { display: flex; flex: none; gap: 8px; }
+#RenderMap .totk-gear-panel button { flex: 1; height: 32px; padding: 0; border: solid 1px #34b792; border-radius: 2px; background: transparent; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
+#RenderMap .totk-gear-panel__modes button[aria-pressed="true"] { background: #34b792; color: #fff; }
+#RenderMap .totk-gear-panel__list { display: grid; flex: 1; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0 8px; min-height: 0; margin: 8px 0; overflow-y: auto; }
+#RenderMap .totk-gear-panel__list label { display: flex; align-items: center; gap: 6px; padding: 5px 2px; cursor: pointer; }
+#RenderMap .totk-gear-panel__list input { width: 18px; height: 18px; margin: 0; }
+#RenderMap .totk-gear-panel__count { flex: none; margin: 0 0 8px; color: #ccc; font-size: 12px; }
 /* 検索欄を押すと出る入力欄と候補の一覧は、検索欄のすぐ上から上方向に出す。
    ツールは「欄の下に出す」位置を top で直接書き込むが、欄が下端にあるので地図からはみ出して見えない。
    そこで top を打ち消し、地図の下端からの距離で固定する。一覧が伸びても下の辺は動かず、上へ伸びる。横の位置はツールが検索欄に合わせる。
@@ -278,6 +294,11 @@
 .totk-memo { position: fixed; top: 50%; right: 0; bottom: 0; left: 0; z-index: 10002; display: flex; flex-direction: column; background: #222; color: #fff; box-shadow: 0 -2px 8px rgba(0, 0, 0, .5); }
 .totk-memo.is-full { top: 0; }
 .totk-memo__head { display: flex; flex: none; align-items: center; height: 40px; padding: 0 16px; background: #2b542b; font-weight: bold; }
+/* ページのタブ（1・2・3）。見出しの右に並べる。編集中はほかのタブを押せない（disabled） */
+.totk-memo__tabs { display: flex; gap: 6px; margin-left: 16px; }
+.totk-memo__tab { width: 36px; height: 28px; padding: 0; border: solid 1px rgba(255, 255, 255, .6); border-radius: 2px; background: transparent; color: #fff; font-size: 14px; font-weight: bold; cursor: pointer; }
+.totk-memo__tab[aria-selected="true"] { border-color: #34b792; background: #34b792; }
+.totk-memo__tab:disabled { opacity: .3; cursor: default; }
 .totk-memo__body { display: flex; flex: 1; min-height: 0; padding: 12px; }
 /* 読むときは、保存した文字をそのまま見せる（空白・空行・字下げを詰めない。長い行は折り返す） */
 .totk-memo__view { flex: 1; overflow-y: auto; font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }

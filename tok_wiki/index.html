@@ -63,6 +63,8 @@ body { overflow: hidden; }
 <script src="links.js"></script>
 <!-- 赤い月の最終発生日時（☰ のサイドメニューのお気に入りの下） -->
 <script src="red-moon.js"></script>
+<!-- ゾナウギア製造機をギアで絞り込む部品（地図ツールの起動後に、下の起動スクリプトが作る） -->
+<script src="gear-filter.js"></script>
 
 <!-- PWA 用のサービスワーカー（sw.js）を登録する。file:// で開いたときは使えないので登録しない -->
 <script>
@@ -3112,6 +3114,7 @@ $(function () {
     // 武器名のプルダウンを出すかは影の像のチェック欄で決めるので、まとめてON/OFFする処理を先に付ける（同じボタンの処理は付けた順に走る）
     linkTypeSwitches();
     setupWeaponFilter();
+    TotkGearFilter.setup(window._pinDatas);
     // 一緒にON/OFFする種類をそろえた後で覚えるよう、linkTypeSwitches より後に付ける（同じボタンの処理は付けた順に走る）
     rememberShownTypes(menuTypes);
     showTypeOnSearch();
