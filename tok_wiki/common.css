@@ -288,8 +288,8 @@
 .totk-progress__buttons .totk-progress__reset { border-color: #ff6b5b; color: #ff6b5b; }
 .totk-progress__buttons .totk-progress__reset:active { background: #c0392b; color: #fff; }
 
-/* メモ（memo.js）。サイドメニューより手前に出す。画面の下半分だけにして、上の地図はそのまま使えるようにする（利用者の要望）。
-   編集中も下半分のまま（利用者の要望。スマホのキーボードでどう見えるかは利用者が確かめる）。「全画面」ボタンで画面いっぱいにもできる（is-full）。
+/* メモ（memo.js）。サイドメニューより手前に出す。開いたときは画面いっぱい（is-full。利用者の要望）。
+   「半分」ボタンで下半分だけにして、上の地図を使えるようにもできる（編集中も切り替えられる）。
    下のボタンの下は、押しやすいよう10px多めに空けている（並べ替え画面も同じ） */
 .totk-memo { position: fixed; top: 50%; right: 0; bottom: 0; left: 0; z-index: 10002; display: flex; flex-direction: column; background: #222; color: #fff; box-shadow: 0 -2px 8px rgba(0, 0, 0, .5); }
 .totk-memo.is-full { top: 0; }

@@ -1,4 +1,4 @@
-// メモ。地図の左下の「メモ」ボタンで画面の下半分に開き、プレーンテキストを読み書きする。
+// メモ。地図の左下の「メモ」ボタンで画面いっぱいに開き（「半分」で下半分にもできる）、プレーンテキストを読み書きする。
 // ページは3つ（見出しのタブ「1」「2」「3」で切り替える。利用者の要望）。編集中は、保存が終わるまでほかのページへ移れない。
 // 中身は GitHub の保存先（config.js の memoPaths。1ページ1ファイル）に、書いたとおりの文字のまま保存する（空白・改行も変えない）。
 // チェックのファイルとは別のファイルなので、メモの保存がチェックのデータに触れることはない。
@@ -19,7 +19,7 @@
   }
 
   function open() {
-    // 読むときは下半分にしか出さないので、画面の形によってはメモのボタンが隠れずに見えている。2枚目を開かないようにする
+    // 下半分にしているときは、画面の形によってはメモのボタンが隠れずに見えている。2枚目を開かないようにする
     if (document.querySelector('.totk-memo')) return;
     var pages = (config.memoPaths || []).map(function (path, index) {
       var key = LOCAL_KEYS[index];
@@ -29,7 +29,7 @@
     var editing = false;
 
     var root = document.createElement('div');
-    root.className = 'totk-memo';
+    root.className = 'totk-memo is-full';
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-label', 'メモ');
     root.innerHTML =
@@ -141,7 +141,7 @@
       if (editing) save(); else startEdit();
     });
 
-    // 下半分と全画面を切り替える。開くたびに下半分から始める（上の地図を使えるようにするのがふだんの形のため）
+    // 全画面と下半分を切り替える。開くたびに全画面から始める（利用者の要望。ブラウザには覚えない）
     sizeButton.addEventListener('click', function () {
       root.classList.toggle('is-full');
       render();
