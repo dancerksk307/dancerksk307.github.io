@@ -22,6 +22,32 @@
     return Object.keys(seen).sort(function (a, b) { return a.localeCompare(b, 'ja'); });
   }
 
+  // 武器の一覧を、シリーズ（名前の「の」の前。「兵士の剣」なら「兵士」）ごとの列に分ける（利用者の要望。シリーズを縦に並べる）。
+  // 列の中は、その武器が出る像の種類の順（types の順。片手剣・槍・両手剣）にし、隣の列と行がそろうようにする。
+  // 「の」が無い名前（ブーメランなど）は、最後の1列にまとめる
+  function seriesGroups(pins, types) {
+    var kind = {};
+    pins.forEach(function (pin) {
+      itemsOf(pin).forEach(function (item) {
+        var k = types.indexOf(pin.type);
+        if (!(item in kind) || k < kind[item]) kind[item] = k;
+      });
+    });
+    var groups = {};
+    var OTHER = '';
+    gearList(pins).forEach(function (name) {
+      var at = name.indexOf('の');
+      var key = at > 0 ? name.slice(0, at) : OTHER;
+      (groups[key] = groups[key] || []).push(name);
+    });
+    var keys = Object.keys(groups).filter(function (key) { return key !== OTHER; })
+      .sort(function (a, b) { return a.localeCompare(b, 'ja'); });
+    if (groups[OTHER]) keys.push(OTHER);
+    return keys.map(function (key) {
+      return groups[key].sort(function (a, b) { return kind[a] - kind[b] || a.localeCompare(b, 'ja'); });
+    });
+  }
+
   // mode は 'all'（すべて含む）か 'any'（どれか含む）。何も選んでいなければ、すべて残す
   function matches(items, selected, mode) {
     if (!selected.length) return true;
@@ -49,7 +75,8 @@
   var closers = [];
 
   // 地図ツールの起動後に、index.html が呼ぶ。検索欄（.totk-search）を左下のマス目へ移した後であること。
-  // options: types（対象の種類）・noun（選ぶものの呼び名）・place（ピンの呼び名。数の行に出す）・mode（最初の条件 'all' か 'any'）
+  // options: types（対象の種類）・noun（選ぶものの呼び名）・place（ピンの呼び名。数の行に出す）・mode（最初の条件 'all' か 'any'）・
+  // series（true ならシリーズごとの列に分けて並べる。seriesGroups）
   function setup(allPins, options) {
     var $ = window.jQuery;
     var types = options.types;
@@ -80,15 +107,27 @@
         '<button type="button" class="totk-gear-panel__close">閉じる</button>' +
       '</div>';
     var list = panel.querySelector('.totk-gear-panel__list');
-    gears.forEach(function (gear) {
+    function addCheckbox(parent, gear) {
       var label = document.createElement('label');
       var checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.value = gear;
       label.appendChild(checkbox);
       label.appendChild(document.createTextNode(gear));
-      list.appendChild(label);
-    });
+      parent.appendChild(label);
+    }
+    if (options.series) {
+      // シリーズごとの列（.totk-gear-panel__group）を、一覧のマス目に左から並べる
+      list.classList.add('is-grouped');
+      seriesGroups(pins, types).forEach(function (names) {
+        var group = document.createElement('div');
+        group.className = 'totk-gear-panel__group';
+        names.forEach(function (name) { addCheckbox(group, name); });
+        list.appendChild(group);
+      });
+    } else {
+      gears.forEach(function (gear) { addCheckbox(list, gear); });
+    }
 
     function filter() {
       pins.forEach(function (pin) {
@@ -167,6 +206,7 @@
 
   return {
     gearList: gearList,
+    seriesGroups: seriesGroups,
     matches: matches,
     countByMap: countByMap,
     summary: summary,

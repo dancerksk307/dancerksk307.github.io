@@ -148,6 +148,8 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
 
 - ボタンを押すと、一覧（チェック欄。複数選べる）を、マス目の入れ物（`.totk-dock`）の幅いっぱいに部品の上へ出す（`.totk-gear-panel`）。
   同じ場所に重なるので、片方を開くともう片方は閉じる。
+  武器は、シリーズ（名前の「の」の前）ごとに縦1列にまとめ、その列を左から並べる（利用者の要望。`seriesGroups`、起動オプション `series`）。
+  列の中は、その武器が出る像の種類の順（片手剣・槍・両手剣）にして、隣の列と行をそろえる。「の」が無い名前（ブーメランなど）は最後の1列。ギアは名前順のまま。
   「すべて含む」（選んだものがすべて出るピンだけ）と「どれか含む」を切り替えられる（利用者の要望）。
   最初の条件は、ギアは「すべて含む」、武器は「どれか含む」（像1体から出る武器は1〜4種類で、2つ選んで「すべて含む」にするとほとんど残らないため）。
 - 当てはまるピンの数を地図ごとに出す。ゾナウは空島に多く、地上・地底では0か所になりやすいので、壊れていると思われないため。
@@ -156,7 +158,7 @@ node --test tests/menu-layout.test.js                # 下メニューの並び�
 - 地図ツールにも武器名のプルダウン（`.ShadowWeaponFilter()`）があるが、1つしか選べないので使わない（つながない）。
   ツールのプルダウンは、残す像に `display: block` を直接書き込み、メニューで影の像をOFFにしても像が消えなくなる作りだった。
 - 一覧のスクロールで地図が拡大縮小しないよう、`L.DomEvent.disableScrollPropagation` をかけている（クリックは入れ物の設定で地図へ伝わらない）。
-- テストできる部分（`gearList`・`matches`・`countByMap`・`summary`）は `tests/gear-filter.test.js` で確かめている。
+- テストできる部分（`gearList`・`seriesGroups`・`matches`・`countByMap`・`summary`）は `tests/gear-filter.test.js` で確かめている。
 
 ### 操作部品の置き場所（index.html の moveControlsToBottom / common.css）
 

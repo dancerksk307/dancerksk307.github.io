@@ -1,7 +1,7 @@
 // 実行: node --test tests/
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { gearList, matches, countByMap, summary } = require('../gear-filter.js');
+const { gearList, seriesGroups, matches, countByMap, summary } = require('../gear-filter.js');
 
 const pins = [
   { id: '1', mapId: '空', type: 'zonai', customData: { items: '扇風機,翼,操縦桿' } },
@@ -12,6 +12,19 @@ const pins = [
 test('ギアの一覧は、重なりを除いて名前順にする', () => {
   assert.deepEqual(gearList(pins), ['操縦桿', '扇風機', '翼', 'バネ', 'ロケット'].sort((a, b) => a.localeCompare(b, 'ja')));
   assert.equal(new Set(gearList(pins)).size, gearList(pins).length);
+});
+
+test('武器はシリーズごとの列に分け、列の中は像の種類の順（片手剣・槍・両手剣）、「の」が無いものは最後の列にまとめる', () => {
+  const shadows = [
+    { type: 'shadow-large', customData: { items: '兵士の両手剣,近衛の両手剣,石打ち' } },
+    { type: 'shadow-sword', customData: { items: '兵士の剣,近衛の剣,ブーメラン' } },
+    { type: 'shadow-lance', customData: { items: '兵士の槍,近衛の槍' } },
+  ];
+  assert.deepEqual(seriesGroups(shadows, ['shadow-sword', 'shadow-lance', 'shadow-large']), [
+    ['近衛の剣', '近衛の槍', '近衛の両手剣'],
+    ['兵士の剣', '兵士の槍', '兵士の両手剣'],
+    ['ブーメラン', '石打ち'],
+  ]);
 });
 
 test('何も選んでいなければ、すべての製造機を残す', () => {

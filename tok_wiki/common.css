@@ -176,6 +176,9 @@
 #RenderMap .totk-gear-panel button { flex: 1; height: 32px; padding: 0; border: solid 1px #34b792; border-radius: 2px; background: transparent; color: #34b792; font-size: 13px; font-weight: bold; cursor: pointer; }
 #RenderMap .totk-gear-panel__modes button[aria-pressed="true"] { background: #34b792; color: #fff; }
 #RenderMap .totk-gear-panel__list { display: grid; flex: 1; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0 8px; min-height: 0; margin: 8px 0; overflow-y: auto; }
+/* 武器はシリーズごとの列（gear-filter.js の seriesGroups）。列の間を少しあけて、シリーズの切れ目をわかるようにする */
+#RenderMap .totk-gear-panel__list.is-grouped { row-gap: 8px; }
+#RenderMap .totk-gear-panel__group { display: flex; flex-direction: column; }
 #RenderMap .totk-gear-panel__list label { display: flex; align-items: center; gap: 6px; padding: 5px 2px; cursor: pointer; }
 #RenderMap .totk-gear-panel__list input { width: 18px; height: 18px; margin: 0; }
 #RenderMap .totk-gear-panel__count { flex: none; margin: 0 0 8px; color: #ccc; font-size: 12px; }
