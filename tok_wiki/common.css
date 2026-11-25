@@ -129,7 +129,7 @@
 
 /* 左下の操作部品のマス目（index.html の moveControlsToBottom）。利用者の配置案のとおり、3段に並べる。
      1段目: 空島 ＋   境界線
-     2段目: 地上 −   目     武器名
+     2段目: 地上 −   目     武器・ギアの絞り込み
      3段目: 地底 メモ ☰     検索欄
    1マスは地図の切り替えのタブ1つ分（40px 四方。--totk-dock-cell）。ツールは画面の幅で部品を左右の角に振り分けるが、
    入れ物（.totk-dock）ごと左下へ移すので、どの幅でも同じ並びになる。
@@ -158,22 +158,18 @@
 /* 拡大縮小（＋−）も、ツールの1つの枠（!important の枠線）をやめ、2つのボタンにする */
 #RenderMap .totk-dock > .leaflet-control-zoom { grid-area: 1 / 2 / 3 / 3; display: flex; flex-direction: column; gap: 4px; border: 0 !important; box-shadow: none; }
 #RenderMap .totk-dock > .leaflet-control-zoom a { width: var(--totk-dock-cell); height: var(--totk-dock-cell); line-height: var(--totk-dock-cell); border: solid 1px rgba(90, 90, 90, .8); border-radius: 2px; font-size: 26px; }
-/* 検索欄は3段目、武器名のプルダウン（同じ入れ物の中で検索欄の上に入る）は2段目。下にそろえる。
+/* 検索欄は3段目、武器・ギアの絞り込み（同じ入れ物の中で検索欄の上に入る）は2段目。下にそろえる。
    幅はマス目の残り（最大220px。ツールの幅）で、狭い画面では縮む */
 #RenderMap .totk-dock > .totk-search { grid-area: 2 / 4 / 4 / 5; align-self: end; width: auto; min-width: 0; }
 #RenderMap .totk-search .w-keyword-search-ui-body { width: 100%; }
 #RenderMap .totk-search .select2-container { width: 100% !important; }
-/* 影の像の武器名プルダウン（index.html の setupWeaponFilter）。検索欄の上に、同じ幅で置く。ツールは幅を150pxで直接書き込んでいる */
-#RenderMap .totk-weapon-filter { margin-bottom: 4px; }
-/* 高さは下の検索欄にそろえる。文字を16px未満にすると、iPhone は押したときに画面を拡大してしまう */
-#RenderMap .totk-weapon-filter select { width: 100% !important; height: 32px; font-size: 16px; }
-/* ゾナウギア製造機をギアで絞り込む部品（gear-filter.js）。検索欄の上に、武器名のプルダウンと同じ高さのボタンで置く。
+/* 影の像を武器で・ゾナウギア製造機をギアで絞り込む部品（gear-filter.js）。検索欄の上に、同じ幅・検索欄と同じ高さのボタンで置く。
    絞り込み中は、かかっていることがわかるよう青い枠にする */
 #RenderMap .totk-gear-filter { margin-bottom: 4px; }
 #RenderMap .totk-gear-filter[hidden] { display: none; }
 #RenderMap .totk-gear-filter__button { display: block; width: 100%; height: 32px; padding: 0 8px; overflow: hidden; border: solid 1px #aaa; border-radius: 4px; background: #fff; color: #333; font-size: 14px; text-align: left; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
 #RenderMap .totk-gear-filter__button.is-active { border: solid 2px #00acff; font-weight: bold; }
-/* ギアを選ぶ画面。マス目の入れ物の幅いっぱいに、部品の上へ出す。ギアの一覧だけをスクロールする */
+/* 武器・ギアを選ぶ画面。マス目の入れ物の幅いっぱいに、部品の上へ出す。一覧だけをスクロールする */
 #RenderMap .totk-dock > .totk-gear-panel { position: absolute; right: 0; bottom: calc(100% + 8px); left: 0; display: flex; flex-direction: column; max-height: 55dvh; padding: 8px; border-radius: 4px; background: rgba(34, 34, 34, .95); color: #fff; font-size: 14px; }
 #RenderMap .totk-dock > .totk-gear-panel[hidden] { display: none; }
 #RenderMap .totk-gear-panel__modes, #RenderMap .totk-gear-panel__buttons { display: flex; flex: none; gap: 8px; }

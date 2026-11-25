@@ -41,10 +41,17 @@ test('ボタンの文字は、選んでいないときは案内、選んだと�
   assert.equal(summary(['扇風機'], 'any'), 'どれか: 扇風機');
 });
 
-test('地図のゾナウギア製造機には、どれも出るギアの一覧が入っている', () => {
+test('影の像に使うときは、ボタンの案内を「武器で絞り込み」にする', () => {
+  assert.equal(summary([], 'any', '武器'), '武器で絞り込み');
+  assert.equal(summary(['兵士の剣', '騎士の剣'], 'any', '武器'), 'どれか: 兵士の剣・騎士の剣');
+});
+
+test('地図のゾナウギア製造機・影の像には、どれも出るものの一覧が入っている', () => {
   const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'index.html'), 'utf8');
   const data = new Function('return ' + html.match(/var data = (\[[\s\S]*?\]);\s*\n/)[1])();
-  const zonai = data.filter((pin) => pin.type === 'zonai');
-  assert.ok(zonai.length > 0);
-  zonai.forEach((pin) => assert.ok(pin.customData && pin.customData.items, pin.id + ' にギアの一覧が無い'));
+  ['zonai', 'shadow-sword', 'shadow-large', 'shadow-lance'].forEach((type) => {
+    const pins = data.filter((pin) => pin.type === type);
+    assert.ok(pins.length > 0, type + ' のピンが無い');
+    pins.forEach((pin) => assert.ok(pin.customData && pin.customData.items, pin.id + ' に出るものの一覧が無い'));
+  });
 });
