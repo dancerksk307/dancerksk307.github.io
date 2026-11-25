@@ -24,8 +24,9 @@
 
   // 武器の一覧を、シリーズ（名前の「の」の前。「兵士の剣」なら「兵士」）ごとの列に分ける（利用者の要望。シリーズを縦に並べる）。
   // 列の中は、その武器が出る像の種類の順（types の順。片手剣・槍・両手剣）にし、隣の列と行がそろうようにする。
-  // 「の」が無い名前（ブーメランなど）は、最後の1列にまとめる
-  function seriesGroups(pins, types) {
+  // 「の」が無い名前（ブーメランなど）は、最後の1列にまとめる。
+  // after（{ 動かす名前: すぐ上に来る名前 }）で、決まりに合わない場所を個別に指定できる（利用者の指定。index.html）
+  function seriesGroups(pins, types, after) {
     var kind = {};
     pins.forEach(function (pin) {
       itemsOf(pin).forEach(function (item) {
@@ -43,9 +44,19 @@
     var keys = Object.keys(groups).filter(function (key) { return key !== OTHER; })
       .sort(function (a, b) { return a.localeCompare(b, 'ja'); });
     if (groups[OTHER]) keys.push(OTHER);
-    return keys.map(function (key) {
+    var columns = keys.map(function (key) {
       return groups[key].sort(function (a, b) { return kind[a] - kind[b] || a.localeCompare(b, 'ja'); });
     });
+    Object.keys(after || {}).forEach(function (name) {
+      function columnOf(target) { return columns.filter(function (column) { return column.indexOf(target) !== -1; })[0]; }
+      var from = columnOf(name);
+      // 一覧に無い名前を指定していたら（データが変わったときなど）、動かさない
+      if (!from || !columnOf(after[name])) return;
+      from.splice(from.indexOf(name), 1);
+      var to = columnOf(after[name]);
+      to.splice(to.indexOf(after[name]) + 1, 0, name);
+    });
+    return columns.filter(function (column) { return column.length > 0; });
   }
 
   // mode は 'all'（すべて含む）か 'any'（どれか含む）。何も選んでいなければ、すべて残す
@@ -76,7 +87,7 @@
 
   // 地図ツールの起動後に、index.html が呼ぶ。検索欄（.totk-search）を左下のマス目へ移した後であること。
   // options: types（対象の種類）・noun（選ぶものの呼び名）・place（ピンの呼び名。数の行に出す）・mode（最初の条件 'all' か 'any'）・
-  // series（true ならシリーズごとの列に分けて並べる。seriesGroups）
+  // series（true ならシリーズごとの列に分けて並べる。seriesGroups）・seriesAfter（その中で個別に動かす武器）
   function setup(allPins, options) {
     var $ = window.jQuery;
     var types = options.types;
@@ -119,7 +130,7 @@
     if (options.series) {
       // シリーズごとの列（.totk-gear-panel__group）を、一覧のマス目に左から並べる
       list.classList.add('is-grouped');
-      seriesGroups(pins, types).forEach(function (names) {
+      seriesGroups(pins, types, options.seriesAfter).forEach(function (names) {
         var group = document.createElement('div');
         group.className = 'totk-gear-panel__group';
         names.forEach(function (name) { addCheckbox(group, name); });

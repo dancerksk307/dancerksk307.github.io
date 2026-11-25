@@ -3078,8 +3078,12 @@ $(function () {
     // 影の像は武器で、ゾナウギア製造機はギアで絞り込む（gear-filter.js）。後に作ったものが上に入るので、ギアが上・武器が下に並ぶ。
     // 地図ツールにも武器名のプルダウン（ShadowWeaponFilter）があるが、1つしか選べないので使わない。
     // 武器は最初「どれか含む」にする。像1体から出る武器は1〜4種類で、「すべて含む」で2つ選ぶとほとんど残らないため
-    // 武器の一覧はシリーズごとの列にし、列の中は types の順（片手剣・槍・両手剣）に並べる
-    TotkGearFilter.setup(window._pinDatas, { types: ['shadow-sword', 'shadow-lance', 'shadow-large'], noun: '武器', place: '影の像', mode: 'any', series: true });
+    // 武器の一覧はシリーズごとの列にし、列の中は types の順（片手剣・槍・両手剣）に並べる。
+    // seriesAfter は利用者の指定（{ 動かす武器: すぐ上に来る武器 }）。石打ちは残心の列へ、投てき槍はビッグブーメランの下へ
+    TotkGearFilter.setup(window._pinDatas, {
+      types: ['shadow-sword', 'shadow-lance', 'shadow-large'], noun: '武器', place: '影の像', mode: 'any',
+      series: true, seriesAfter: { '石打ち': '残心の太刀', '投てき槍': 'ビッグブーメラン' },
+    });
     TotkGearFilter.setup(window._pinDatas, { types: ['zonai'], noun: 'ギア', place: '製造機', mode: 'all' });
     // 一緒にON/OFFする種類をそろえた後で覚えるよう、linkTypeSwitches より後に付ける（同じボタンの処理は付けた順に走る）
     rememberShownTypes(menuTypes);

@@ -27,6 +27,19 @@ test('武器はシリーズごとの列に分け、列の中は像の種類の�
   ]);
 });
 
+test('個別の指定（after）で、武器を指定した武器のすぐ下へ動かす。一覧に無い名前の指定は無視する', () => {
+  const shadows = [
+    { type: 'shadow-sword', customData: { items: '残心の小刀,ブーメラン' } },
+    { type: 'shadow-lance', customData: { items: '投てき槍' } },
+    { type: 'shadow-large', customData: { items: '残心の太刀,石打ち,ビッグブーメラン' } },
+  ];
+  const types = ['shadow-sword', 'shadow-lance', 'shadow-large'];
+  assert.deepEqual(seriesGroups(shadows, types, { 石打ち: '残心の太刀', 投てき槍: 'ビッグブーメラン', 無い武器: '残心の太刀', ブーメラン: '無い武器' }), [
+    ['残心の小刀', '残心の太刀', '石打ち'],
+    ['ブーメラン', 'ビッグブーメラン', '投てき槍'],
+  ]);
+});
+
 test('何も選んでいなければ、すべての製造機を残す', () => {
   assert.equal(matches(['扇風機'], [], 'all'), true);
   assert.equal(matches([], [], 'any'), true);
